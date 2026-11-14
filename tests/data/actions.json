@@ -1,0 +1,227 @@
+[
+  {
+    "name": "a_to_b",
+    "arg": null,
+    "commands": [
+      "AB;"
+    ]
+  },
+  {
+    "name": "b_to_a",
+    "arg": null,
+    "commands": [
+      "BA;"
+    ]
+  },
+  {
+    "name": "swap",
+    "arg": null,
+    "commands": [
+      "SV;"
+    ]
+  },
+  {
+    "name": "band_up",
+    "arg": null,
+    "commands": [
+      "BU0;"
+    ]
+  },
+  {
+    "name": "band_down",
+    "arg": null,
+    "commands": [
+      "BD0;"
+    ]
+  },
+  {
+    "name": "up",
+    "arg": null,
+    "commands": [
+      "UP;"
+    ]
+  },
+  {
+    "name": "down",
+    "arg": null,
+    "commands": [
+      "DN;"
+    ]
+  },
+  {
+    "name": "tune",
+    "arg": null,
+    "commands": [
+      "AC003;"
+    ]
+  },
+  {
+    "name": "tune_ext",
+    "arg": null,
+    "commands": [
+      "AC103;"
+    ]
+  },
+  {
+    "name": "tune_stop",
+    "arg": null,
+    "commands": [
+      "AC000;"
+    ]
+  },
+  {
+    "name": "atas_tune",
+    "arg": null,
+    "commands": [
+      "AC123;"
+    ]
+  },
+  {
+    "name": "atas_up",
+    "arg": null,
+    "commands": [
+      "AC121;"
+    ]
+  },
+  {
+    "name": "atas_down",
+    "arg": null,
+    "commands": [
+      "AC122;"
+    ]
+  },
+  {
+    "name": "atas_stop",
+    "arg": null,
+    "commands": [
+      "AC120;"
+    ]
+  },
+  {
+    "name": "zero_in",
+    "arg": null,
+    "commands": [
+      "ZI0;"
+    ]
+  },
+  {
+    "name": "spot_on",
+    "arg": null,
+    "commands": [
+      "CS1;"
+    ]
+  },
+  {
+    "name": "spot_off",
+    "arg": null,
+    "commands": [
+      "CS0;"
+    ]
+  },
+  {
+    "name": "scan_up",
+    "arg": null,
+    "commands": [
+      "SC01;"
+    ]
+  },
+  {
+    "name": "scan_down",
+    "arg": null,
+    "commands": [
+      "SC02;"
+    ]
+  },
+  {
+    "name": "scan_stop",
+    "arg": null,
+    "commands": [
+      "SC00;"
+    ]
+  },
+  {
+    "name": "vfo_mode",
+    "arg": null,
+    "commands": [
+      "VM000;"
+    ]
+  },
+  {
+    "name": "mem_mode",
+    "arg": null,
+    "commands": [
+      "MC000002;"
+    ]
+  },
+  {
+    "name": "qmb_store",
+    "arg": null,
+    "commands": [
+      "QI;"
+    ]
+  },
+  {
+    "name": "qmb_recall",
+    "arg": null,
+    "commands": [
+      "QR;"
+    ]
+  },
+  {
+    "name": "clar_clear",
+    "arg": null,
+    "commands": [
+      "CF001+0000;"
+    ]
+  },
+  {
+    "name": "band",
+    "arg": 13,
+    "commands": [
+      "BS013;"
+    ]
+  },
+  {
+    "name": "cw_play",
+    "arg": 5,
+    "commands": [
+      "KY05;"
+    ]
+  },
+  {
+    "name": "cw_store",
+    "arg": [
+      5,
+      "CQ de yo9abc;!?"
+    ],
+    "commands": [
+      "KM5CQ DE YO9ABC?;"
+    ]
+  },
+  {
+    "name": "voice_play",
+    "arg": 2,
+    "commands": [
+      "PB02;"
+    ]
+  },
+  {
+    "name": "mem_ch",
+    "arg": 100,
+    "commands": [
+      "MC000100;"
+    ]
+  },
+  {
+    "name": "power_off",
+    "arg": null,
+    "commands": [
+      "PS0;"
+    ]
+  },
+  {
+    "name": "unknown",
+    "arg": null,
+    "commands": []
+  }
+]

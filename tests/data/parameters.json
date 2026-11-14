@@ -1,0 +1,4955 @@
+[
+  {
+    "key": "freq_a",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "FA000030000;"
+    ],
+    "queued": [
+      "@freq_a;"
+    ]
+  },
+  {
+    "key": "freq_a",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "FA000030000;"
+    ],
+    "queued": [
+      "@freq_a;"
+    ]
+  },
+  {
+    "key": "freq_a",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "FA000030000;"
+    ],
+    "queued": [
+      "@freq_a;"
+    ]
+  },
+  {
+    "key": "freq_a",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "FA000030000;"
+    ],
+    "queued": [
+      "@freq_a;"
+    ]
+  },
+  {
+    "key": "freq_a",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "FA000030000;"
+    ],
+    "queued": [
+      "@freq_a;"
+    ]
+  },
+  {
+    "key": "freq_a",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "FA000030000;"
+    ],
+    "queued": [
+      "@freq_a;"
+    ]
+  },
+  {
+    "key": "freq_a",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "FA000030000;"
+    ],
+    "queued": [
+      "@freq_a;"
+    ]
+  },
+  {
+    "key": "freq_a",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "FA470000000;"
+    ],
+    "queued": [
+      "@freq_a;"
+    ]
+  },
+  {
+    "key": "freq_b",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "FB000030000;"
+    ],
+    "queued": [
+      "@freq_b;"
+    ]
+  },
+  {
+    "key": "freq_b",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "FB000030000;"
+    ],
+    "queued": [
+      "@freq_b;"
+    ]
+  },
+  {
+    "key": "freq_b",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "FB000030000;"
+    ],
+    "queued": [
+      "@freq_b;"
+    ]
+  },
+  {
+    "key": "freq_b",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "FB000030000;"
+    ],
+    "queued": [
+      "@freq_b;"
+    ]
+  },
+  {
+    "key": "freq_b",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "FB000030000;"
+    ],
+    "queued": [
+      "@freq_b;"
+    ]
+  },
+  {
+    "key": "freq_b",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "FB000030000;"
+    ],
+    "queued": [
+      "@freq_b;"
+    ]
+  },
+  {
+    "key": "freq_b",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "FB000030000;"
+    ],
+    "queued": [
+      "@freq_b;"
+    ]
+  },
+  {
+    "key": "freq_b",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "FB470000000;"
+    ],
+    "queued": [
+      "@freq_b;"
+    ]
+  },
+  {
+    "key": "mode",
+    "value": "USB",
+    "head": 2,
+    "commands": [],
+    "queued": []
+  },
+  {
+    "key": "mode",
+    "value": "CW-L",
+    "head": 2,
+    "commands": [
+      "MD07;"
+    ],
+    "queued": [
+      "MD07;",
+      "MD0;"
+    ]
+  },
+  {
+    "key": "mode",
+    "value": "bad",
+    "head": 2,
+    "commands": [],
+    "queued": []
+  },
+  {
+    "key": "mode_b",
+    "value": "USB",
+    "head": 2,
+    "commands": [
+      "MD12;"
+    ],
+    "queued": [
+      "MD12;",
+      "MD1;"
+    ]
+  },
+  {
+    "key": "mode_b",
+    "value": "CW-L",
+    "head": 2,
+    "commands": [
+      "MD17;"
+    ],
+    "queued": [
+      "MD17;",
+      "MD1;"
+    ]
+  },
+  {
+    "key": "mode_b",
+    "value": "bad",
+    "head": 2,
+    "commands": [],
+    "queued": []
+  },
+  {
+    "key": "af",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "AG0000;"
+    ],
+    "queued": [
+      "AG0000;",
+      "AG0;"
+    ]
+  },
+  {
+    "key": "af",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "AG0000;"
+    ],
+    "queued": [
+      "AG0000;",
+      "AG0;"
+    ]
+  },
+  {
+    "key": "af",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "AG0000;"
+    ],
+    "queued": [
+      "AG0000;",
+      "AG0;"
+    ]
+  },
+  {
+    "key": "af",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "AG0001;"
+    ],
+    "queued": [
+      "AG0001;",
+      "AG0;"
+    ]
+  },
+  {
+    "key": "af",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "AG0006;"
+    ],
+    "queued": [
+      "AG0006;",
+      "AG0;"
+    ]
+  },
+  {
+    "key": "af",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "AG0012;"
+    ],
+    "queued": [
+      "AG0012;",
+      "AG0;"
+    ]
+  },
+  {
+    "key": "af",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "AG0128;"
+    ],
+    "queued": [
+      "AG0128;",
+      "AG0;"
+    ]
+  },
+  {
+    "key": "af",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "AG0255;"
+    ],
+    "queued": [
+      "AG0255;",
+      "AG0;"
+    ]
+  },
+  {
+    "key": "rf",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "RG0000;"
+    ],
+    "queued": [
+      "RG0000;",
+      "RG0;"
+    ]
+  },
+  {
+    "key": "rf",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "RG0000;"
+    ],
+    "queued": [
+      "RG0000;",
+      "RG0;"
+    ]
+  },
+  {
+    "key": "rf",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "RG0000;"
+    ],
+    "queued": [
+      "RG0000;",
+      "RG0;"
+    ]
+  },
+  {
+    "key": "rf",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "RG0001;"
+    ],
+    "queued": [
+      "RG0001;",
+      "RG0;"
+    ]
+  },
+  {
+    "key": "rf",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "RG0006;"
+    ],
+    "queued": [
+      "RG0006;",
+      "RG0;"
+    ]
+  },
+  {
+    "key": "rf",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "RG0012;"
+    ],
+    "queued": [
+      "RG0012;",
+      "RG0;"
+    ]
+  },
+  {
+    "key": "rf",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "RG0128;"
+    ],
+    "queued": [
+      "RG0128;",
+      "RG0;"
+    ]
+  },
+  {
+    "key": "rf",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "RG0255;"
+    ],
+    "queued": [
+      "RG0255;",
+      "RG0;"
+    ]
+  },
+  {
+    "key": "sql",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "SQ0000;"
+    ],
+    "queued": [
+      "SQ0000;",
+      "SQ0;"
+    ]
+  },
+  {
+    "key": "sql",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "SQ0000;"
+    ],
+    "queued": [
+      "SQ0000;",
+      "SQ0;"
+    ]
+  },
+  {
+    "key": "sql",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "SQ0000;"
+    ],
+    "queued": [
+      "SQ0000;",
+      "SQ0;"
+    ]
+  },
+  {
+    "key": "sql",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "SQ0001;"
+    ],
+    "queued": [
+      "SQ0001;",
+      "SQ0;"
+    ]
+  },
+  {
+    "key": "sql",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "SQ0006;"
+    ],
+    "queued": [
+      "SQ0006;",
+      "SQ0;"
+    ]
+  },
+  {
+    "key": "sql",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "SQ0012;"
+    ],
+    "queued": [
+      "SQ0012;",
+      "SQ0;"
+    ]
+  },
+  {
+    "key": "sql",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "SQ0128;"
+    ],
+    "queued": [
+      "SQ0128;",
+      "SQ0;"
+    ]
+  },
+  {
+    "key": "sql",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "SQ0255;"
+    ],
+    "queued": [
+      "SQ0255;",
+      "SQ0;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": -10000,
+    "head": 1,
+    "commands": [
+      "PC10.5;"
+    ],
+    "queued": [
+      "PC10.5;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "PC2005;"
+    ],
+    "queued": [
+      "PC2005;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 0,
+    "head": 1,
+    "commands": [
+      "PC10.5;"
+    ],
+    "queued": [
+      "PC10.5;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "PC2005;"
+    ],
+    "queued": [
+      "PC2005;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 0.5,
+    "head": 1,
+    "commands": [
+      "PC10.5;"
+    ],
+    "queued": [
+      "PC10.5;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "PC2005;"
+    ],
+    "queued": [
+      "PC2005;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 1,
+    "head": 1,
+    "commands": [
+      "PC1001;"
+    ],
+    "queued": [
+      "PC1001;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "PC2005;"
+    ],
+    "queued": [
+      "PC2005;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 5.5,
+    "head": 1,
+    "commands": [
+      "PC15.5;"
+    ],
+    "queued": [
+      "PC15.5;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "PC2006;"
+    ],
+    "queued": [
+      "PC2006;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 12.5,
+    "head": 1,
+    "commands": [
+      "PC1010;"
+    ],
+    "queued": [
+      "PC1010;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "PC2012;"
+    ],
+    "queued": [
+      "PC2012;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 128,
+    "head": 1,
+    "commands": [
+      "PC1010;"
+    ],
+    "queued": [
+      "PC1010;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "PC2100;"
+    ],
+    "queued": [
+      "PC2100;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 999999999,
+    "head": 1,
+    "commands": [
+      "PC1010;"
+    ],
+    "queued": [
+      "PC1010;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "power",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "PC2100;"
+    ],
+    "queued": [
+      "PC2100;",
+      "PC;"
+    ]
+  },
+  {
+    "key": "mic",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "MG000;"
+    ],
+    "queued": [
+      "MG000;",
+      "MG;"
+    ]
+  },
+  {
+    "key": "mic",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "MG000;"
+    ],
+    "queued": [
+      "MG000;",
+      "MG;"
+    ]
+  },
+  {
+    "key": "mic",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "MG000;"
+    ],
+    "queued": [
+      "MG000;",
+      "MG;"
+    ]
+  },
+  {
+    "key": "mic",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "MG001;"
+    ],
+    "queued": [
+      "MG001;",
+      "MG;"
+    ]
+  },
+  {
+    "key": "mic",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "MG006;"
+    ],
+    "queued": [
+      "MG006;",
+      "MG;"
+    ]
+  },
+  {
+    "key": "mic",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "MG012;"
+    ],
+    "queued": [
+      "MG012;",
+      "MG;"
+    ]
+  },
+  {
+    "key": "mic",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "MG100;"
+    ],
+    "queued": [
+      "MG100;",
+      "MG;"
+    ]
+  },
+  {
+    "key": "mic",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "MG100;"
+    ],
+    "queued": [
+      "MG100;",
+      "MG;"
+    ]
+  },
+  {
+    "key": "vox",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "VX1;"
+    ],
+    "queued": [
+      "VX1;",
+      "VX;"
+    ]
+  },
+  {
+    "key": "vox",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "VX0;"
+    ],
+    "queued": [
+      "VX0;",
+      "VX;"
+    ]
+  },
+  {
+    "key": "vox",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "VX0;"
+    ],
+    "queued": [
+      "VX0;",
+      "VX;"
+    ]
+  },
+  {
+    "key": "vox",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "VX1;"
+    ],
+    "queued": [
+      "VX1;",
+      "VX;"
+    ]
+  },
+  {
+    "key": "vox",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "VX1;"
+    ],
+    "queued": [
+      "VX1;",
+      "VX;"
+    ]
+  },
+  {
+    "key": "vox",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "VX1;"
+    ],
+    "queued": [
+      "VX1;",
+      "VX;"
+    ]
+  },
+  {
+    "key": "vox",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "VX1;"
+    ],
+    "queued": [
+      "VX1;",
+      "VX;"
+    ]
+  },
+  {
+    "key": "vox",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "VX1;"
+    ],
+    "queued": [
+      "VX1;",
+      "VX;"
+    ]
+  },
+  {
+    "key": "vox_gain",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "VG000;"
+    ],
+    "queued": [
+      "VG000;",
+      "VG;"
+    ]
+  },
+  {
+    "key": "vox_gain",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "VG000;"
+    ],
+    "queued": [
+      "VG000;",
+      "VG;"
+    ]
+  },
+  {
+    "key": "vox_gain",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "VG000;"
+    ],
+    "queued": [
+      "VG000;",
+      "VG;"
+    ]
+  },
+  {
+    "key": "vox_gain",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "VG001;"
+    ],
+    "queued": [
+      "VG001;",
+      "VG;"
+    ]
+  },
+  {
+    "key": "vox_gain",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "VG006;"
+    ],
+    "queued": [
+      "VG006;",
+      "VG;"
+    ]
+  },
+  {
+    "key": "vox_gain",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "VG012;"
+    ],
+    "queued": [
+      "VG012;",
+      "VG;"
+    ]
+  },
+  {
+    "key": "vox_gain",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "VG100;"
+    ],
+    "queued": [
+      "VG100;",
+      "VG;"
+    ]
+  },
+  {
+    "key": "vox_gain",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "VG100;"
+    ],
+    "queued": [
+      "VG100;",
+      "VG;"
+    ]
+  },
+  {
+    "key": "vox_delay",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "VD00;"
+    ],
+    "queued": [
+      "VD00;",
+      "VD;"
+    ]
+  },
+  {
+    "key": "vox_delay",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "VD00;"
+    ],
+    "queued": [
+      "VD00;",
+      "VD;"
+    ]
+  },
+  {
+    "key": "vox_delay",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "VD00;"
+    ],
+    "queued": [
+      "VD00;",
+      "VD;"
+    ]
+  },
+  {
+    "key": "vox_delay",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "VD01;"
+    ],
+    "queued": [
+      "VD01;",
+      "VD;"
+    ]
+  },
+  {
+    "key": "vox_delay",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "VD06;"
+    ],
+    "queued": [
+      "VD06;",
+      "VD;"
+    ]
+  },
+  {
+    "key": "vox_delay",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "VD12;"
+    ],
+    "queued": [
+      "VD12;",
+      "VD;"
+    ]
+  },
+  {
+    "key": "vox_delay",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "VD33;"
+    ],
+    "queued": [
+      "VD33;",
+      "VD;"
+    ]
+  },
+  {
+    "key": "vox_delay",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "VD33;"
+    ],
+    "queued": [
+      "VD33;",
+      "VD;"
+    ]
+  },
+  {
+    "key": "nb",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "NL0000;"
+    ],
+    "queued": [
+      "NL0000;",
+      "NL0;"
+    ]
+  },
+  {
+    "key": "nb",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "NL0000;"
+    ],
+    "queued": [
+      "NL0000;",
+      "NL0;"
+    ]
+  },
+  {
+    "key": "nb",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "NL0000;"
+    ],
+    "queued": [
+      "NL0000;",
+      "NL0;"
+    ]
+  },
+  {
+    "key": "nb",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "NL0001;"
+    ],
+    "queued": [
+      "NL0001;",
+      "NL0;"
+    ]
+  },
+  {
+    "key": "nb",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "NL0006;"
+    ],
+    "queued": [
+      "NL0006;",
+      "NL0;"
+    ]
+  },
+  {
+    "key": "nb",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "NL0010;"
+    ],
+    "queued": [
+      "NL0010;",
+      "NL0;"
+    ]
+  },
+  {
+    "key": "nb",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "NL0010;"
+    ],
+    "queued": [
+      "NL0010;",
+      "NL0;"
+    ]
+  },
+  {
+    "key": "nb",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "NL0010;"
+    ],
+    "queued": [
+      "NL0010;",
+      "NL0;"
+    ]
+  },
+  {
+    "key": "nr",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "RL000;"
+    ],
+    "queued": [
+      "RL000;",
+      "RL0;"
+    ]
+  },
+  {
+    "key": "nr",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "RL000;"
+    ],
+    "queued": [
+      "RL000;",
+      "RL0;"
+    ]
+  },
+  {
+    "key": "nr",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "RL000;"
+    ],
+    "queued": [
+      "RL000;",
+      "RL0;"
+    ]
+  },
+  {
+    "key": "nr",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "RL001;"
+    ],
+    "queued": [
+      "RL001;",
+      "RL0;"
+    ]
+  },
+  {
+    "key": "nr",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "RL006;"
+    ],
+    "queued": [
+      "RL006;",
+      "RL0;"
+    ]
+  },
+  {
+    "key": "nr",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "RL010;"
+    ],
+    "queued": [
+      "RL010;",
+      "RL0;"
+    ]
+  },
+  {
+    "key": "nr",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "RL010;"
+    ],
+    "queued": [
+      "RL010;",
+      "RL0;"
+    ]
+  },
+  {
+    "key": "nr",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "RL010;"
+    ],
+    "queued": [
+      "RL010;",
+      "RL0;"
+    ]
+  },
+  {
+    "key": "dnf",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "BC01;"
+    ],
+    "queued": [
+      "BC01;",
+      "BC0;"
+    ]
+  },
+  {
+    "key": "dnf",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "BC00;"
+    ],
+    "queued": [
+      "BC00;",
+      "BC0;"
+    ]
+  },
+  {
+    "key": "dnf",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "BC00;"
+    ],
+    "queued": [
+      "BC00;",
+      "BC0;"
+    ]
+  },
+  {
+    "key": "dnf",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "BC01;"
+    ],
+    "queued": [
+      "BC01;",
+      "BC0;"
+    ]
+  },
+  {
+    "key": "dnf",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "BC01;"
+    ],
+    "queued": [
+      "BC01;",
+      "BC0;"
+    ]
+  },
+  {
+    "key": "dnf",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "BC01;"
+    ],
+    "queued": [
+      "BC01;",
+      "BC0;"
+    ]
+  },
+  {
+    "key": "dnf",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "BC01;"
+    ],
+    "queued": [
+      "BC01;",
+      "BC0;"
+    ]
+  },
+  {
+    "key": "dnf",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "BC01;"
+    ],
+    "queued": [
+      "BC01;",
+      "BC0;"
+    ]
+  },
+  {
+    "key": "notch",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "BP00001;"
+    ],
+    "queued": [
+      "BP00001;",
+      "BP00;"
+    ]
+  },
+  {
+    "key": "notch",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "BP00000;"
+    ],
+    "queued": [
+      "BP00000;",
+      "BP00;"
+    ]
+  },
+  {
+    "key": "notch",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "BP00000;"
+    ],
+    "queued": [
+      "BP00000;",
+      "BP00;"
+    ]
+  },
+  {
+    "key": "notch",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "BP00001;"
+    ],
+    "queued": [
+      "BP00001;",
+      "BP00;"
+    ]
+  },
+  {
+    "key": "notch",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "BP00001;"
+    ],
+    "queued": [
+      "BP00001;",
+      "BP00;"
+    ]
+  },
+  {
+    "key": "notch",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "BP00001;"
+    ],
+    "queued": [
+      "BP00001;",
+      "BP00;"
+    ]
+  },
+  {
+    "key": "notch",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "BP00001;"
+    ],
+    "queued": [
+      "BP00001;",
+      "BP00;"
+    ]
+  },
+  {
+    "key": "notch",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "BP00001;"
+    ],
+    "queued": [
+      "BP00001;",
+      "BP00;"
+    ]
+  },
+  {
+    "key": "notch_freq",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "BP01001;"
+    ],
+    "queued": [
+      "BP01001;",
+      "BP01;"
+    ]
+  },
+  {
+    "key": "notch_freq",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "BP01001;"
+    ],
+    "queued": [
+      "BP01001;",
+      "BP01;"
+    ]
+  },
+  {
+    "key": "notch_freq",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "BP01001;"
+    ],
+    "queued": [
+      "BP01001;",
+      "BP01;"
+    ]
+  },
+  {
+    "key": "notch_freq",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "BP01001;"
+    ],
+    "queued": [
+      "BP01001;",
+      "BP01;"
+    ]
+  },
+  {
+    "key": "notch_freq",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "BP01001;"
+    ],
+    "queued": [
+      "BP01001;",
+      "BP01;"
+    ]
+  },
+  {
+    "key": "notch_freq",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "BP01001;"
+    ],
+    "queued": [
+      "BP01001;",
+      "BP01;"
+    ]
+  },
+  {
+    "key": "notch_freq",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "BP01013;"
+    ],
+    "queued": [
+      "BP01013;",
+      "BP01;"
+    ]
+  },
+  {
+    "key": "notch_freq",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "BP01320;"
+    ],
+    "queued": [
+      "BP01320;",
+      "BP01;"
+    ]
+  },
+  {
+    "key": "contour",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "CO000001;"
+    ],
+    "queued": [
+      "CO000001;",
+      "CO00;"
+    ]
+  },
+  {
+    "key": "contour",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "CO000000;"
+    ],
+    "queued": [
+      "CO000000;",
+      "CO00;"
+    ]
+  },
+  {
+    "key": "contour",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "CO000000;"
+    ],
+    "queued": [
+      "CO000000;",
+      "CO00;"
+    ]
+  },
+  {
+    "key": "contour",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "CO000001;"
+    ],
+    "queued": [
+      "CO000001;",
+      "CO00;"
+    ]
+  },
+  {
+    "key": "contour",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "CO000001;"
+    ],
+    "queued": [
+      "CO000001;",
+      "CO00;"
+    ]
+  },
+  {
+    "key": "contour",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "CO000001;"
+    ],
+    "queued": [
+      "CO000001;",
+      "CO00;"
+    ]
+  },
+  {
+    "key": "contour",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "CO000001;"
+    ],
+    "queued": [
+      "CO000001;",
+      "CO00;"
+    ]
+  },
+  {
+    "key": "contour",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "CO000001;"
+    ],
+    "queued": [
+      "CO000001;",
+      "CO00;"
+    ]
+  },
+  {
+    "key": "contour_freq",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "CO010010;"
+    ],
+    "queued": [
+      "CO010010;",
+      "CO01;"
+    ]
+  },
+  {
+    "key": "contour_freq",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "CO010010;"
+    ],
+    "queued": [
+      "CO010010;",
+      "CO01;"
+    ]
+  },
+  {
+    "key": "contour_freq",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "CO010010;"
+    ],
+    "queued": [
+      "CO010010;",
+      "CO01;"
+    ]
+  },
+  {
+    "key": "contour_freq",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "CO010010;"
+    ],
+    "queued": [
+      "CO010010;",
+      "CO01;"
+    ]
+  },
+  {
+    "key": "contour_freq",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "CO010010;"
+    ],
+    "queued": [
+      "CO010010;",
+      "CO01;"
+    ]
+  },
+  {
+    "key": "contour_freq",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "CO010012;"
+    ],
+    "queued": [
+      "CO010012;",
+      "CO01;"
+    ]
+  },
+  {
+    "key": "contour_freq",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "CO010128;"
+    ],
+    "queued": [
+      "CO010128;",
+      "CO01;"
+    ]
+  },
+  {
+    "key": "contour_freq",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "CO013200;"
+    ],
+    "queued": [
+      "CO013200;",
+      "CO01;"
+    ]
+  },
+  {
+    "key": "apf",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "CO020001;"
+    ],
+    "queued": [
+      "CO020001;",
+      "CO02;"
+    ]
+  },
+  {
+    "key": "apf",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "CO020000;"
+    ],
+    "queued": [
+      "CO020000;",
+      "CO02;"
+    ]
+  },
+  {
+    "key": "apf",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "CO020000;"
+    ],
+    "queued": [
+      "CO020000;",
+      "CO02;"
+    ]
+  },
+  {
+    "key": "apf",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "CO020001;"
+    ],
+    "queued": [
+      "CO020001;",
+      "CO02;"
+    ]
+  },
+  {
+    "key": "apf",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "CO020001;"
+    ],
+    "queued": [
+      "CO020001;",
+      "CO02;"
+    ]
+  },
+  {
+    "key": "apf",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "CO020001;"
+    ],
+    "queued": [
+      "CO020001;",
+      "CO02;"
+    ]
+  },
+  {
+    "key": "apf",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "CO020001;"
+    ],
+    "queued": [
+      "CO020001;",
+      "CO02;"
+    ]
+  },
+  {
+    "key": "apf",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "CO020001;"
+    ],
+    "queued": [
+      "CO020001;",
+      "CO02;"
+    ]
+  },
+  {
+    "key": "apf_freq",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "CO030000;"
+    ],
+    "queued": [
+      "CO030000;",
+      "CO03;"
+    ]
+  },
+  {
+    "key": "apf_freq",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "CO030000;"
+    ],
+    "queued": [
+      "CO030000;",
+      "CO03;"
+    ]
+  },
+  {
+    "key": "apf_freq",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "CO030000;"
+    ],
+    "queued": [
+      "CO030000;",
+      "CO03;"
+    ]
+  },
+  {
+    "key": "apf_freq",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "CO030001;"
+    ],
+    "queued": [
+      "CO030001;",
+      "CO03;"
+    ]
+  },
+  {
+    "key": "apf_freq",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "CO030006;"
+    ],
+    "queued": [
+      "CO030006;",
+      "CO03;"
+    ]
+  },
+  {
+    "key": "apf_freq",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "CO030012;"
+    ],
+    "queued": [
+      "CO030012;",
+      "CO03;"
+    ]
+  },
+  {
+    "key": "apf_freq",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "CO030050;"
+    ],
+    "queued": [
+      "CO030050;",
+      "CO03;"
+    ]
+  },
+  {
+    "key": "apf_freq",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "CO030050;"
+    ],
+    "queued": [
+      "CO030050;",
+      "CO03;"
+    ]
+  },
+  {
+    "key": "ifshift",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "IS01-1200;"
+    ],
+    "queued": [
+      "IS01-1200;",
+      "IS0;"
+    ]
+  },
+  {
+    "key": "ifshift",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "IS00+0000;"
+    ],
+    "queued": [
+      "IS00+0000;",
+      "IS0;"
+    ]
+  },
+  {
+    "key": "ifshift",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "IS00+0000;"
+    ],
+    "queued": [
+      "IS00+0000;",
+      "IS0;"
+    ]
+  },
+  {
+    "key": "ifshift",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "IS01+0001;"
+    ],
+    "queued": [
+      "IS01+0001;",
+      "IS0;"
+    ]
+  },
+  {
+    "key": "ifshift",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "IS01+0006;"
+    ],
+    "queued": [
+      "IS01+0006;",
+      "IS0;"
+    ]
+  },
+  {
+    "key": "ifshift",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "IS01+0012;"
+    ],
+    "queued": [
+      "IS01+0012;",
+      "IS0;"
+    ]
+  },
+  {
+    "key": "ifshift",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "IS01+0128;"
+    ],
+    "queued": [
+      "IS01+0128;",
+      "IS0;"
+    ]
+  },
+  {
+    "key": "ifshift",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "IS01+1200;"
+    ],
+    "queued": [
+      "IS01+1200;",
+      "IS0;"
+    ]
+  },
+  {
+    "key": "width",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "SH0000;"
+    ],
+    "queued": [
+      "SH0000;",
+      "SH0;"
+    ]
+  },
+  {
+    "key": "width",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "SH0000;"
+    ],
+    "queued": [
+      "SH0000;",
+      "SH0;"
+    ]
+  },
+  {
+    "key": "width",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "SH0000;"
+    ],
+    "queued": [
+      "SH0000;",
+      "SH0;"
+    ]
+  },
+  {
+    "key": "width",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "SH0001;"
+    ],
+    "queued": [
+      "SH0001;",
+      "SH0;"
+    ]
+  },
+  {
+    "key": "width",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "SH0006;"
+    ],
+    "queued": [
+      "SH0006;",
+      "SH0;"
+    ]
+  },
+  {
+    "key": "width",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "SH0012;"
+    ],
+    "queued": [
+      "SH0012;",
+      "SH0;"
+    ]
+  },
+  {
+    "key": "width",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "SH0023;"
+    ],
+    "queued": [
+      "SH0023;",
+      "SH0;"
+    ]
+  },
+  {
+    "key": "width",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "SH0023;"
+    ],
+    "queued": [
+      "SH0023;",
+      "SH0;"
+    ]
+  },
+  {
+    "key": "agc",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "GT00;",
+      "GT0;"
+    ],
+    "queued": [
+      "GT00;",
+      "GT0;",
+      "GT0;"
+    ]
+  },
+  {
+    "key": "agc",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "GT00;",
+      "GT0;"
+    ],
+    "queued": [
+      "GT00;",
+      "GT0;",
+      "GT0;"
+    ]
+  },
+  {
+    "key": "agc",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "GT00;",
+      "GT0;"
+    ],
+    "queued": [
+      "GT00;",
+      "GT0;",
+      "GT0;"
+    ]
+  },
+  {
+    "key": "agc",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "GT01;",
+      "GT0;"
+    ],
+    "queued": [
+      "GT01;",
+      "GT0;",
+      "GT0;"
+    ]
+  },
+  {
+    "key": "agc",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "GT04;",
+      "GT0;"
+    ],
+    "queued": [
+      "GT04;",
+      "GT0;",
+      "GT0;"
+    ]
+  },
+  {
+    "key": "agc",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "GT04;",
+      "GT0;"
+    ],
+    "queued": [
+      "GT04;",
+      "GT0;",
+      "GT0;"
+    ]
+  },
+  {
+    "key": "agc",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "GT04;",
+      "GT0;"
+    ],
+    "queued": [
+      "GT04;",
+      "GT0;",
+      "GT0;"
+    ]
+  },
+  {
+    "key": "agc",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "GT04;",
+      "GT0;"
+    ],
+    "queued": [
+      "GT04;",
+      "GT0;",
+      "GT0;"
+    ]
+  },
+  {
+    "key": "preamp",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "PA00;"
+    ],
+    "queued": [
+      "PA00;",
+      "PA0;"
+    ]
+  },
+  {
+    "key": "preamp",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "PA00;"
+    ],
+    "queued": [
+      "PA00;",
+      "PA0;"
+    ]
+  },
+  {
+    "key": "preamp",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "PA00;"
+    ],
+    "queued": [
+      "PA00;",
+      "PA0;"
+    ]
+  },
+  {
+    "key": "preamp",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "PA01;"
+    ],
+    "queued": [
+      "PA01;",
+      "PA0;"
+    ]
+  },
+  {
+    "key": "preamp",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "PA02;"
+    ],
+    "queued": [
+      "PA02;",
+      "PA0;"
+    ]
+  },
+  {
+    "key": "preamp",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "PA02;"
+    ],
+    "queued": [
+      "PA02;",
+      "PA0;"
+    ]
+  },
+  {
+    "key": "preamp",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "PA02;"
+    ],
+    "queued": [
+      "PA02;",
+      "PA0;"
+    ]
+  },
+  {
+    "key": "preamp",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "PA02;"
+    ],
+    "queued": [
+      "PA02;",
+      "PA0;"
+    ]
+  },
+  {
+    "key": "att",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "RA01;"
+    ],
+    "queued": [
+      "RA01;",
+      "RA0;"
+    ]
+  },
+  {
+    "key": "att",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "RA00;"
+    ],
+    "queued": [
+      "RA00;",
+      "RA0;"
+    ]
+  },
+  {
+    "key": "att",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "RA00;"
+    ],
+    "queued": [
+      "RA00;",
+      "RA0;"
+    ]
+  },
+  {
+    "key": "att",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "RA01;"
+    ],
+    "queued": [
+      "RA01;",
+      "RA0;"
+    ]
+  },
+  {
+    "key": "att",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "RA01;"
+    ],
+    "queued": [
+      "RA01;",
+      "RA0;"
+    ]
+  },
+  {
+    "key": "att",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "RA01;"
+    ],
+    "queued": [
+      "RA01;",
+      "RA0;"
+    ]
+  },
+  {
+    "key": "att",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "RA01;"
+    ],
+    "queued": [
+      "RA01;",
+      "RA0;"
+    ]
+  },
+  {
+    "key": "att",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "RA01;"
+    ],
+    "queued": [
+      "RA01;",
+      "RA0;"
+    ]
+  },
+  {
+    "key": "narrow",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "NA01;"
+    ],
+    "queued": [
+      "NA01;",
+      "NA0;"
+    ]
+  },
+  {
+    "key": "narrow",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "NA00;"
+    ],
+    "queued": [
+      "NA00;",
+      "NA0;"
+    ]
+  },
+  {
+    "key": "narrow",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "NA00;"
+    ],
+    "queued": [
+      "NA00;",
+      "NA0;"
+    ]
+  },
+  {
+    "key": "narrow",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "NA01;"
+    ],
+    "queued": [
+      "NA01;",
+      "NA0;"
+    ]
+  },
+  {
+    "key": "narrow",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "NA01;"
+    ],
+    "queued": [
+      "NA01;",
+      "NA0;"
+    ]
+  },
+  {
+    "key": "narrow",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "NA01;"
+    ],
+    "queued": [
+      "NA01;",
+      "NA0;"
+    ]
+  },
+  {
+    "key": "narrow",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "NA01;"
+    ],
+    "queued": [
+      "NA01;",
+      "NA0;"
+    ]
+  },
+  {
+    "key": "narrow",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "NA01;"
+    ],
+    "queued": [
+      "NA01;",
+      "NA0;"
+    ]
+  },
+  {
+    "key": "split",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "ST1;"
+    ],
+    "queued": [
+      "ST1;",
+      "ST;"
+    ]
+  },
+  {
+    "key": "split",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "ST0;"
+    ],
+    "queued": [
+      "ST0;",
+      "ST;"
+    ]
+  },
+  {
+    "key": "split",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "ST0;"
+    ],
+    "queued": [
+      "ST0;",
+      "ST;"
+    ]
+  },
+  {
+    "key": "split",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "ST1;"
+    ],
+    "queued": [
+      "ST1;",
+      "ST;"
+    ]
+  },
+  {
+    "key": "split",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "ST1;"
+    ],
+    "queued": [
+      "ST1;",
+      "ST;"
+    ]
+  },
+  {
+    "key": "split",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "ST1;"
+    ],
+    "queued": [
+      "ST1;",
+      "ST;"
+    ]
+  },
+  {
+    "key": "split",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "ST1;"
+    ],
+    "queued": [
+      "ST1;",
+      "ST;"
+    ]
+  },
+  {
+    "key": "split",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "ST1;"
+    ],
+    "queued": [
+      "ST1;",
+      "ST;"
+    ]
+  },
+  {
+    "key": "tx_vfo",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "FT1;"
+    ],
+    "queued": [
+      "FT1;",
+      "FT;"
+    ]
+  },
+  {
+    "key": "tx_vfo",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "FT0;"
+    ],
+    "queued": [
+      "FT0;",
+      "FT;"
+    ]
+  },
+  {
+    "key": "tx_vfo",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "FT0;"
+    ],
+    "queued": [
+      "FT0;",
+      "FT;"
+    ]
+  },
+  {
+    "key": "tx_vfo",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "FT1;"
+    ],
+    "queued": [
+      "FT1;",
+      "FT;"
+    ]
+  },
+  {
+    "key": "tx_vfo",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "FT1;"
+    ],
+    "queued": [
+      "FT1;",
+      "FT;"
+    ]
+  },
+  {
+    "key": "tx_vfo",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "FT1;"
+    ],
+    "queued": [
+      "FT1;",
+      "FT;"
+    ]
+  },
+  {
+    "key": "tx_vfo",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "FT1;"
+    ],
+    "queued": [
+      "FT1;",
+      "FT;"
+    ]
+  },
+  {
+    "key": "tx_vfo",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "FT1;"
+    ],
+    "queued": [
+      "FT1;",
+      "FT;"
+    ]
+  },
+  {
+    "key": "vfo",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "VS1;"
+    ],
+    "queued": [
+      "VS1;",
+      "VS;"
+    ]
+  },
+  {
+    "key": "vfo",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "VS0;"
+    ],
+    "queued": [
+      "VS0;",
+      "VS;"
+    ]
+  },
+  {
+    "key": "vfo",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "VS0;"
+    ],
+    "queued": [
+      "VS0;",
+      "VS;"
+    ]
+  },
+  {
+    "key": "vfo",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "VS1;"
+    ],
+    "queued": [
+      "VS1;",
+      "VS;"
+    ]
+  },
+  {
+    "key": "vfo",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "VS1;"
+    ],
+    "queued": [
+      "VS1;",
+      "VS;"
+    ]
+  },
+  {
+    "key": "vfo",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "VS1;"
+    ],
+    "queued": [
+      "VS1;",
+      "VS;"
+    ]
+  },
+  {
+    "key": "vfo",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "VS1;"
+    ],
+    "queued": [
+      "VS1;",
+      "VS;"
+    ]
+  },
+  {
+    "key": "vfo",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "VS1;"
+    ],
+    "queued": [
+      "VS1;",
+      "VS;"
+    ]
+  },
+  {
+    "key": "dual",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "FR00;"
+    ],
+    "queued": [
+      "FR00;",
+      "FR;"
+    ]
+  },
+  {
+    "key": "dual",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "FR01;"
+    ],
+    "queued": [
+      "FR01;",
+      "FR;"
+    ]
+  },
+  {
+    "key": "dual",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "FR01;"
+    ],
+    "queued": [
+      "FR01;",
+      "FR;"
+    ]
+  },
+  {
+    "key": "dual",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "FR00;"
+    ],
+    "queued": [
+      "FR00;",
+      "FR;"
+    ]
+  },
+  {
+    "key": "dual",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "FR00;"
+    ],
+    "queued": [
+      "FR00;",
+      "FR;"
+    ]
+  },
+  {
+    "key": "dual",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "FR00;"
+    ],
+    "queued": [
+      "FR00;",
+      "FR;"
+    ]
+  },
+  {
+    "key": "dual",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "FR00;"
+    ],
+    "queued": [
+      "FR00;",
+      "FR;"
+    ]
+  },
+  {
+    "key": "dual",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "FR00;"
+    ],
+    "queued": [
+      "FR00;",
+      "FR;"
+    ]
+  },
+  {
+    "key": "proc",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "PR02;"
+    ],
+    "queued": [
+      "PR02;",
+      "PR0;"
+    ]
+  },
+  {
+    "key": "proc",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "PR01;"
+    ],
+    "queued": [
+      "PR01;",
+      "PR0;"
+    ]
+  },
+  {
+    "key": "proc",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "PR01;"
+    ],
+    "queued": [
+      "PR01;",
+      "PR0;"
+    ]
+  },
+  {
+    "key": "proc",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "PR02;"
+    ],
+    "queued": [
+      "PR02;",
+      "PR0;"
+    ]
+  },
+  {
+    "key": "proc",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "PR02;"
+    ],
+    "queued": [
+      "PR02;",
+      "PR0;"
+    ]
+  },
+  {
+    "key": "proc",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "PR02;"
+    ],
+    "queued": [
+      "PR02;",
+      "PR0;"
+    ]
+  },
+  {
+    "key": "proc",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "PR02;"
+    ],
+    "queued": [
+      "PR02;",
+      "PR0;"
+    ]
+  },
+  {
+    "key": "proc",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "PR02;"
+    ],
+    "queued": [
+      "PR02;",
+      "PR0;"
+    ]
+  },
+  {
+    "key": "proc_level",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "PL000;"
+    ],
+    "queued": [
+      "PL000;",
+      "PL;"
+    ]
+  },
+  {
+    "key": "proc_level",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "PL000;"
+    ],
+    "queued": [
+      "PL000;",
+      "PL;"
+    ]
+  },
+  {
+    "key": "proc_level",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "PL000;"
+    ],
+    "queued": [
+      "PL000;",
+      "PL;"
+    ]
+  },
+  {
+    "key": "proc_level",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "PL001;"
+    ],
+    "queued": [
+      "PL001;",
+      "PL;"
+    ]
+  },
+  {
+    "key": "proc_level",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "PL006;"
+    ],
+    "queued": [
+      "PL006;",
+      "PL;"
+    ]
+  },
+  {
+    "key": "proc_level",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "PL012;"
+    ],
+    "queued": [
+      "PL012;",
+      "PL;"
+    ]
+  },
+  {
+    "key": "proc_level",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "PL100;"
+    ],
+    "queued": [
+      "PL100;",
+      "PL;"
+    ]
+  },
+  {
+    "key": "proc_level",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "PL100;"
+    ],
+    "queued": [
+      "PL100;",
+      "PL;"
+    ]
+  },
+  {
+    "key": "mon",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "ML0001;"
+    ],
+    "queued": [
+      "ML0001;",
+      "ML0;"
+    ]
+  },
+  {
+    "key": "mon",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "ML0000;"
+    ],
+    "queued": [
+      "ML0000;",
+      "ML0;"
+    ]
+  },
+  {
+    "key": "mon",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "ML0000;"
+    ],
+    "queued": [
+      "ML0000;",
+      "ML0;"
+    ]
+  },
+  {
+    "key": "mon",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "ML0001;"
+    ],
+    "queued": [
+      "ML0001;",
+      "ML0;"
+    ]
+  },
+  {
+    "key": "mon",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "ML0001;"
+    ],
+    "queued": [
+      "ML0001;",
+      "ML0;"
+    ]
+  },
+  {
+    "key": "mon",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "ML0001;"
+    ],
+    "queued": [
+      "ML0001;",
+      "ML0;"
+    ]
+  },
+  {
+    "key": "mon",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "ML0001;"
+    ],
+    "queued": [
+      "ML0001;",
+      "ML0;"
+    ]
+  },
+  {
+    "key": "mon",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "ML0001;"
+    ],
+    "queued": [
+      "ML0001;",
+      "ML0;"
+    ]
+  },
+  {
+    "key": "mon_level",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "ML1000;"
+    ],
+    "queued": [
+      "ML1000;",
+      "ML1;"
+    ]
+  },
+  {
+    "key": "mon_level",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "ML1000;"
+    ],
+    "queued": [
+      "ML1000;",
+      "ML1;"
+    ]
+  },
+  {
+    "key": "mon_level",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "ML1000;"
+    ],
+    "queued": [
+      "ML1000;",
+      "ML1;"
+    ]
+  },
+  {
+    "key": "mon_level",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "ML1001;"
+    ],
+    "queued": [
+      "ML1001;",
+      "ML1;"
+    ]
+  },
+  {
+    "key": "mon_level",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "ML1006;"
+    ],
+    "queued": [
+      "ML1006;",
+      "ML1;"
+    ]
+  },
+  {
+    "key": "mon_level",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "ML1012;"
+    ],
+    "queued": [
+      "ML1012;",
+      "ML1;"
+    ]
+  },
+  {
+    "key": "mon_level",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "ML1100;"
+    ],
+    "queued": [
+      "ML1100;",
+      "ML1;"
+    ]
+  },
+  {
+    "key": "mon_level",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "ML1100;"
+    ],
+    "queued": [
+      "ML1100;",
+      "ML1;"
+    ]
+  },
+  {
+    "key": "key_speed",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "KS004;"
+    ],
+    "queued": [
+      "KS004;",
+      "KS;"
+    ]
+  },
+  {
+    "key": "key_speed",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "KS004;"
+    ],
+    "queued": [
+      "KS004;",
+      "KS;"
+    ]
+  },
+  {
+    "key": "key_speed",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "KS004;"
+    ],
+    "queued": [
+      "KS004;",
+      "KS;"
+    ]
+  },
+  {
+    "key": "key_speed",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "KS004;"
+    ],
+    "queued": [
+      "KS004;",
+      "KS;"
+    ]
+  },
+  {
+    "key": "key_speed",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "KS006;"
+    ],
+    "queued": [
+      "KS006;",
+      "KS;"
+    ]
+  },
+  {
+    "key": "key_speed",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "KS012;"
+    ],
+    "queued": [
+      "KS012;",
+      "KS;"
+    ]
+  },
+  {
+    "key": "key_speed",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "KS060;"
+    ],
+    "queued": [
+      "KS060;",
+      "KS;"
+    ]
+  },
+  {
+    "key": "key_speed",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "KS060;"
+    ],
+    "queued": [
+      "KS060;",
+      "KS;"
+    ]
+  },
+  {
+    "key": "bk",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "BI1;"
+    ],
+    "queued": [
+      "BI1;",
+      "BI;"
+    ]
+  },
+  {
+    "key": "bk",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "BI0;"
+    ],
+    "queued": [
+      "BI0;",
+      "BI;"
+    ]
+  },
+  {
+    "key": "bk",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "BI0;"
+    ],
+    "queued": [
+      "BI0;",
+      "BI;"
+    ]
+  },
+  {
+    "key": "bk",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "BI1;"
+    ],
+    "queued": [
+      "BI1;",
+      "BI;"
+    ]
+  },
+  {
+    "key": "bk",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "BI1;"
+    ],
+    "queued": [
+      "BI1;",
+      "BI;"
+    ]
+  },
+  {
+    "key": "bk",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "BI1;"
+    ],
+    "queued": [
+      "BI1;",
+      "BI;"
+    ]
+  },
+  {
+    "key": "bk",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "BI1;"
+    ],
+    "queued": [
+      "BI1;",
+      "BI;"
+    ]
+  },
+  {
+    "key": "bk",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "BI1;"
+    ],
+    "queued": [
+      "BI1;",
+      "BI;"
+    ]
+  },
+  {
+    "key": "key_pitch",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "KP00;"
+    ],
+    "queued": [
+      "KP00;",
+      "KP;"
+    ]
+  },
+  {
+    "key": "key_pitch",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "KP00;"
+    ],
+    "queued": [
+      "KP00;",
+      "KP;"
+    ]
+  },
+  {
+    "key": "key_pitch",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "KP00;"
+    ],
+    "queued": [
+      "KP00;",
+      "KP;"
+    ]
+  },
+  {
+    "key": "key_pitch",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "KP01;"
+    ],
+    "queued": [
+      "KP01;",
+      "KP;"
+    ]
+  },
+  {
+    "key": "key_pitch",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "KP06;"
+    ],
+    "queued": [
+      "KP06;",
+      "KP;"
+    ]
+  },
+  {
+    "key": "key_pitch",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "KP12;"
+    ],
+    "queued": [
+      "KP12;",
+      "KP;"
+    ]
+  },
+  {
+    "key": "key_pitch",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "KP75;"
+    ],
+    "queued": [
+      "KP75;",
+      "KP;"
+    ]
+  },
+  {
+    "key": "key_pitch",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "KP75;"
+    ],
+    "queued": [
+      "KP75;",
+      "KP;"
+    ]
+  },
+  {
+    "key": "keyer",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "KR1;"
+    ],
+    "queued": [
+      "KR1;",
+      "KR;"
+    ]
+  },
+  {
+    "key": "keyer",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "KR0;"
+    ],
+    "queued": [
+      "KR0;",
+      "KR;"
+    ]
+  },
+  {
+    "key": "keyer",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "KR0;"
+    ],
+    "queued": [
+      "KR0;",
+      "KR;"
+    ]
+  },
+  {
+    "key": "keyer",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "KR1;"
+    ],
+    "queued": [
+      "KR1;",
+      "KR;"
+    ]
+  },
+  {
+    "key": "keyer",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "KR1;"
+    ],
+    "queued": [
+      "KR1;",
+      "KR;"
+    ]
+  },
+  {
+    "key": "keyer",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "KR1;"
+    ],
+    "queued": [
+      "KR1;",
+      "KR;"
+    ]
+  },
+  {
+    "key": "keyer",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "KR1;"
+    ],
+    "queued": [
+      "KR1;",
+      "KR;"
+    ]
+  },
+  {
+    "key": "keyer",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "KR1;"
+    ],
+    "queued": [
+      "KR1;",
+      "KR;"
+    ]
+  },
+  {
+    "key": "bk_delay",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "SD00;"
+    ],
+    "queued": [
+      "SD00;",
+      "SD;"
+    ]
+  },
+  {
+    "key": "bk_delay",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "SD00;"
+    ],
+    "queued": [
+      "SD00;",
+      "SD;"
+    ]
+  },
+  {
+    "key": "bk_delay",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "SD00;"
+    ],
+    "queued": [
+      "SD00;",
+      "SD;"
+    ]
+  },
+  {
+    "key": "bk_delay",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "SD01;"
+    ],
+    "queued": [
+      "SD01;",
+      "SD;"
+    ]
+  },
+  {
+    "key": "bk_delay",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "SD06;"
+    ],
+    "queued": [
+      "SD06;",
+      "SD;"
+    ]
+  },
+  {
+    "key": "bk_delay",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "SD12;"
+    ],
+    "queued": [
+      "SD12;",
+      "SD;"
+    ]
+  },
+  {
+    "key": "bk_delay",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "SD33;"
+    ],
+    "queued": [
+      "SD33;",
+      "SD;"
+    ]
+  },
+  {
+    "key": "bk_delay",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "SD33;"
+    ],
+    "queued": [
+      "SD33;",
+      "SD;"
+    ]
+  },
+  {
+    "key": "clar_rx",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "CF00011000;"
+    ],
+    "queued": [
+      "CF00011000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_rx",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "CF00001000;"
+    ],
+    "queued": [
+      "CF00001000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_rx",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "CF00001000;"
+    ],
+    "queued": [
+      "CF00001000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_rx",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "CF00011000;"
+    ],
+    "queued": [
+      "CF00011000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_rx",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "CF00011000;"
+    ],
+    "queued": [
+      "CF00011000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_rx",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "CF00011000;"
+    ],
+    "queued": [
+      "CF00011000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_rx",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "CF00011000;"
+    ],
+    "queued": [
+      "CF00011000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_rx",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "CF00011000;"
+    ],
+    "queued": [
+      "CF00011000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_tx",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "CF00001000;"
+    ],
+    "queued": [
+      "CF00001000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_tx",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "CF00000000;"
+    ],
+    "queued": [
+      "CF00000000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_tx",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "CF00000000;"
+    ],
+    "queued": [
+      "CF00000000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_tx",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "CF00001000;"
+    ],
+    "queued": [
+      "CF00001000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_tx",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "CF00001000;"
+    ],
+    "queued": [
+      "CF00001000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_tx",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "CF00001000;"
+    ],
+    "queued": [
+      "CF00001000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_tx",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "CF00001000;"
+    ],
+    "queued": [
+      "CF00001000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar_tx",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "CF00001000;"
+    ],
+    "queued": [
+      "CF00001000;",
+      "CF000;"
+    ]
+  },
+  {
+    "key": "clar",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "CF001-9999;"
+    ],
+    "queued": [
+      "CF001-9999;",
+      "CF001;"
+    ]
+  },
+  {
+    "key": "clar",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "CF001+0000;"
+    ],
+    "queued": [
+      "CF001+0000;",
+      "CF001;"
+    ]
+  },
+  {
+    "key": "clar",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "CF001+0000;"
+    ],
+    "queued": [
+      "CF001+0000;",
+      "CF001;"
+    ]
+  },
+  {
+    "key": "clar",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "CF001+0001;"
+    ],
+    "queued": [
+      "CF001+0001;",
+      "CF001;"
+    ]
+  },
+  {
+    "key": "clar",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "CF001+0006;"
+    ],
+    "queued": [
+      "CF001+0006;",
+      "CF001;"
+    ]
+  },
+  {
+    "key": "clar",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "CF001+0012;"
+    ],
+    "queued": [
+      "CF001+0012;",
+      "CF001;"
+    ]
+  },
+  {
+    "key": "clar",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "CF001+0128;"
+    ],
+    "queued": [
+      "CF001+0128;",
+      "CF001;"
+    ]
+  },
+  {
+    "key": "clar",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "CF001+9999;"
+    ],
+    "queued": [
+      "CF001+9999;",
+      "CF001;"
+    ]
+  },
+  {
+    "key": "lock",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "LK1;"
+    ],
+    "queued": [
+      "LK1;",
+      "LK;"
+    ]
+  },
+  {
+    "key": "lock",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "LK0;"
+    ],
+    "queued": [
+      "LK0;",
+      "LK;"
+    ]
+  },
+  {
+    "key": "lock",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "LK0;"
+    ],
+    "queued": [
+      "LK0;",
+      "LK;"
+    ]
+  },
+  {
+    "key": "lock",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "LK1;"
+    ],
+    "queued": [
+      "LK1;",
+      "LK;"
+    ]
+  },
+  {
+    "key": "lock",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "LK1;"
+    ],
+    "queued": [
+      "LK1;",
+      "LK;"
+    ]
+  },
+  {
+    "key": "lock",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "LK1;"
+    ],
+    "queued": [
+      "LK1;",
+      "LK;"
+    ]
+  },
+  {
+    "key": "lock",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "LK1;"
+    ],
+    "queued": [
+      "LK1;",
+      "LK;"
+    ]
+  },
+  {
+    "key": "lock",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "LK1;"
+    ],
+    "queued": [
+      "LK1;",
+      "LK;"
+    ]
+  },
+  {
+    "key": "tone_mode",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "CT00;"
+    ],
+    "queued": [
+      "CT00;",
+      "CT0;"
+    ]
+  },
+  {
+    "key": "tone_mode",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "CT00;"
+    ],
+    "queued": [
+      "CT00;",
+      "CT0;"
+    ]
+  },
+  {
+    "key": "tone_mode",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "CT00;"
+    ],
+    "queued": [
+      "CT00;",
+      "CT0;"
+    ]
+  },
+  {
+    "key": "tone_mode",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "CT01;"
+    ],
+    "queued": [
+      "CT01;",
+      "CT0;"
+    ]
+  },
+  {
+    "key": "tone_mode",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "CT03;"
+    ],
+    "queued": [
+      "CT03;",
+      "CT0;"
+    ]
+  },
+  {
+    "key": "tone_mode",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "CT03;"
+    ],
+    "queued": [
+      "CT03;",
+      "CT0;"
+    ]
+  },
+  {
+    "key": "tone_mode",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "CT03;"
+    ],
+    "queued": [
+      "CT03;",
+      "CT0;"
+    ]
+  },
+  {
+    "key": "tone_mode",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "CT03;"
+    ],
+    "queued": [
+      "CT03;",
+      "CT0;"
+    ]
+  },
+  {
+    "key": "ctcss",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "CN00000;"
+    ],
+    "queued": [
+      "CN00000;",
+      "CN00;"
+    ]
+  },
+  {
+    "key": "ctcss",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "CN00000;"
+    ],
+    "queued": [
+      "CN00000;",
+      "CN00;"
+    ]
+  },
+  {
+    "key": "ctcss",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "CN00000;"
+    ],
+    "queued": [
+      "CN00000;",
+      "CN00;"
+    ]
+  },
+  {
+    "key": "ctcss",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "CN00001;"
+    ],
+    "queued": [
+      "CN00001;",
+      "CN00;"
+    ]
+  },
+  {
+    "key": "ctcss",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "CN00006;"
+    ],
+    "queued": [
+      "CN00006;",
+      "CN00;"
+    ]
+  },
+  {
+    "key": "ctcss",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "CN00012;"
+    ],
+    "queued": [
+      "CN00012;",
+      "CN00;"
+    ]
+  },
+  {
+    "key": "ctcss",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "CN00049;"
+    ],
+    "queued": [
+      "CN00049;",
+      "CN00;"
+    ]
+  },
+  {
+    "key": "ctcss",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "CN00049;"
+    ],
+    "queued": [
+      "CN00049;",
+      "CN00;"
+    ]
+  },
+  {
+    "key": "dcs",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "CN01000;"
+    ],
+    "queued": [
+      "CN01000;",
+      "CN01;"
+    ]
+  },
+  {
+    "key": "dcs",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "CN01000;"
+    ],
+    "queued": [
+      "CN01000;",
+      "CN01;"
+    ]
+  },
+  {
+    "key": "dcs",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "CN01000;"
+    ],
+    "queued": [
+      "CN01000;",
+      "CN01;"
+    ]
+  },
+  {
+    "key": "dcs",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "CN01001;"
+    ],
+    "queued": [
+      "CN01001;",
+      "CN01;"
+    ]
+  },
+  {
+    "key": "dcs",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "CN01006;"
+    ],
+    "queued": [
+      "CN01006;",
+      "CN01;"
+    ]
+  },
+  {
+    "key": "dcs",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "CN01012;"
+    ],
+    "queued": [
+      "CN01012;",
+      "CN01;"
+    ]
+  },
+  {
+    "key": "dcs",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "CN01103;"
+    ],
+    "queued": [
+      "CN01103;",
+      "CN01;"
+    ]
+  },
+  {
+    "key": "dcs",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "CN01103;"
+    ],
+    "queued": [
+      "CN01103;",
+      "CN01;"
+    ]
+  },
+  {
+    "key": "rpt_shift",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "OS00;"
+    ],
+    "queued": [
+      "OS00;",
+      "OS0;"
+    ]
+  },
+  {
+    "key": "rpt_shift",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "OS00;"
+    ],
+    "queued": [
+      "OS00;",
+      "OS0;"
+    ]
+  },
+  {
+    "key": "rpt_shift",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "OS00;"
+    ],
+    "queued": [
+      "OS00;",
+      "OS0;"
+    ]
+  },
+  {
+    "key": "rpt_shift",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "OS01;"
+    ],
+    "queued": [
+      "OS01;",
+      "OS0;"
+    ]
+  },
+  {
+    "key": "rpt_shift",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "OS02;"
+    ],
+    "queued": [
+      "OS02;",
+      "OS0;"
+    ]
+  },
+  {
+    "key": "rpt_shift",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "OS02;"
+    ],
+    "queued": [
+      "OS02;",
+      "OS0;"
+    ]
+  },
+  {
+    "key": "rpt_shift",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "OS02;"
+    ],
+    "queued": [
+      "OS02;",
+      "OS0;"
+    ]
+  },
+  {
+    "key": "rpt_shift",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "OS02;"
+    ],
+    "queued": [
+      "OS02;",
+      "OS0;"
+    ]
+  },
+  {
+    "key": "txw",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "TS1;"
+    ],
+    "queued": [
+      "TS1;",
+      "TS;"
+    ]
+  },
+  {
+    "key": "txw",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "TS0;"
+    ],
+    "queued": [
+      "TS0;",
+      "TS;"
+    ]
+  },
+  {
+    "key": "txw",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "TS0;"
+    ],
+    "queued": [
+      "TS0;",
+      "TS;"
+    ]
+  },
+  {
+    "key": "txw",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "TS1;"
+    ],
+    "queued": [
+      "TS1;",
+      "TS;"
+    ]
+  },
+  {
+    "key": "txw",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "TS1;"
+    ],
+    "queued": [
+      "TS1;",
+      "TS;"
+    ]
+  },
+  {
+    "key": "txw",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "TS1;"
+    ],
+    "queued": [
+      "TS1;",
+      "TS;"
+    ]
+  },
+  {
+    "key": "txw",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "TS1;"
+    ],
+    "queued": [
+      "TS1;",
+      "TS;"
+    ]
+  },
+  {
+    "key": "txw",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "TS1;"
+    ],
+    "queued": [
+      "TS1;",
+      "TS;"
+    ]
+  },
+  {
+    "key": "amc",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "AO000;"
+    ],
+    "queued": [
+      "AO000;",
+      "AO;"
+    ]
+  },
+  {
+    "key": "amc",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "AO000;"
+    ],
+    "queued": [
+      "AO000;",
+      "AO;"
+    ]
+  },
+  {
+    "key": "amc",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "AO000;"
+    ],
+    "queued": [
+      "AO000;",
+      "AO;"
+    ]
+  },
+  {
+    "key": "amc",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "AO001;"
+    ],
+    "queued": [
+      "AO001;",
+      "AO;"
+    ]
+  },
+  {
+    "key": "amc",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "AO006;"
+    ],
+    "queued": [
+      "AO006;",
+      "AO;"
+    ]
+  },
+  {
+    "key": "amc",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "AO012;"
+    ],
+    "queued": [
+      "AO012;",
+      "AO;"
+    ]
+  },
+  {
+    "key": "amc",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "AO100;"
+    ],
+    "queued": [
+      "AO100;",
+      "AO;"
+    ]
+  },
+  {
+    "key": "amc",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "AO100;"
+    ],
+    "queued": [
+      "AO100;",
+      "AO;"
+    ]
+  },
+  {
+    "key": "dimmer",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "DA00;"
+    ],
+    "queued": [
+      "DA00;",
+      "DA;"
+    ]
+  },
+  {
+    "key": "dimmer",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "DA00;"
+    ],
+    "queued": [
+      "DA00;",
+      "DA;"
+    ]
+  },
+  {
+    "key": "dimmer",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "DA00;"
+    ],
+    "queued": [
+      "DA00;",
+      "DA;"
+    ]
+  },
+  {
+    "key": "dimmer",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "DA01;"
+    ],
+    "queued": [
+      "DA01;",
+      "DA;"
+    ]
+  },
+  {
+    "key": "dimmer",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "DA06;"
+    ],
+    "queued": [
+      "DA06;",
+      "DA;"
+    ]
+  },
+  {
+    "key": "dimmer",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "DA12;"
+    ],
+    "queued": [
+      "DA12;",
+      "DA;"
+    ]
+  },
+  {
+    "key": "dimmer",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "DA20;"
+    ],
+    "queued": [
+      "DA20;",
+      "DA;"
+    ]
+  },
+  {
+    "key": "dimmer",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "DA20;"
+    ],
+    "queued": [
+      "DA20;",
+      "DA;"
+    ]
+  },
+  {
+    "key": "meter_sel",
+    "value": -10000,
+    "head": 2,
+    "commands": [
+      "MS00;"
+    ],
+    "queued": [
+      "MS00;",
+      "MS;"
+    ]
+  },
+  {
+    "key": "meter_sel",
+    "value": 0,
+    "head": 2,
+    "commands": [
+      "MS00;"
+    ],
+    "queued": [
+      "MS00;",
+      "MS;"
+    ]
+  },
+  {
+    "key": "meter_sel",
+    "value": 0.5,
+    "head": 2,
+    "commands": [
+      "MS00;"
+    ],
+    "queued": [
+      "MS00;",
+      "MS;"
+    ]
+  },
+  {
+    "key": "meter_sel",
+    "value": 1,
+    "head": 2,
+    "commands": [
+      "MS10;"
+    ],
+    "queued": [
+      "MS10;",
+      "MS;"
+    ]
+  },
+  {
+    "key": "meter_sel",
+    "value": 5.5,
+    "head": 2,
+    "commands": [
+      "MS50;"
+    ],
+    "queued": [
+      "MS50;",
+      "MS;"
+    ]
+  },
+  {
+    "key": "meter_sel",
+    "value": 12.5,
+    "head": 2,
+    "commands": [
+      "MS50;"
+    ],
+    "queued": [
+      "MS50;",
+      "MS;"
+    ]
+  },
+  {
+    "key": "meter_sel",
+    "value": 128,
+    "head": 2,
+    "commands": [
+      "MS50;"
+    ],
+    "queued": [
+      "MS50;",
+      "MS;"
+    ]
+  },
+  {
+    "key": "meter_sel",
+    "value": 999999999,
+    "head": 2,
+    "commands": [
+      "MS50;"
+    ],
+    "queued": [
+      "MS50;",
+      "MS;"
+    ]
+  }
+]

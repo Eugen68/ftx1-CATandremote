@@ -1,0 +1,52 @@
+name: Stage 1 validation
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publish_windows:
+        description: 'Publish a Windows executable (explicit request only)'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  validate:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.408'
+      - run: dotnet restore Ftx1.sln
+      - run: dotnet build Ftx1.sln -c Release --no-restore
+      - run: dotnet test Ftx1.sln -c Release --no-build --logger "trx;LogFileName=results.trx"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}
+          path: '**/TestResults/*.trx'
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_windows
+    needs: validate
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.408'
+      - run: dotnet publish src/Ftx1.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o artifacts/windows
+      - shell: pwsh
+        run: (Get-FileHash artifacts/windows/FTX1-CATandRemote.exe -Algorithm SHA256).Hash + '  FTX1-CATandRemote.exe' | Out-File artifacts/windows/SHA256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FTX1-CATandRemote-win-x64
+          path: |
+            artifacts/windows/FTX1-CATandRemote.exe
+            artifacts/windows/SHA256.txt
+            README.md
+            THIRD_PARTY_NOTICES.md
