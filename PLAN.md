@@ -12,6 +12,19 @@ Date fixe de la proprietar:
 
 ---
 
+## ▶ Stare curentă și cum se continuă (actualizat 14.11.2026)
+
+- **Etapa 1: gata**, în PR [#1](https://github.com/Eugen68/ftx1-CATandremote/pull/1) (`feat/stage1-cat-simulator-ui`), **încă nemerge-uit**. Conține nucleul CAT, simulatorul, protecția PTT, UI-ul desktop, plus meniul, fereastra „Setări stație” și consola CAT cu butonul **Transmite** (păstrate la cererea proprietarului). 683 de teste verzi.
+- **Ce urmează, în ordine:**
+  1. Proprietarul testează PR #1 pe stație (lista „De verificat pe stație” din README), cu sarcină artificială, apoi face merge.
+  2. Corectura `global.json` (vezi Etapa 1, „Înainte de merge”), într-un PR mic sau direct pe branch-ul PR #1.
+  3. **Etapa 2**, pornind de la `main` după merge, pe branch nou `feat/stage2-server-protocol`.
+- **Reguli pentru executant:**
+  - Cererile noi ale proprietarului se **trec întâi în acest plan**. Se implementează doar dacă proprietarul cere explicit implementarea.
+  - Commit-urile făcute de agent folosesc `git config user.name Claude` și `user.email noreply@anthropic.com` (altfel GitHub le arată „Unverified”). Commit-urile vechi `b6c1973`, `aa2b35e` (pe `main`) și `01b49bd` (PR #1) rămân „Unverified”, decizie a proprietarului. **Nu se rescrie istoricul și nu se face force-push.**
+  - Fișierele de build (`bin/`, `obj/`) nu se urcă.
+- Mediu Linux: `apt-get install -y dotnet-sdk-8.0` (8.0.1xx). Până la corectura `global.json`, testele se rulează cu un `global.json` temporar `{"sdk":{"version":"8.0.100","rollForward":"latestFeature"}}`, nefăcut commit.
+
 ## 0. Reguli de lucru
 
 1. **O etapă = un branch + un pull request.** Nu lucra direct pe `main`. CI verde e obligatoriu.
