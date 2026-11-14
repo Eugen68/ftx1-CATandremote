@@ -18,7 +18,7 @@ public sealed class SimRadio : IDisposable
         public int rx { get; set; }
         public int tx { get; set; }
         public string name { get; set; } = ""; public int split { get; set; }
-        public long txf { get; set; }
+        public long? txf { get; set; }
     }
     readonly object gate = new();
     readonly Dictionary<string, string> state;
@@ -134,7 +134,7 @@ public sealed class SimRadio : IDisposable
         m = Match(cmd, @"^MT(\d{5})(.*)$");
         if (m.Success) { if (!memories.TryGetValue(I(m.Groups[1].Value), out var c)) return "?;"; var name = m.Groups[2].Value; if (name != "") { c.name = name[..Math.Min(12, name.Length)].TrimEnd(); return ""; } return "MT" + m.Groups[1].Value + c.name + ";"; }
         m = Match(cmd, @"^MZ(\d{5})(?:([01])(\d{9}))?$");
-        if (m.Success) { if (!memories.TryGetValue(I(m.Groups[1].Value), out var c)) return "?;"; if (m.Groups[2].Success) { c.split = I(m.Groups[2].Value); c.txf = L(m.Groups[3].Value); return ""; } return "MZ" + m.Groups[1].Value + c.split + Dig(c.txf == 0 ? c.f : c.txf, 9) + ";"; }
+        if (m.Success) { if (!memories.TryGetValue(I(m.Groups[1].Value), out var c)) return "?;"; if (m.Groups[2].Success) { c.split = I(m.Groups[2].Value); c.txf = L(m.Groups[3].Value); return ""; } return "MZ" + m.Groups[1].Value + c.split + Dig(c.txf ?? c.f, 9) + ";"; }
         m = Match(cmd, @"^MC([01])(\d{5})$");
         if (m.Success)
         {

@@ -44,7 +44,7 @@ cu sarcină artificială. Testele simulatorului nu confirmă funcționarea hardw
 - `src/Ftx1.Core` — protocolul CAT, porturile seriale, coada de comenzi, Rig, configurația și protecția PTT.
 - `src/Ftx1.Sim` — simulator CAT, inclusiv EX, memorii și temporizările tunerului/CW; fără sinteză audio.
 - `src/Ftx1.App` — interfață Avalonia MVVM; textele în `Resources/Strings.ro.axaml`.
-- `tests/Ftx1.Core.Tests` — 679 teste xUnit, inclusiv comparații cu vectorii generați de Python.
+- `tests/Ftx1.Core.Tests` — 680 teste xUnit, inclusiv comparații cu vectorii generați de Python.
 - `tests/Ftx1.App.Tests` — 2 teste Avalonia headless pentru controale, sincronizare și închiderea cu PTT activ.
 - `tests/data` — vectori pentru toate cele 64 de reguli CAT, 414 cazuri de comenzi și o secvență de simulator.
 - `tools/generate_reference.py` — regenerarea vectorilor și a tabelelor/parserelor din sursa de adevăr.

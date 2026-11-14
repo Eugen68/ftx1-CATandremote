@@ -69,6 +69,16 @@ public class RigTests
     }
 
     [Fact]
+    public async Task UnsignedMenuRetainsWidthWhenWritingNegativeValue()
+    {
+        using var sim = new SimRadio();
+        sim.Handle("EX010101000");
+        await using var rig = new Rig(new SimTransport(sim));
+        await rig.Start();
+        Assert.Equal("-02", await rig.MenuSet("010101", -2));
+    }
+
+    [Fact]
     public void TransmitDeadlineAndRemoteHeartbeatAreMonotonic()
     {
         double clock = 0; int stops = 0; using var guard = new TransmitGuard(() => stops++, TimeSpan.FromSeconds(180), () => clock);

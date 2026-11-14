@@ -94,7 +94,7 @@ radio=sim.SimRadio()
 seed={'state':radio.s,'memories':radio.mem,'morse':cw.ENCODE}
 (root/'src/Ftx1.Sim/seed.json').write_text(json.dumps(seed,indent=2)+'\n')
 trace=[]
-for command in ['ID','VE0','VE5','FA','FB','MD0','PC','AG0128','AG0','PC15.5','PC','BS013','FA','AB','FB','SV','FA','FB','EX010101','EX010101+0012','EX010101','MR00001','MT00001','MZ00001','MC000002','MC0','VM0','CN00','AM','MT00002','MW00009014074000-01001021002','MR00009','MT00009HELLO','MT00009','MZ000091145600000','MZ00009','TX1','TX','KY00','TX','VM000','VM0','BOGUS']:
+for command in ['ID','VE0','VE5','FA','FB','MD0','PC','AG0128','AG0','PC15.5','PC','BS013','FA','AB','FB','SV','FA','FB','EX010101','EX010101+0012','EX010101','MR00001','MT00001','MZ00001','MC000002','MC0','VM0','CN00','AM','MZ00002','MT00002','MW00009014074000-01001021002','MR00009','MT00009HELLO','MT00009','MZ000091145600000','MZ00009','TX1','TX','KY00','TX','VM000','VM0','BOGUS']:
  trace.append({'command':command,'reply':radio.handle(command)})
 (root/'tests/data/simulator.json').write_text(json.dumps(trace,indent=2)+'\n')
 

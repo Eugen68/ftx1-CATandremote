@@ -240,7 +240,7 @@ public sealed class Rig : IDisposable, IAsyncDisposable
         {
             int width = cur != null ? Math.Max(1, cur.TrimStart('+', '-').Length) : digits ?? 1;
             signed |= cur?.StartsWith('+') == true || cur?.StartsWith('-') == true;
-            text = (signed ? (n >= 0 ? "+" : "-") : n < 0 ? "-" : "") + Math.Abs(n).ToString(CultureInfo.InvariantCulture).PadLeft(width, '0');
+            text = (signed ? (n >= 0 ? "+" : "-") : n < 0 ? "-" : "") + Math.Abs(n).ToString(CultureInfo.InvariantCulture).PadLeft(!signed && n < 0 ? Math.Max(0, width - 1) : width, '0');
         }
         if (text.Contains(';')) throw new ArgumentException("Invalid menu value", nameof(value));
         Enqueue("EX" + ex + text + ";"); await Task.Delay(100, cancel.Token); return await MenuGet(ex);
