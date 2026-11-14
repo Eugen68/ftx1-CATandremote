@@ -76,6 +76,7 @@ Internetul mobil cade des: tunel, schimbare de celulă, ecran blocat. Fiecare ni
 
 ## Etapa 1 — Nucleul CAT + simulator + UI desktop ✅ (PR #1)
 Implementat pe branch-ul `feat/stage1-cat-simulator-ui`: `Ftx1.Core`, `Ftx1.Sim`, `Ftx1.App`, 682 de teste.
+Adăugat în același PR (cerință nouă a proprietarului): **meniu** (Stație: Conectare, Setări stație… F2, Ieșire · Unelte: Consolă CAT… F12) și fereastra nemodală **„Setări stație”** cu tab-urile *Conexiune* (port, viteză, PTT, limită emisie, simulator) și *Consolă CAT* (jurnal `>`/`<`, câmp de comandă + buton **Transmite**/Enter; comenzile care pornesc emisia rămân blocate).
 **Înainte de merge:**
 - [ ] Proprietarul testează pe stație punctele din README („De verificat pe stație”), cu sarcină artificială.
 - [ ] `global.json` cere SDK `8.0.400`. Setează `"rollForward": "latestMajor"` sau o versiune minimă `8.0.100`, ca să compileze și cu SDK-urile din distribuțiile Linux (`apt` oferă 8.0.1xx).
@@ -153,7 +154,7 @@ Sursa de inspirație: `ftx1-pult/server/audio.py`, `web/worklets.js`.
 ## Etapa 6 — Waterfall și funcții de operare
 - Waterfall pe server (FFT 4096, port din `audio.py`/`Waterfall`), trimis comprimat: rânduri de 8 biți, 5–10 rânduri/s, lățimea limitată la filtru. Cost: câțiva kbit/s.
 - Atingere sau dublu-tap pe waterfall = acord pe semnal.
-- Meniul EX (`menu_ftx1.json`), editorul de memorii (procedura exactă din docstring-ul `memory.py`), favorite, CW keyer memory (`KM`/`KY`, trecute prin `TransmitGuard`).
+- Meniul EX (`menu_ftx1.json`) ca tab nou **„Meniu stație (EX)”** în fereastra „Setări stație”: listă cu căutare, grupuri, citire/scriere. Pe Android: ecran separat în Setări. Editorul de memorii (procedura exactă din docstring-ul `memory.py`), favorite, CW keyer memory (`KM`/`KY`, trecute prin `TransmitGuard`).
 
 ## Etapa 7 și mai departe — moduri digitale
 În ordinea priorității proprietarului (de confirmat): FT8/FT4 (ft8_lib, MIT, DLL nativ + P/Invoke, decodare pe server), decodor CW + AI, RTTY, PSK31, NAVTEX, SSTV, WEFAX, apel vocal automat.
