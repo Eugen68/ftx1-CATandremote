@@ -18,11 +18,11 @@ namespace Ftx1.Server;
 public sealed record ServerOptions(string Root, StationConfig Station, int Port = 8443, IPAddress[]? Addresses = null, bool AllowOtherInterfaces = false, double SwrLimit = 3, string? AudioInput = null, string? AudioOutput = null);
 public sealed class StationServer : IAsyncDisposable
 {
-    public const string Version = "0.3.0";
+    public const string Version = "0.4.0";
     readonly StationAudio audio; long audioEpoch;
     readonly ServerOptions options; readonly Rig rig; readonly IDisposable? simulator;
     readonly CancellationTokenSource lifetime = new(); readonly ConcurrentDictionary<string, Session> sessions = new(); readonly AttemptLimiter limiter = new();
-    readonly object auditGate = new(); TxAudit? activeTx; long txStarted, highSwrSince;
+    readonly object sessionGate = new(); readonly object auditGate = new(); TxAudit? activeTx; long txStarted, highSwrSince;
     WebApplication? app; Task? monitor; Task? audioPlayback; bool disposed;
     public DeviceTokens Tokens { get; }
     public PairingCodes Pairing { get; }
@@ -116,8 +116,9 @@ public sealed class StationServer : IAsyncDisposable
             // A reconnect starts with a new session and can never inherit PTT.
             foreach (var old in sessions.Values.Where(s => s.Device.Id == device.Id)) { StopOwner(old, StopReason.Disconnected); old.Abort(); }
             var session = new Session(socket, device, lifetime.Token);
-            sessions[session.Id] = session; DevicesChanged?.Invoke();
-            session.Send(new() { T = "helloOk", ProtocolVersion = ProtocolVersion.Current, ServerVersion = Version, State = Wire.State(rig.State), TotMinutes = TotMinutes }); BroadcastPtt();
+            // Queue authentication before publishing the session to broadcasts. Otherwise a CAT diff can arrive before helloOk.
+            lock (sessionGate) { session.Send(new() { T = "helloOk", ProtocolVersion = ProtocolVersion.Current, ServerVersion = Version, State = Wire.State(rig.State), TotMinutes = TotMinutes }); sessions[session.Id] = session; }
+            DevicesChanged?.Invoke(); BroadcastPtt();
             try { await session.Run(message => Dispatch(session, message), packet => Microphone(session, packet), () => StopOwner(session, StopReason.Disconnected)); }
             finally { StopOwner(session, StopReason.Disconnected); sessions.TryRemove(session.Id, out _); session.Abort(); DevicesChanged?.Invoke(); }
         }
@@ -190,7 +191,7 @@ public sealed class StationServer : IAsyncDisposable
             catch (InvalidDataException) { rig.Transmit.Stop(StopReason.Failure); }
         });
     }
-    void Broadcast(Message m) { foreach (var s in sessions.Values) s.Send(m); }
+    void Broadcast(Message m) { Session[] targets; lock (sessionGate) targets = sessions.Values.ToArray(); foreach (var s in targets) s.Send(m); }
     void BroadcastPtt(string? reason = null) { var owner = rig.Transmit.Owner; foreach (var s in sessions.Values) s.Send(new() { T = "pttState", Owner = owner ?? "", You = owner == s.Id, Reason = reason, AudioEpoch = owner == s.Id ? s.TransmitEpoch : null }); }
     void OnTxStarted(string owner)
     {

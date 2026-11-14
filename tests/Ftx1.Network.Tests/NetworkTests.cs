@@ -43,6 +43,15 @@ public class NetworkTests
         f.Radio.Handle("AG0042"); await StationFixture.Wait(() => c.State.GetValueOrDefault("af") is 42);
         var pong = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously); c.Received += m => { if (m.T == "pong" && m.Ts == 123) pong.TrySetResult(); }; await c.Send(new() { T = "ping", Ts = 123 }); await pong.Task.WaitAsync(TimeSpan.FromSeconds(2));
     }
+    [Fact]
+    public async Task ImmediateStationUpdateWhileConnectingCannotPrecedeAuthentication()
+    {
+        await using var f = new StationFixture(); await f.Start();
+        void Update() => f.Server.Station.SetParam("freq_a", 14075000);
+        f.Server.DevicesChanged += Update;
+        try { await using var client = await f.Client(); Assert.True(client.Connected); await StationFixture.Wait(() => Convert.ToInt64(client.State.GetValueOrDefault("freq_a", 0)) == 14075000); }
+        finally { f.Server.DevicesChanged -= Update; }
+    }
     [Theory]
     [InlineData(null)]
     [InlineData("invalid")]

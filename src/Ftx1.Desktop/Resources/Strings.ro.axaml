@@ -1,5 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=System.Runtime">
-  <sys:String x:Key="Title">FTX-1 CAT și control la distanță · Etapa 3</sys:String>
+  <sys:String x:Key="Title">FTX-1 CAT și control la distanță · Etapa 4</sys:String>
   <sys:String x:Key="Connection">Conexiune</sys:String>
   <sys:String x:Key="CatPort">Port CAT</sys:String>
   <sys:String x:Key="Baud">Viteză CAT</sys:String>
