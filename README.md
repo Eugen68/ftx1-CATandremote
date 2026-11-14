@@ -109,7 +109,8 @@ Proiectele server și protocol vizează `net8.0`, astfel încât testele TLS/Kes
 accesul fizic la stație și autostart-ul sunt funcții Windows. `global.json` acceptă SDK-uri .NET 8.0.1xx și ulterioare.
 
 - `Ftx1.Core`, `Ftx1.Sim`: nucleul Etapei 1 și vectorii Python; 680 de teste.
-- `Ftx1.Protocol`: JSON cu source generator, versiune și tipuri binare rezervate pentru etapele viitoare.
+- `Ftx1.Protocol`: JSON cu source generator, protocol v2 și cadre audio binare cu epoch/secvență/timp.
+- `Ftx1.Audio`: Opus/Concentus, WASAPI/NAudio, jitter buffer adaptiv și simulator audio.
 - `Ftx1.Server`: Kestrel, TLS, asociere, tokenuri hash-uite, limitarea încercărilor pe IP, PTT, TOT, SWR, audit și tray.
 - `Ftx1.Client`: conexiune cu pinning, reconectare, heartbeat, starea și ViewModel-urile comune.
 - `Ftx1.Desktop`: fereastra Avalonia și meniul, fără acces la porturile CAT/PTT.
@@ -118,12 +119,12 @@ accesul fizic la stație și autostart-ul sunt funcții Windows. `global.json` a
   reconectare, revocare, SWR, TOT și jurnal. Testele Avalonia verifică fereastra și oprirea PTT la închidere.
 
 CI validează Windows și Ubuntu. La un PR de etapă gata de review, după validare, generează executabilele
-și verifică pe Windows serverul publicat (TLS, autentificare, CAT și PTT on/off). Există și pornire manuală
+și verifică pe Windows serverul publicat (TLS, autentificare, CAT, audio Opus RX/TX simulat și PTT on/off). Există și pornire manuală
 cu `publish_windows`. Nu publică executabile doar pentru un push pe `main`.
 
 **De verificat pe stație/telefon:** porturile și toate metodele PTT, citirea/scrierea TOT, pragul SWR,
 Tailscale între două dispozitive reale, eliberarea PTT la pierderea internetului și revenirea după schimbarea rețelei.
-Android și audio nu sunt încă implementate. Nu a fost efectuat un test pe FTX-1 fizic.
+Android urmează în Etapa 4. Audio fizic WASAPI trebuie verificat pe PC-ul stației; testele automate folosesc dispozitive simulate.
 
 Proveniența codului este în [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Proprietarul a declarat
 în PLAN.md că aspectul legal este rezolvat; acest repo nu acordă o licență nouă asupra surselor originale.

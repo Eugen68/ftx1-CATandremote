@@ -1,7 +1,6 @@
 using System.Runtime.Versioning;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
 namespace Ftx1.Audio;
 
 public sealed record AudioDeviceInfo(string Id, string Name) { public override string ToString() => Name; }
@@ -36,7 +35,7 @@ public static class AudioDevices
 public sealed class WasapiVoiceDevice : IVoiceDevice
 {
     readonly object gate = new(); readonly MMDevice input, output; readonly WasapiCapture capture; readonly WasapiOut playback;
-    readonly BufferedWaveProvider recording, speaker; readonly ISampleProvider resampled; readonly float[] pcm = new float[320];
+    readonly BufferedWaveProvider speaker; readonly CaptureFramer framer;
     volatile bool disposed;
     public event Action<short[]>? Captured;
     public event Action<Exception>? Failed;
@@ -46,11 +45,7 @@ public sealed class WasapiVoiceDevice : IVoiceDevice
         try
         {
             capture = new WasapiCapture(input, true, 20);
-            recording = new BufferedWaveProvider(capture.WaveFormat) { BufferDuration = TimeSpan.FromMilliseconds(200), DiscardOnBufferOverflow = true, ReadFully = false };
-            ISampleProvider source = recording.ToSampleProvider();
-            if (source.WaveFormat.Channels == 2) source = new StereoToMonoSampleProvider(source) { LeftVolume = .5f, RightVolume = .5f };
-            else if (source.WaveFormat.Channels != 1) throw new NotSupportedException("AudioChannelCount");
-            resampled = new WdlResamplingSampleProvider(source, VoiceCodec.Rate);
+            framer = new(capture.WaveFormat);
             speaker = new BufferedWaveProvider(new WaveFormat(VoiceCodec.Rate, 16, 1)) { BufferDuration = TimeSpan.FromMilliseconds(120), DiscardOnBufferOverflow = true, ReadFully = true };
             // NAudio's shared-mode WasapiOut resamples to the endpoint's 48 kHz mix format.
             playback = new WasapiOut(output, AudioClientShareMode.Shared, true, 40); playback.Init(speaker);
@@ -65,23 +60,13 @@ public sealed class WasapiVoiceDevice : IVoiceDevice
     {
         try
         {
-            var ready = new List<short[]>();
-            lock (gate)
-            {
-                if (disposed) return;
-                recording.AddSamples(args.Buffer, 0, args.BytesRecorded);
-                // Leave 20 ms of lookahead for the anti-aliasing resampler. Never pad capture with invented silence.
-                while (recording.BufferedBytes >= capture.WaveFormat.AverageBytesPerSecond * .04)
-                {
-                    int count = resampled.Read(pcm, 0, pcm.Length); if (count != pcm.Length) break;
-                    var shorts = new short[count]; for (int i = 0; i < count; i++) shorts[i] = (short)Math.Clamp(pcm[i] * 32767, short.MinValue, short.MaxValue); ready.Add(shorts);
-                }
-            }
+            IReadOnlyList<short[]> ready;
+            lock (gate) { if (disposed) return; ready = framer.Push(args.Buffer, args.BytesRecorded); }
             foreach (var shorts in ready) Captured?.Invoke(shorts);
         }
         catch (Exception e) { Failed?.Invoke(e); }
     }
     public void Play(short[] samples) { var bytes = new byte[samples.Length * 2]; Buffer.BlockCopy(samples, 0, bytes, 0, bytes.Length); lock (gate) { if (disposed) return; if (speaker.BufferedDuration.TotalMilliseconds > 80) speaker.ClearBuffer(); speaker.AddSamples(bytes, 0, bytes.Length); } }
-    public void Clear() { lock (gate) { if (!disposed) speaker.ClearBuffer(); } }
+    public void Clear() { lock (gate) { if (!disposed) { speaker.ClearBuffer(); framer.Clear(); } } }
     public void Dispose() { if (disposed) return; disposed = true; capture.StopRecording(); playback.Stop(); capture.Dispose(); playback.Dispose(); input.Dispose(); output.Dispose(); }
 }

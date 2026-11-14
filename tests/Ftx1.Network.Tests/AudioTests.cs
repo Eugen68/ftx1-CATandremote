@@ -7,6 +7,7 @@ using Ftx1.Client;
 using Ftx1.Core.Safety;
 using Ftx1.Protocol;
 using Xunit;
+using NAudio.Wave;
 namespace Ftx1.Network.Tests;
 
 public class AudioTests
@@ -23,6 +24,22 @@ public class AudioTests
         double rms = Math.Sqrt(decoded.Average(x => x * x)); Assert.InRange(rms, 3000, 8000);
         double Energy(double hz) { double re = 0, im = 0; for (int i = 0; i < decoded.Count; i++) { re += decoded[i] * Math.Cos(2 * Math.PI * hz * i / 16000); im += decoded[i] * Math.Sin(2 * Math.PI * hz * i / 16000); } return re * re + im * im; }
         Assert.True(Energy(700) > 30 * Energy(600)); Assert.True(Energy(700) > 30 * Energy(800));
+    }
+    [Theory]
+    [InlineData(48000)] [InlineData(44100)]
+    public void StereoEndpointCaptureResamplesContinuouslyWithoutPaddingSilence(int sampleRate)
+    {
+        var framer = new CaptureFramer(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 2)); var output = new List<short>(); long sample = 0;
+        for (int callback = 0; callback < 100; callback++)
+        {
+            var pcm = new float[sampleRate / 100 * 2];
+            for (int i = 0; i < pcm.Length; i += 2, sample++) pcm[i] = pcm[i + 1] = (float)(.25 * Math.Sin(2 * Math.PI * 700 * sample / sampleRate));
+            var bytes = new byte[pcm.Length * 4]; Buffer.BlockCopy(pcm, 0, bytes, 0, bytes.Length); foreach (var frame in framer.Push(bytes, bytes.Length)) { Assert.Equal(320, frame.Length); output.AddRange(frame); }
+        }
+        Assert.InRange(output.Count, 15000, 16000); Assert.InRange(Math.Sqrt(output.Skip(320).Average(x => (double)x * x)), 5000, 6500);
+        int crossings = 0; for (int i = 321; i < output.Count; i++) if (output[i - 1] < 0 && output[i] >= 0) crossings++;
+        Assert.InRange(crossings * 16000d / (output.Count - 321), 695, 705);
+        framer.Clear(); Assert.Empty(framer.Push([], 0));
     }
     [Fact]
     public void CodecRejectsUnsupportedFrameAndBitrate() { Assert.Throws<ArgumentOutOfRangeException>(() => new VoiceCodec(64000)); Assert.Throws<ArgumentException>(() => new VoiceCodec().Encode(new short[160])); Assert.Throws<InvalidDataException>(() => new VoiceCodec().Decode(new byte[1276])); }
