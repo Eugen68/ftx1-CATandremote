@@ -1,0 +1,530 @@
+[
+  {
+    "frame": "FA111111111",
+    "expected": {
+      "freq_a": 111111111
+    },
+    "rule": 0
+  },
+  {
+    "frame": "FB111111111",
+    "expected": {
+      "freq_b": 111111111
+    },
+    "rule": 1
+  },
+  {
+    "frame": "MD02",
+    "expected": {
+      "mode": "USB"
+    },
+    "rule": 2
+  },
+  {
+    "frame": "MD12",
+    "expected": {
+      "mode_b": "USB"
+    },
+    "rule": 3
+  },
+  {
+    "frame": "TX1",
+    "expected": {
+      "tx": true
+    },
+    "rule": 4
+  },
+  {
+    "frame": "SM0111",
+    "expected": {
+      "smeter": 111
+    },
+    "rule": 5
+  },
+  {
+    "frame": "SM1111",
+    "expected": {
+      "smeter_b": 111
+    },
+    "rule": 6
+  },
+  {
+    "frame": "RM11111",
+    "expected": {
+      "s_main": 111
+    },
+    "rule": 7
+  },
+  {
+    "frame": "PC12",
+    "expected": {
+      "pwr_head": 1,
+      "power": 2.0
+    },
+    "rule": 8
+  },
+  {
+    "frame": "AG0111",
+    "expected": {
+      "af": 111
+    },
+    "rule": 9
+  },
+  {
+    "frame": "RG0111",
+    "expected": {
+      "rf": 111
+    },
+    "rule": 10
+  },
+  {
+    "frame": "SQ0111",
+    "expected": {
+      "sql": 111
+    },
+    "rule": 11
+  },
+  {
+    "frame": "MG111",
+    "expected": {
+      "mic": 111
+    },
+    "rule": 12
+  },
+  {
+    "frame": "VX1",
+    "expected": {
+      "vox": 1
+    },
+    "rule": 13
+  },
+  {
+    "frame": "VG111",
+    "expected": {
+      "vox_gain": 111
+    },
+    "rule": 14
+  },
+  {
+    "frame": "VD11",
+    "expected": {
+      "vox_delay": 11
+    },
+    "rule": 15
+  },
+  {
+    "frame": "NL0111",
+    "expected": {
+      "nb": 111
+    },
+    "rule": 16
+  },
+  {
+    "frame": "RL011",
+    "expected": {
+      "nr": 11
+    },
+    "rule": 17
+  },
+  {
+    "frame": "BC01",
+    "expected": {
+      "dnf": 1
+    },
+    "rule": 18
+  },
+  {
+    "frame": "BP00111",
+    "expected": {
+      "notch": 1
+    },
+    "rule": 19
+  },
+  {
+    "frame": "BP01111",
+    "expected": {
+      "notch_freq": 1110
+    },
+    "rule": 20
+  },
+  {
+    "frame": "CO001111",
+    "expected": {
+      "contour": 1
+    },
+    "rule": 21
+  },
+  {
+    "frame": "CO011111",
+    "expected": {
+      "contour_freq": 1111
+    },
+    "rule": 22
+  },
+  {
+    "frame": "CO021111",
+    "expected": {
+      "apf": 1
+    },
+    "rule": 23
+  },
+  {
+    "frame": "CO031111",
+    "expected": {
+      "apf_freq": 1111
+    },
+    "rule": 24
+  },
+  {
+    "frame": "IS01+1111",
+    "expected": {
+      "ifshift_on": 1,
+      "ifshift": 1111
+    },
+    "rule": 25
+  },
+  {
+    "frame": "SH0111",
+    "expected": {
+      "width": 11
+    },
+    "rule": 26
+  },
+  {
+    "frame": "GT011",
+    "expected": {
+      "agc": 1
+    },
+    "rule": 27
+  },
+  {
+    "frame": "PA01",
+    "expected": {
+      "preamp0": 1
+    },
+    "rule": 28
+  },
+  {
+    "frame": "RA01",
+    "expected": {
+      "att": 1
+    },
+    "rule": 29
+  },
+  {
+    "frame": "NA01",
+    "expected": {
+      "narrow": 1
+    },
+    "rule": 30
+  },
+  {
+    "frame": "FT1",
+    "expected": {
+      "tx_vfo": 1
+    },
+    "rule": 31
+  },
+  {
+    "frame": "ST1",
+    "expected": {
+      "split": 1
+    },
+    "rule": 32
+  },
+  {
+    "frame": "VS1",
+    "expected": {
+      "vfo": 1
+    },
+    "rule": 33
+  },
+  {
+    "frame": "FR11",
+    "expected": {
+      "dual": 0
+    },
+    "rule": 34
+  },
+  {
+    "frame": "PR01",
+    "expected": {
+      "proc": 0
+    },
+    "rule": 35
+  },
+  {
+    "frame": "PL111",
+    "expected": {
+      "proc_level": 111
+    },
+    "rule": 36
+  },
+  {
+    "frame": "ML0111",
+    "expected": {
+      "mon": 1
+    },
+    "rule": 37
+  },
+  {
+    "frame": "ML1111",
+    "expected": {
+      "mon_level": 111
+    },
+    "rule": 38
+  },
+  {
+    "frame": "KS111",
+    "expected": {
+      "key_speed": 111
+    },
+    "rule": 39
+  },
+  {
+    "frame": "BI1",
+    "expected": {
+      "bk": 1
+    },
+    "rule": 40
+  },
+  {
+    "frame": "KP11",
+    "expected": {
+      "key_pitch": 11
+    },
+    "rule": 41
+  },
+  {
+    "frame": "KR1",
+    "expected": {
+      "keyer": 1
+    },
+    "rule": 42
+  },
+  {
+    "frame": "SD11",
+    "expected": {
+      "bk_delay": 11
+    },
+    "rule": 43
+  },
+  {
+    "frame": "CF000111",
+    "expected": {
+      "clar_rx": 1,
+      "clar_tx": 1
+    },
+    "rule": 44
+  },
+  {
+    "frame": "CF001+1111",
+    "expected": {
+      "clar": 1111
+    },
+    "rule": 45
+  },
+  {
+    "frame": "LK1",
+    "expected": {
+      "lock": 1
+    },
+    "rule": 46
+  },
+  {
+    "frame": "AC111",
+    "expected": {
+      "tuner": "111",
+      "tuning": true
+    },
+    "rule": 47
+  },
+  {
+    "frame": "CT01",
+    "expected": {
+      "tone_mode": 1
+    },
+    "rule": 48
+  },
+  {
+    "frame": "CN00111",
+    "expected": {
+      "ctcss": 111
+    },
+    "rule": 49
+  },
+  {
+    "frame": "CN01111",
+    "expected": {
+      "dcs": 111
+    },
+    "rule": 50
+  },
+  {
+    "frame": "OS01",
+    "expected": {
+      "rpt_shift": 1
+    },
+    "rule": 51
+  },
+  {
+    "frame": "TS1",
+    "expected": {
+      "txw": 1
+    },
+    "rule": 52
+  },
+  {
+    "frame": "AO111",
+    "expected": {
+      "amc": 111
+    },
+    "rule": 53
+  },
+  {
+    "frame": "AI1",
+    "expected": {
+      "ai": 1
+    },
+    "rule": 54
+  },
+  {
+    "frame": "ID1111",
+    "expected": {
+      "radio_id": "1111"
+    },
+    "rule": 55
+  },
+  {
+    "frame": "RI111111111",
+    "expected": {
+      "busy": true
+    },
+    "rule": 56
+  },
+  {
+    "frame": "VE111-.11",
+    "expected": {
+      "fw1": "11.11"
+    },
+    "rule": 57
+  },
+  {
+    "frame": "VE5dev",
+    "expected": {
+      "fw5": "dev"
+    },
+    "rule": 58
+  },
+  {
+    "frame": "MS11",
+    "expected": {
+      "meter_sel": 1
+    },
+    "rule": 59
+  },
+  {
+    "frame": "DA111",
+    "expected": {
+      "dimmer": 11
+    },
+    "rule": 60
+  },
+  {
+    "frame": "SC01",
+    "expected": {
+      "scan": 1
+    },
+    "rule": 61
+  },
+  {
+    "frame": "VM01",
+    "expected": {
+      "vm": 1
+    },
+    "rule": 62
+  },
+  {
+    "frame": "MC0111",
+    "expected": {
+      "mem_ch": 111
+    },
+    "rule": 63
+  },
+  {
+    "frame": "FA014074000",
+    "expected": {
+      "freq_a": 14074000
+    },
+    "rule": -1
+  },
+  {
+    "frame": "IS01-0100",
+    "expected": {
+      "ifshift_on": 1,
+      "ifshift": -100
+    },
+    "rule": -1
+  },
+  {
+    "frame": "RI00000001",
+    "expected": {
+      "busy": true
+    },
+    "rule": -1
+  },
+  {
+    "frame": "VE00110",
+    "expected": {
+      "fw0": "1.10"
+    },
+    "rule": -1
+  },
+  {
+    "frame": "PC15.5",
+    "expected": {
+      "pwr_head": 1,
+      "power": 5.5
+    },
+    "rule": -1
+  },
+  {
+    "frame": "PC2bad",
+    "expected": {},
+    "rule": -1
+  },
+  {
+    "frame": "VE101-07",
+    "expected": {
+      "fw1": "1.07"
+    },
+    "rule": -1
+  },
+  {
+    "frame": "MD0Z",
+    "expected": {
+      "mode": "Z"
+    },
+    "rule": -1
+  },
+  {
+    "frame": "?",
+    "expected": {},
+    "rule": -1
+  },
+  {
+    "frame": "FA123",
+    "expected": {},
+    "rule": -1
+  },
+  {
+    "frame": "SM0123junk",
+    "expected": {},
+    "rule": -1
+  },
+  {
+    "frame": "garbage",
+    "expected": {},
+    "rule": -1
+  }
+]

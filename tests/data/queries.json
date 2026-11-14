@@ -1,0 +1,490 @@
+[
+  {
+    "command": "ID;",
+    "query": true
+  },
+  {
+    "command": "IF;",
+    "query": true
+  },
+  {
+    "command": "OI;",
+    "query": true
+  },
+  {
+    "command": "TX;",
+    "query": true
+  },
+  {
+    "command": "FA;",
+    "query": true
+  },
+  {
+    "command": "FB;",
+    "query": true
+  },
+  {
+    "command": "PC;",
+    "query": true
+  },
+  {
+    "command": "MG;",
+    "query": true
+  },
+  {
+    "command": "VX;",
+    "query": true
+  },
+  {
+    "command": "VG;",
+    "query": true
+  },
+  {
+    "command": "VD;",
+    "query": true
+  },
+  {
+    "command": "FT;",
+    "query": true
+  },
+  {
+    "command": "VS;",
+    "query": true
+  },
+  {
+    "command": "FR;",
+    "query": true
+  },
+  {
+    "command": "PL;",
+    "query": true
+  },
+  {
+    "command": "KS;",
+    "query": true
+  },
+  {
+    "command": "BI;",
+    "query": true
+  },
+  {
+    "command": "KP;",
+    "query": true
+  },
+  {
+    "command": "KR;",
+    "query": true
+  },
+  {
+    "command": "SD;",
+    "query": true
+  },
+  {
+    "command": "LK;",
+    "query": true
+  },
+  {
+    "command": "AC;",
+    "query": true
+  },
+  {
+    "command": "TS;",
+    "query": true
+  },
+  {
+    "command": "AO;",
+    "query": true
+  },
+  {
+    "command": "AI;",
+    "query": true
+  },
+  {
+    "command": "MS;",
+    "query": true
+  },
+  {
+    "command": "DA;",
+    "query": true
+  },
+  {
+    "command": "ST;",
+    "query": true
+  },
+  {
+    "command": "AG0;",
+    "query": true
+  },
+  {
+    "command": "RG0;",
+    "query": true
+  },
+  {
+    "command": "SQ0;",
+    "query": true
+  },
+  {
+    "command": "SM0;",
+    "query": true
+  },
+  {
+    "command": "RM0;",
+    "query": true
+  },
+  {
+    "command": "MD0;",
+    "query": true
+  },
+  {
+    "command": "NL0;",
+    "query": true
+  },
+  {
+    "command": "RL0;",
+    "query": true
+  },
+  {
+    "command": "BC0;",
+    "query": true
+  },
+  {
+    "command": "BP00;",
+    "query": true
+  },
+  {
+    "command": "CO00;",
+    "query": true
+  },
+  {
+    "command": "IS0;",
+    "query": true
+  },
+  {
+    "command": "SH0;",
+    "query": true
+  },
+  {
+    "command": "GT0;",
+    "query": true
+  },
+  {
+    "command": "PA0;",
+    "query": true
+  },
+  {
+    "command": "RA0;",
+    "query": true
+  },
+  {
+    "command": "NA0;",
+    "query": true
+  },
+  {
+    "command": "PR0;",
+    "query": true
+  },
+  {
+    "command": "ML0;",
+    "query": true
+  },
+  {
+    "command": "CF000;",
+    "query": true
+  },
+  {
+    "command": "CT0;",
+    "query": true
+  },
+  {
+    "command": "CN00;",
+    "query": true
+  },
+  {
+    "command": "OS0;",
+    "query": true
+  },
+  {
+    "command": "VE0;",
+    "query": true
+  },
+  {
+    "command": "EX000000;",
+    "query": true
+  },
+  {
+    "command": "SS00;",
+    "query": true
+  },
+  {
+    "command": "SC0;",
+    "query": true
+  },
+  {
+    "command": "MC0;",
+    "query": true
+  },
+  {
+    "command": "VM0;",
+    "query": true
+  },
+  {
+    "command": "MR00000;",
+    "query": true
+  },
+  {
+    "command": "MT00000;",
+    "query": true
+  },
+  {
+    "command": "MZ00000;",
+    "query": true
+  },
+  {
+    "command": "RI0;",
+    "query": true
+  },
+  {
+    "command": "ID9;",
+    "query": false
+  },
+  {
+    "command": "IF9;",
+    "query": false
+  },
+  {
+    "command": "OI9;",
+    "query": false
+  },
+  {
+    "command": "TX9;",
+    "query": false
+  },
+  {
+    "command": "FA9;",
+    "query": false
+  },
+  {
+    "command": "FB9;",
+    "query": false
+  },
+  {
+    "command": "PC9;",
+    "query": false
+  },
+  {
+    "command": "MG9;",
+    "query": false
+  },
+  {
+    "command": "VX9;",
+    "query": false
+  },
+  {
+    "command": "VG9;",
+    "query": false
+  },
+  {
+    "command": "VD9;",
+    "query": false
+  },
+  {
+    "command": "FT9;",
+    "query": false
+  },
+  {
+    "command": "VS9;",
+    "query": false
+  },
+  {
+    "command": "FR9;",
+    "query": false
+  },
+  {
+    "command": "PL9;",
+    "query": false
+  },
+  {
+    "command": "KS9;",
+    "query": false
+  },
+  {
+    "command": "BI9;",
+    "query": false
+  },
+  {
+    "command": "KP9;",
+    "query": false
+  },
+  {
+    "command": "KR9;",
+    "query": false
+  },
+  {
+    "command": "SD9;",
+    "query": false
+  },
+  {
+    "command": "LK9;",
+    "query": false
+  },
+  {
+    "command": "AC9;",
+    "query": false
+  },
+  {
+    "command": "TS9;",
+    "query": false
+  },
+  {
+    "command": "AO9;",
+    "query": false
+  },
+  {
+    "command": "AI9;",
+    "query": false
+  },
+  {
+    "command": "MS9;",
+    "query": false
+  },
+  {
+    "command": "DA9;",
+    "query": false
+  },
+  {
+    "command": "ST9;",
+    "query": false
+  },
+  {
+    "command": "AG09;",
+    "query": false
+  },
+  {
+    "command": "RG09;",
+    "query": false
+  },
+  {
+    "command": "SQ09;",
+    "query": false
+  },
+  {
+    "command": "SM09;",
+    "query": false
+  },
+  {
+    "command": "RM09;",
+    "query": false
+  },
+  {
+    "command": "MD09;",
+    "query": false
+  },
+  {
+    "command": "NL09;",
+    "query": false
+  },
+  {
+    "command": "RL09;",
+    "query": false
+  },
+  {
+    "command": "BC09;",
+    "query": false
+  },
+  {
+    "command": "BP009;",
+    "query": false
+  },
+  {
+    "command": "CO009;",
+    "query": false
+  },
+  {
+    "command": "IS09;",
+    "query": false
+  },
+  {
+    "command": "SH09;",
+    "query": false
+  },
+  {
+    "command": "GT09;",
+    "query": false
+  },
+  {
+    "command": "PA09;",
+    "query": false
+  },
+  {
+    "command": "RA09;",
+    "query": false
+  },
+  {
+    "command": "NA09;",
+    "query": false
+  },
+  {
+    "command": "PR09;",
+    "query": false
+  },
+  {
+    "command": "ML09;",
+    "query": false
+  },
+  {
+    "command": "CF0009;",
+    "query": false
+  },
+  {
+    "command": "CT09;",
+    "query": false
+  },
+  {
+    "command": "CN009;",
+    "query": false
+  },
+  {
+    "command": "OS09;",
+    "query": false
+  },
+  {
+    "command": "VE09;",
+    "query": false
+  },
+  {
+    "command": "EX0000009;",
+    "query": false
+  },
+  {
+    "command": "SS009;",
+    "query": false
+  },
+  {
+    "command": "SC09;",
+    "query": false
+  },
+  {
+    "command": "MC09;",
+    "query": false
+  },
+  {
+    "command": "VM09;",
+    "query": false
+  },
+  {
+    "command": "MR000009;",
+    "query": false
+  },
+  {
+    "command": "MT000009;",
+    "query": false
+  },
+  {
+    "command": "MZ000009;",
+    "query": false
+  },
+  {
+    "command": "RI09;",
+    "query": false
+  }
+]

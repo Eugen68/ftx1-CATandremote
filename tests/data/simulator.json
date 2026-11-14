@@ -1,0 +1,174 @@
+[
+  {
+    "command": "ID",
+    "reply": "ID0840;"
+  },
+  {
+    "command": "VE0",
+    "reply": "VE00110;"
+  },
+  {
+    "command": "VE5",
+    "reply": "?;"
+  },
+  {
+    "command": "FA",
+    "reply": "FA014074000;"
+  },
+  {
+    "command": "FB",
+    "reply": "FB007100000;"
+  },
+  {
+    "command": "MD0",
+    "reply": "MD02;"
+  },
+  {
+    "command": "PC",
+    "reply": "PC2050;"
+  },
+  {
+    "command": "AG0128",
+    "reply": ""
+  },
+  {
+    "command": "AG0",
+    "reply": "AG0128;"
+  },
+  {
+    "command": "PC15.5",
+    "reply": ""
+  },
+  {
+    "command": "PC",
+    "reply": "PC15.5;"
+  },
+  {
+    "command": "BS013",
+    "reply": ""
+  },
+  {
+    "command": "FA",
+    "reply": "FA145500000;"
+  },
+  {
+    "command": "AB",
+    "reply": ""
+  },
+  {
+    "command": "FB",
+    "reply": "FB145500000;"
+  },
+  {
+    "command": "SV",
+    "reply": ""
+  },
+  {
+    "command": "FA",
+    "reply": "FA145500000;"
+  },
+  {
+    "command": "FB",
+    "reply": "FB145500000;"
+  },
+  {
+    "command": "EX010101",
+    "reply": "EX0101010;"
+  },
+  {
+    "command": "EX010101+0012",
+    "reply": ""
+  },
+  {
+    "command": "EX010101",
+    "reply": "EX010101+0012;"
+  },
+  {
+    "command": "MR00001",
+    "reply": "MR00001145500000+000000410000;"
+  },
+  {
+    "command": "MT00001",
+    "reply": "MT00001Lybit 2m;"
+  },
+  {
+    "command": "MZ00001",
+    "reply": "MZ000010145500000;"
+  },
+  {
+    "command": "MC000002",
+    "reply": ""
+  },
+  {
+    "command": "MC0",
+    "reply": "MC000002;"
+  },
+  {
+    "command": "VM0",
+    "reply": "VM011;"
+  },
+  {
+    "command": "CN00",
+    "reply": "CN00008;"
+  },
+  {
+    "command": "AM",
+    "reply": ""
+  },
+  {
+    "command": "MT00002",
+    "reply": "MT00002;"
+  },
+  {
+    "command": "MW00009014074000-01001021002",
+    "reply": "?;"
+  },
+  {
+    "command": "MR00009",
+    "reply": "?;"
+  },
+  {
+    "command": "MT00009HELLO",
+    "reply": "?;"
+  },
+  {
+    "command": "MT00009",
+    "reply": "?;"
+  },
+  {
+    "command": "MZ000091145600000",
+    "reply": "?;"
+  },
+  {
+    "command": "MZ00009",
+    "reply": "?;"
+  },
+  {
+    "command": "TX1",
+    "reply": ""
+  },
+  {
+    "command": "TX",
+    "reply": "TX1;"
+  },
+  {
+    "command": "KY00",
+    "reply": ""
+  },
+  {
+    "command": "TX",
+    "reply": "TX0;"
+  },
+  {
+    "command": "VM000",
+    "reply": ""
+  },
+  {
+    "command": "VM0",
+    "reply": "VM000;"
+  },
+  {
+    "command": "BOGUS",
+    "reply": "?;"
+  }
+]
