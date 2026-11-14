@@ -1,3 +1,4 @@
+using Ftx1.Mobile;
 using global::Android.App;
 using global::Android.Content;
 using global::Android.Content.PM;
@@ -11,7 +12,7 @@ using ZXing;
 using ZXing.Common;
 namespace Ftx1.Android;
 [Activity(Exported = false, ScreenOrientation = ScreenOrientation.Portrait)]
-public sealed class QrActivity : Activity, TextureView.ISurfaceTextureListener
+public class QrActivity : Activity, TextureView.ISurfaceTextureListener
 {
     TextureView? preview; CameraDevice? camera; CameraCaptureSession? session; ImageReader? reader; HandlerThread? thread; Handler? handler; Surface? surface; bool closed, completed;
     protected override void OnCreate(Bundle? state)
@@ -63,14 +64,14 @@ public sealed class QrActivity : Activity, TextureView.ISurfaceTextureListener
     public bool OnSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) => true;
     public void OnSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) { }
     public void OnSurfaceTextureUpdated(SurfaceTexture surfaceTexture) { }
-    sealed class Frames(QrActivity owner) : Java.Lang.Object, ImageReader.IOnImageAvailableListener { public void OnImageAvailable(ImageReader? source) { if (source != null) owner.Decode(source); } }
-    sealed class Opened(QrActivity owner) : CameraDevice.StateCallback
+    class Frames(QrActivity owner) : Java.Lang.Object, ImageReader.IOnImageAvailableListener { public void OnImageAvailable(ImageReader? source) { if (source != null) owner.Decode(source); } }
+    class Opened(QrActivity owner) : CameraDevice.StateCallback
     {
         public override void OnOpened(CameraDevice camera) => owner.StartSession(camera);
         public override void OnDisconnected(CameraDevice camera) { camera.Close(); owner.RunOnUiThread(owner.Finish); }
         public override void OnError(CameraDevice camera, CameraError error) { camera.Close(); owner.RunOnUiThread(owner.Finish); }
     }
-    sealed class Configured(QrActivity owner) : CameraCaptureSession.StateCallback
+    class Configured(QrActivity owner) : CameraCaptureSession.StateCallback
     {
         public override void OnConfigured(CameraCaptureSession session)
         {

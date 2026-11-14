@@ -75,6 +75,8 @@ jobs:
       - run: dotnet workload install android --skip-manifest-update
       - name: Build standalone debug-signed APK
         run: dotnet build src/Ftx1.Android -c Debug -p:AndroidSdkDirectory="$ANDROID_HOME" -p:JavaSdkDirectory="$JAVA_HOME" -p:EmbedAssembliesIntoApk=true
+      - name: Verify Android components and distributed build
+        run: python3 tools/check_android_package.py
       - name: Stage Android package
         run: |
           mkdir -p artifacts/android

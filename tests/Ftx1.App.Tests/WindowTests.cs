@@ -11,6 +11,7 @@ using Ftx1.Core;
 using Ftx1.Server;
 using Ftx1.Sim;
 using System.Net;
+using Ftx1.Core.Cat;
 using Xunit;
 [assembly: AvaloniaTestApplication(typeof(Ftx1.App.Tests.TestApp))]
 namespace Ftx1.App.Tests;
@@ -37,4 +38,32 @@ public class WindowTests
         Assert.True(Avalonia.Platform.AssetLoader.Exists(new Uri("avares://FTX1-Server/icon.png")));
         var admin=new AdminWindow();try{admin.Show();Assert.True(admin.IsVisible);}finally{admin.Close();}
     }
+    sealed class CloseFault(SimRadio radio) : ITransport
+    {
+        readonly SimTransport inner = new(radio); public bool Failed => inner.Failed;
+        public void Open(Action<byte[]?> cb) => inner.Open(cb); public void Write(byte[] data) => inner.Write(data); public void Reopen() => inner.Reopen();
+        public void Close() { inner.Close(); throw new IOException("Injected cleanup failure"); }
+    }
+    [AvaloniaFact]
+    public async Task StopCleanupFailureLeavesAdministrationOpenAndPortsEditableThenCanRestart()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "ftx1-admin-" + Guid.NewGuid().ToString("N")); var radios = new List<SimRadio>(); int count = 0;
+        await using var model = new AdminViewModel(k => k, root, options => { var radio = new SimRadio(); radios.Add(radio); return new StationServer(options with { Port = 0, Addresses = [IPAddress.Loopback] }, ++count == 1 ? new CloseFault(radio) : new SimTransport(radio)); });
+        var window = new AdminWindow { DataContext = model };
+        try
+        {
+            window.Show(); Assert.True(model.CanConfigure); await model.StartCommand.ExecuteAsync(null); Assert.True(model.Running, model.Status + (File.Exists(Path.Combine(root, "server-errors.log")) ? File.ReadAllText(Path.Combine(root, "server-errors.log")) : "")); Assert.False(model.CanConfigure);
+            await model.StopCommand.ExecuteAsync(null); Assert.True(window.IsVisible); Assert.False(model.Running); Assert.True(model.CanConfigure); Assert.Null(model.QrImage); Assert.Contains("Injected cleanup failure", File.ReadAllText(Path.Combine(root, "server-errors.log")));
+            await model.StartCommand.ExecuteAsync(null); Assert.True(model.Running, model.Status + (File.Exists(Path.Combine(root, "server-errors.log")) ? File.ReadAllText(Path.Combine(root, "server-errors.log")) : "")); await model.StopCommand.ExecuteAsync(null); Assert.True(window.IsVisible); Assert.True(model.CanConfigure);
+        }
+        finally { await model.DisposeAsync(); window.Close(); foreach (var radio in radios) radio.Dispose(); if (Directory.Exists(root)) Directory.Delete(root, true); }
+    }
+
+    [AvaloniaFact]
+    public async Task MobileViewUsesSharedModelAndHasFourTabs()
+    {
+        await using var model = new MainViewModel(k => k, a => Dispatcher.UIThread.Post(a), new ClientSettingsStore(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"))));
+        Ftx1.Mobile.MobilePlatform.Model = model; var view = new Ftx1.Mobile.MobileView(); Assert.Same(model, view.DataContext); Assert.Equal(4, view.FindControl<TabControl>("Pages")!.ItemCount); Assert.NotNull(view.FindControl<Button>("Ptt"));
+    }
+
 }

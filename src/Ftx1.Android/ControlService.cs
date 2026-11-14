@@ -1,3 +1,4 @@
+using Ftx1.Mobile;
 using global::Android.App;
 using global::Android.Content;
 using global::Android.Content.PM;
@@ -8,7 +9,7 @@ using Avalonia.Threading;
 using Ftx1.Client;
 namespace Ftx1.Android;
 [Service(Name = "ro.eugen68.ftx1remote.ControlService", Exported = false, ForegroundServiceType = ForegroundService.TypeMicrophone | ForegroundService.TypeMediaPlayback)]
-public sealed class ControlService : Service, AudioManager.IOnAudioFocusChangeListener
+public class ControlService : Service, AudioManager.IOnAudioFocusChangeListener
 {
     const string ChannelId = "ftx1.connection"; const int NotificationId = 41;
     static ControlService? instance;
@@ -78,7 +79,7 @@ public sealed class ControlService : Service, AudioManager.IOnAudioFocusChangeLi
     public override void OnTaskRemoved(Intent? rootIntent) { _ = MobileRuntime.Disconnect(); StopSelf(); base.OnTaskRemoved(rootIntent); }
     public override void OnDestroy()
     {
-        stopping = true; Active = false; instance = null; timer?.Dispose(); MobileRuntime.Handle(MobileEvent.ServiceStopped); _ = MobileRuntime.Model.DisconnectSession();
+        stopping = true; Active = false; instance = null; timer?.Dispose(); MobileRuntime.Handle(MobileEvent.ServiceStopped); _ = MobileRuntime.EndSessionFromService();
         if (screenEvents != null) UnregisterReceiver(screenEvents); if (networkEvents != null) connectivity?.UnregisterNetworkCallback(networkEvents); if (routeEvents != null) audio?.UnregisterAudioDeviceCallback(routeEvents);
         if (focus != null) audio?.AbandonAudioFocusRequest(focus);
         if (OperatingSystem.IsAndroidVersionAtLeast(31)) audio?.ClearCommunicationDevice();
@@ -89,18 +90,18 @@ public sealed class ControlService : Service, AudioManager.IOnAudioFocusChangeLi
         }
         if (audio != null) audio.Mode = Mode.Normal; if (wake?.IsHeld == true) wake.Release(); wake?.Dispose(); StopForeground(StopForegroundFlags.Remove); base.OnDestroy();
     }
-    sealed class ScreenEvents : BroadcastReceiver
+    class ScreenEvents : BroadcastReceiver
     {
         public override void OnReceive(Context? context, Intent? intent) => MobileRuntime.Handle(intent?.Action == Intent.ActionScreenOff ? MobileEvent.ScreenOff : MobileEvent.HeadsetDisconnected);
     }
-    sealed class NetworkEvents : ConnectivityManager.NetworkCallback
+    class NetworkEvents : ConnectivityManager.NetworkCallback
     {
         Network? current; string? transports;
         public override void OnCapabilitiesChanged(Network network, NetworkCapabilities capabilities) { string next = string.Join(",", new[] { TransportType.Wifi, TransportType.Cellular, TransportType.Ethernet, TransportType.Vpn }.Where(capabilities.HasTransport)); bool changed = transports != null && transports != next; transports = next; if (changed) Dispatcher.UIThread.Post(() => MobileRuntime.Handle(MobileEvent.NetworkChanged)); }
         public override void OnAvailable(Network network) { bool changed = current != null && !current.Equals(network); current = network; Dispatcher.UIThread.Post(() => { MobileRuntime.Handle(MobileEvent.NetworkAvailable); if (changed) MobileRuntime.Handle(MobileEvent.NetworkChanged); }); }
         public override void OnLost(Network network) { if (current?.Equals(network) != true) return; current = null; Dispatcher.UIThread.Post(() => MobileRuntime.Handle(MobileEvent.NetworkLost)); }
     }
-    sealed class RouteEvents(ControlService owner) : AudioDeviceCallback
+    class RouteEvents(ControlService owner) : AudioDeviceCallback
     {
         public override void OnAudioDevicesAdded(AudioDeviceInfo[]? addedDevices) { if (addedDevices?.Any(d => d.Type is AudioDeviceType.BluetoothSco or AudioDeviceType.WiredHeadset or AudioDeviceType.UsbHeadset) == true) Dispatcher.UIThread.Post(() => { MobileRuntime.Release(); owner.SelectHeadset(); }); }
         public override void OnAudioDevicesRemoved(AudioDeviceInfo[]? removedDevices) { if (removedDevices?.Any(d => d.Type is AudioDeviceType.BluetoothSco or AudioDeviceType.BluetoothA2dp or AudioDeviceType.WiredHeadset or AudioDeviceType.UsbHeadset or AudioDeviceType.WiredHeadphones) == true) Dispatcher.UIThread.Post(() => MobileRuntime.Handle(MobileEvent.HeadsetDisconnected)); }

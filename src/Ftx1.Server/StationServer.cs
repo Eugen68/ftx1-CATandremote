@@ -27,10 +27,15 @@ public sealed class StationServer : IAsyncDisposable
     public DeviceTokens Tokens { get; }
     public PairingCodes Pairing { get; }
     public ServerCertificate Certificate { get; }
+    public IPAddress[]? ListeningAddresses { get; private set; }
     public Uri? Address { get; private set; }
     public int TotMinutes { get; private set; } = -1;
     public Rig Station => rig;
     public event Action? DevicesChanged;
+    public event Action<bool, string>? AudioStatusChanged;
+    public string LastAudioStatus { get; private set; } = "";
+    public void CheckAudio() { try { audio.Start(); AudioStatus(true, audio.Description); } catch (Exception error) { AudioStatus(false, AudioDiagnostic.Describe(error)); throw; } }
+    void AudioStatus(bool ready, string detail) { LastAudioStatus = detail; AudioStatusChanged?.Invoke(ready, detail); }
     public StationServer(ServerOptions options, ITransport? transport = null, Func<IVoiceDevice>? audioFactory = null)
     {
         this.options = options; options.Station.Validate(); Directory.CreateDirectory(options.Root);
@@ -40,7 +45,7 @@ public sealed class StationServer : IAsyncDisposable
         audio = new(audioFactory ?? (() => options.Station.Simulator ? new SimVoiceDevice() : AudioDevices.Create(true, options.AudioInput, options.AudioOutput)));
         audio.Encoded += (bitrate, seq, stamp, payload) => { foreach (var session in sessions.Values) if (session.AudioEnabled && session.Bitrate == bitrate) session.SendAudio(new(ProtocolVersion.Audio, session.ReceiveEpoch, seq, stamp, payload)); };
         rig = new(transport, options.Station.Simulator ? "TX1" : options.Station.PttMethod, line, TimeSpan.FromSeconds(options.Station.MaxTxSeconds));
-        audio.Failed += _ => { rig.Transmit.Stop(StopReason.Failure); Broadcast(new() { T = "error", Error = "AudioUnavailable" }); };
+        audio.Failed += error => { rig.Transmit.Stop(StopReason.Failure); var detail = AudioDiagnostic.Describe(error); AudioStatus(false, detail); Broadcast(new() { T = "error", Error = "ServerAudioUnavailable", Detail = detail }); };
         rig.Changed += diff => Broadcast(new() { T = "state", Diff = Wire.State(diff) });
         rig.Raw += line => Broadcast(new() { T = "catLine", Command = line });
         rig.Transmit.Started += OnTxStarted;
@@ -49,7 +54,7 @@ public sealed class StationServer : IAsyncDisposable
     }
     public async Task Start(CancellationToken token = default)
     {
-        var addresses = options.Addresses ?? ListenPolicy.DefaultAddresses(); ListenPolicy.Validate(addresses, options.AllowOtherInterfaces);
+        var addresses = options.Addresses ?? ListenPolicy.DefaultAddresses(); ListenPolicy.Validate(addresses, options.AllowOtherInterfaces); ListeningAddresses = addresses;
         var builder = WebApplication.CreateSlimBuilder(); builder.Logging.ClearProviders();
         builder.WebHost.ConfigureKestrel(k => { k.Limits.MaxRequestBodySize = 4096; foreach (var ip in addresses) k.Listen(ip, options.Port, l => l.UseHttps(Certificate.Certificate)); });
         app = builder.Build(); app.UseWebSockets(new() { KeepAliveInterval = TimeSpan.FromSeconds(15) });
@@ -135,7 +140,7 @@ public sealed class StationServer : IAsyncDisposable
                 case "audioConfig":
                     if (rig.Transmit.Owner == s.Id) rig.Transmit.Stop(StopReason.Released);
                     s.AudioEnabled = false; s.ResetTransmit();
-                    if (m.On == true) { int bitrate = m.Bitrate ?? 24000; if (bitrate is not (12000 or 24000 or 32000)) throw new ArgumentException("InvalidBitrate"); try { audio.Start(); } catch { s.Send(new() { T = "error", Error = "AudioUnavailable" }); break; } s.Bitrate = bitrate; s.ReceiveEpoch = Interlocked.Increment(ref audioEpoch); s.Send(new() { T = "audioReady", AudioAvailable = true, AudioEpoch = s.ReceiveEpoch, Bitrate = bitrate }); s.AudioEnabled = true; }
+                    if (m.On == true) { int bitrate = m.Bitrate ?? 24000; if (bitrate is not (12000 or 24000 or 32000)) throw new ArgumentException("InvalidBitrate"); try { audio.Start(); AudioStatus(true, audio.Description); } catch (Exception error) { var detail = AudioDiagnostic.Describe(error); AudioStatus(false, detail); s.Send(new() { T = "error", Error = "ServerAudioUnavailable", Detail = detail }); break; } s.Bitrate = bitrate; s.ReceiveEpoch = Interlocked.Increment(ref audioEpoch); s.Send(new() { T = "audioReady", AudioAvailable = true, AudioEpoch = s.ReceiveEpoch, Bitrate = bitrate }); s.AudioEnabled = true; }
                     else s.Send(new() { T = "audioReady", AudioAvailable = false });
                     break;
                 case "pttRequest":
@@ -220,7 +225,7 @@ public sealed class StationServer : IAsyncDisposable
     {
         if (disposed) return; disposed = true;
         try { rig.Transmit.Stop(StopReason.Shutdown); lifetime.Cancel(); foreach (var s in sessions.Values) s.Abort(); if (monitor != null) await monitor; if (audioPlayback != null) await audioPlayback; audio.Dispose(); }
-        finally { try { if (app != null) { using var timeout = new CancellationTokenSource(3000); try { await app.StopAsync(timeout.Token); } catch (OperationCanceledException) { } await app.DisposeAsync(); } } finally { await rig.DisposeAsync(); simulator?.Dispose(); Certificate.Certificate.Dispose(); } }
+        finally { try { if (app != null) { using var timeout = new CancellationTokenSource(3000); try { await app.StopAsync(timeout.Token); } catch (OperationCanceledException) { } await app.DisposeAsync(); } } finally { try { await rig.DisposeAsync(); } finally { try { simulator?.Dispose(); } finally { Certificate.Certificate.Dispose(); } } } }
     }
     sealed class Session
     {

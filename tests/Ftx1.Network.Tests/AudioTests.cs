@@ -120,6 +120,35 @@ public class AudioTests
     {
         AudioDeviceInfo[] devices = [new("a", "Speakers"), new("b", "USB Audio Device"), new("c", "USB Audio CODEC")]; Assert.Equal("c", AudioDevices.GuessCodec(devices)); Assert.Null(AudioDevices.GuessCodec(devices[..1]));
     }
+    [Fact]
+    public async Task ServerAudioFailureReportsCauseButKeepsControlConnectionAlive()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "ftx1-audio-failure-" + Guid.NewGuid().ToString("N"));
+        await using var server = new Ftx1.Server.StationServer(new(root, new Ftx1.Core.StationConfig(), 0, [System.Net.IPAddress.Loopback]), audioFactory: () => throw new IOException("USB codec unavailable for test"));
+        try
+        {
+            await server.Start(); var pair = server.Tokens.Create("diagnostic"); await using var connection = new StationConnection(new(server.Address!.ToString(), server.Certificate.Fingerprint, pair.DeviceToken));
+            var failure = new TaskCompletionSource<Message>(TaskCreationOptions.RunContinuationsAsynchronously); connection.Received += message => { if (message.Error == "ServerAudioUnavailable") failure.TrySetResult(message); };
+            await connection.Start(); await StationFixture.Wait(() => connection.Connected); await connection.Send(new() { T = "audioConfig", On = true }); var result = await failure.Task.WaitAsync(TimeSpan.FromSeconds(3));
+            Assert.Contains("USB codec unavailable for test", result.Detail); Assert.True(connection.Connected); await connection.Send(new() { T = "set", Key = "af", Value = Wire.Element(71) }); await StationFixture.Wait(() => connection.State.GetValueOrDefault("af") is 71);
+        }
+        finally { await server.DisposeAsync(); if (Directory.Exists(root)) Directory.Delete(root, true); }
+    }
+    [Fact]
+    public async Task AudioRetryDisposesPreviousDeviceWithoutBlockingItsCaptureCallback()
+    {
+        var first = new DisposeCallbackDevice(); int count = 0;
+        using var station = new Ftx1.Server.StationAudio(() => ++count == 1 ? first : new DisposeCallbackDevice());
+        station.Start(); first.Fail(); Assert.False(station.Ready);
+        await Task.Run(station.Start).WaitAsync(TimeSpan.FromSeconds(2)); Assert.True(station.Ready); Assert.True(first.Disposed);
+    }
+    sealed class DisposeCallbackDevice : IVoiceDevice
+    {
+        public bool Disposed; public event Action<short[]>? Captured; public event Action<Exception>? Failed;
+        public void Start() { } public void Play(short[] samples) { } public void Clear() { }
+        public void Fail() => Failed?.Invoke(new IOException("injected device failure"));
+        public void Dispose() { var callback = new Thread(() => Captured?.Invoke(new short[320])) { IsBackground = true }; callback.Start(); if (!callback.Join(1000)) throw new TimeoutException("Capture callback could not finish during disposal"); Disposed = true; }
+    }
     sealed class ProbeDevice : IVoiceDevice
     {
         readonly SimVoiceDevice clock = new(); long sample; public volatile bool CaptureEnabled = true; public int Received, Max;

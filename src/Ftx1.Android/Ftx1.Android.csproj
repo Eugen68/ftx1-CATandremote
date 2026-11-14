@@ -10,9 +10,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(SmokeTestBuild)' == 'true'"><DefineConstants>$(DefineConstants);ANDROID_SMOKE</DefineConstants></PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../Ftx1.Client/Ftx1.Client.csproj"/>
+    <ProjectReference Include="../Ftx1.Mobile/Ftx1.Mobile.csproj"/>
     <PackageReference Include="Avalonia.Android" Version="11.2.3"/><PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3"/>
     <PackageReference Include="ZXing.Net" Version="0.16.10"/>
-    <AvaloniaResource Include="../Ftx1.Desktop/Resources/Strings.ro.axaml" Link="Resources/Strings.ro.axaml"/>
   </ItemGroup>
 </Project>

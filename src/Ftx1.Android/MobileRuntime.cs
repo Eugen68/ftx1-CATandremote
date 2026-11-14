@@ -1,3 +1,4 @@
+using Ftx1.Mobile;
 using global::Android.Content;
 using global::Android.OS;
 using Avalonia.Threading;
@@ -17,6 +18,8 @@ public static class MobileRuntime
     {
         if (Model != null) return;
         Model = new(MobileApp.Text, a => Dispatcher.UIThread.Post(a), new AndroidSettingsStore(Root), () => Voice = new AndroidVoiceDevice());
+        MobilePlatform.Model = Model; MobilePlatform.ToggleConnection = ToggleConnection; MobilePlatform.Disconnect = Disconnect; MobilePlatform.ResumeAudio = ResumeAudio;
+        MobilePlatform.ScanQr = () => MainActivity.Current?.ScanQr() ?? Task.CompletedTask; MobilePlatform.Press = Press; MobilePlatform.Release = Release;
         Model.DeviceName = global::Android.OS.Build.Model ?? "Android";
     }
     public static async Task ToggleConnection()
@@ -38,9 +41,10 @@ public static class MobileRuntime
     }
     public static async Task Disconnect()
     {
-        Model.EndPtt(); await audioGate.WaitAsync(); try { await Model.DisconnectSession(); } finally { audioGate.Release(); } MainActivity.Current?.StopService(new Intent(MainActivity.Current, typeof(ControlService)));
+        Model.EndPtt(); await audioGate.WaitAsync(); try { await Model.DisconnectSession(); } finally { audioGate.Release(); }
         global::Android.App.Application.Context.StopService(new Intent(global::Android.App.Application.Context, typeof(ControlService)));
     }
+    public static async Task EndSessionFromService() { await audioGate.WaitAsync(); try { await Model.DisconnectSession(); } finally { audioGate.Release(); } }
     public static void Handle(MobileEvent e)
     {
         var decision = Lifecycle.Handle(e); if (!Initialized) return;

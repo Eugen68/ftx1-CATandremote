@@ -12,7 +12,7 @@ public static class AudioDevices
     }
     [SupportedOSPlatform("windows")]
     static AudioDeviceInfo[] ListWindows(bool input) { using var e = new MMDeviceEnumerator(); var devices = e.EnumerateAudioEndPoints(input ? DataFlow.Capture : DataFlow.Render, DeviceState.Active); return devices.Select(d => { using (d) return new AudioDeviceInfo(d.ID, d.FriendlyName); }).ToArray(); }
-    public static string? GuessCodec(IEnumerable<AudioDeviceInfo> devices) => devices.OrderBy(d => d.Name.Contains("usb audio codec", StringComparison.OrdinalIgnoreCase) ? 0 : 1).FirstOrDefault(d => d.Name.Contains("usb audio codec", StringComparison.OrdinalIgnoreCase) || d.Name.Contains("usb audio device", StringComparison.OrdinalIgnoreCase))?.Id;
+    public static string? GuessCodec(IEnumerable<AudioDeviceInfo> devices) => devices.OrderBy(d => d.Name.Contains("ftx-1", StringComparison.OrdinalIgnoreCase) ? 0 : d.Name.Contains("usb audio codec", StringComparison.OrdinalIgnoreCase) ? 1 : 2).FirstOrDefault(d => d.Name.Contains("ftx-1", StringComparison.OrdinalIgnoreCase) || d.Name.Contains("usb audio codec", StringComparison.OrdinalIgnoreCase) || d.Name.Contains("usb audio device", StringComparison.OrdinalIgnoreCase))?.Id;
     public static IVoiceDevice Create(bool station, string? inputId = null, string? outputId = null)
     {
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("AudioWindowsOnly");
@@ -28,11 +28,12 @@ public sealed class WasapiVoiceDevice : IVoiceDevice
     readonly object gate = new(); readonly MMDevice input, output; readonly WasapiCapture capture; readonly WasapiOut playback;
     readonly BufferedWaveProvider speaker; readonly CaptureFramer framer;
     volatile bool disposed;
+    public string Description => input.FriendlyName + " → " + output.FriendlyName;
     public event Action<short[]>? Captured;
     public event Action<Exception>? Failed;
     public WasapiVoiceDevice(string? inputId, string? outputId)
     {
-        using var e = new MMDeviceEnumerator(); input = string.IsNullOrEmpty(inputId) ? e.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications) : e.GetDevice(inputId); output = string.IsNullOrEmpty(outputId) ? e.GetDefaultAudioEndpoint(DataFlow.Render, Role.Communications) : e.GetDevice(outputId);
+        using var e = new MMDeviceEnumerator(); input = GetDevice(e, DataFlow.Capture, inputId); output = GetDevice(e, DataFlow.Render, outputId);
         try
         {
             capture = new WasapiCapture(input, true, 20);
@@ -45,6 +46,12 @@ public sealed class WasapiVoiceDevice : IVoiceDevice
             playback.PlaybackStopped += (_, args) => { if (!disposed && args.Exception != null) Failed?.Invoke(args.Exception); };
         }
         catch { capture?.Dispose(); playback?.Dispose(); input.Dispose(); output.Dispose(); throw; }
+    }
+    static MMDevice GetDevice(MMDeviceEnumerator enumerator, DataFlow flow, string? id)
+    {
+        if (!string.IsNullOrEmpty(id)) return enumerator.GetDevice(id);
+        try { return enumerator.GetDefaultAudioEndpoint(flow, Role.Communications); }
+        catch (System.Runtime.InteropServices.COMException) { return enumerator.GetDefaultAudioEndpoint(flow, Role.Console); }
     }
     public void Start() { playback.Play(); capture.StartRecording(); }
     void OnData(object? sender, WaveInEventArgs args)
@@ -59,5 +66,11 @@ public sealed class WasapiVoiceDevice : IVoiceDevice
     }
     public void Play(short[] samples) { var bytes = new byte[samples.Length * 2]; Buffer.BlockCopy(samples, 0, bytes, 0, bytes.Length); lock (gate) { if (disposed) return; if (speaker.BufferedDuration.TotalMilliseconds > 80) speaker.ClearBuffer(); speaker.AddSamples(bytes, 0, bytes.Length); } }
     public void Clear() { lock (gate) { if (!disposed) { speaker.ClearBuffer(); framer.Clear(); } } }
-    public void Dispose() { if (disposed) return; disposed = true; capture.StopRecording(); playback.Stop(); capture.Dispose(); playback.Dispose(); input.Dispose(); output.Dispose(); }
+    public void Dispose()
+    {
+        if (disposed) return; disposed = true; List<Exception> errors = [];
+        void Close(Action action) { try { action(); } catch (Exception error) { errors.Add(error); } }
+        Close(capture.StopRecording); Close(playback.Stop); Close(capture.Dispose); Close(playback.Dispose); Close(input.Dispose); Close(output.Dispose);
+        if (errors.Count > 0) throw new AggregateException("AudioCleanupFailed", errors);
+    }
 }

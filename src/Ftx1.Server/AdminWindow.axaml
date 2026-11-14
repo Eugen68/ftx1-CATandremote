@@ -13,6 +13,8 @@
 <TextBlock Text="{DynamicResource AudioInput}"/><ComboBox ItemsSource="{Binding AudioInputs}" SelectedItem="{Binding AudioInput}" MinWidth="400"/>
 <TextBlock Text="{DynamicResource AudioOutput}"/><ComboBox ItemsSource="{Binding AudioOutputs}" SelectedItem="{Binding AudioOutput}" MinWidth="400"/></StackPanel>
 <StackPanel Orientation="Horizontal" Spacing="10"><Button Content="{DynamicResource StartServer}" Command="{Binding StartCommand}"/><Button Content="{DynamicResource StopServer}" Command="{Binding StopCommand}"/><Button Content="{DynamicResource RefreshPorts}" Command="{Binding RefreshPortsCommand}"/></StackPanel>
+<Button Content="{DynamicResource TestAudio}" Command="{Binding TestAudioCommand}"/><TextBlock Text="{Binding AudioStatus}" TextWrapping="Wrap" Foreground="#FFBE77"/>
+<TextBlock Text="{DynamicResource AudioSelectionHelp}" TextWrapping="Wrap"/>
 <CheckBox Content="{DynamicResource StartWithWindows}" IsChecked="{Binding AutoStart}"/>
 <TextBlock Text="{DynamicResource PairingHelp}" TextWrapping="Wrap"/>
 <Button Content="{DynamicResource NewPairing}" Command="{Binding NewPairingCommand}"/>

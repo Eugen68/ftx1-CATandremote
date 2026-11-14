@@ -69,6 +69,10 @@ public sealed class AttemptLimiter
 public static class ListenPolicy
 {
     public static bool IsTailscale(IPAddress ip) { var b = ip.GetAddressBytes(); return b.Length == 4 && b[0] == 100 && b[1] >= 64 && b[1] <= 127; }
-    public static IPAddress[] DefaultAddresses() => new[] { IPAddress.Loopback }.Concat(System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces().SelectMany(n => n.GetIPProperties().UnicastAddresses).Select(a => a.Address).Where(IsTailscale)).Distinct().ToArray();
+    public static IPAddress[] DefaultAddresses()
+    {
+        try { return new[] { IPAddress.Loopback }.Concat(System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces().SelectMany(n => n.GetIPProperties().UnicastAddresses).Select(a => a.Address).Where(IsTailscale)).Distinct().ToArray(); }
+        catch (System.Net.NetworkInformation.NetworkInformationException) { return [IPAddress.Loopback]; }
+    }
     public static void Validate(IEnumerable<IPAddress> addresses, bool allowOther) { if (!allowOther && addresses.Any(ip => !IPAddress.IsLoopback(ip) && !IsTailscale(ip))) throw new ArgumentException("PublicInterfaceDenied"); }
 }

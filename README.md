@@ -39,7 +39,7 @@ PTT din notificare sau din butonul căștii nu este implementat (opțional în p
 ## Pachetul Windows
 
 1. Extrage arhiva. Nu este necesară instalarea .NET separat.
-2. Pe PC-ul stației, pornește **FTX1-Server.exe**. Inițial este selectat simulatorul.
+2. Pe PC-ul stației, deschide **FTX1-Server.exe**, alege porturile și audio, apoi apasă **Pornește serverul**. La deschiderea manuală setările sunt editabile; pornirea automată cu Windows (`--tray`) pornește direct serverul. Inițial este selectat simulatorul.
 3. Panoul serverului conține porturile CAT/PTT, simulatorul, limita emisiei, pornirea cu Windows,
    QR-ul de asociere și lista dispozitivelor revocabile. Pentru modificarea conexiunii oprește serverul,
    schimbă setările, apoi pornește-l din nou.
@@ -140,7 +140,8 @@ accesul fizic la stație și autostart-ul sunt funcții Windows. `global.json` a
 - `Ftx1.Protocol`: JSON cu source generator, protocol v2 și cadre audio binare cu epoch/secvență/timp.
 - `Ftx1.Audio`: Opus/Concentus, jitter buffer adaptiv și simulator audio, fără dependențe Windows.
 - `Ftx1.Audio.Windows`: WASAPI/NAudio și conversia PCM pentru server și desktop.
-- `Ftx1.Android`: UI Avalonia, Camera2/ZXing, Keystore, audio nativ și serviciu în prim-plan.
+- `Ftx1.Mobile`: UI Avalonia comună, verificabilă și pe desktop fără SDK Android.
+- `Ftx1.Android`: gazda nativă, Camera2/ZXing, Keystore, audio nativ și serviciu în prim-plan.
 - `Ftx1.Server`: Kestrel, TLS, asociere, tokenuri hash-uite, limitarea încercărilor pe IP, PTT, TOT, SWR, audit și tray.
 - `Ftx1.Client`: conexiune cu pinning, reconectare, heartbeat, starea și ViewModel-urile comune.
 - `Ftx1.Desktop`: fereastra Avalonia și meniul, fără acces la porturile CAT/PTT.
@@ -183,3 +184,14 @@ CI construiește întâi APK-ul distribuit. Un al doilea build, cu `SmokeTestBui
 emulator un test automat cu simulatorul: QR generat/decodat, asociere, Keystore, TLS CAT, audio nativ RX/TX,
 focus pierdut, reconectare, PTT eliberat la stingerea ecranului și audio menținut de serviciu/WakeLock.
 Intrarea de test nu este compilată în APK-ul distribuit. Camera fizică și Bluetooth se verifică separat pe telefon.
+
+## Oprire și diagnostic audio
+
+**Oprește serverul** oprește conexiunile fără a închide administrarea; setările porturilor și audio se reactivează.
+Deschiderea manuală a executabilului nu mai pornește automat serverul, ca să poți configura porturile.
+**Ieșire din aplicație** din tray închide întregul program. Erorile de eliberare a resurselor sunt păstrate în
+`%APPDATA%/FTX1-CATandRemote/server-errors.log`, iar administrarea rămâne deschisă.
+
+În server, **Verifică audio** testează deschiderea endpoint-urilor și afișează dispozitivele sau cauza exactă.
+Erorile din client precizează dacă problema este pe SERVER (USB-ul stației) sau CLIENT (microfon/căști).
+Verifică selecțiile, dispozitivele active și permisiunea Windows de acces la microfon pentru aplicații desktop.

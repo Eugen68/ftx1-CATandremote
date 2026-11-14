@@ -79,13 +79,14 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
             current.Received += m => post(() =>
             {
                 if (disposed || !ReferenceEquals(connection, current)) return;
+                if (m.T == "error" && m.Detail != null) { Notice = text(m.Error ?? "OperationFailed") + " " + m.Detail; Log(Notice); }
                 if (m.T == "catLine") Log(m.Command ?? "");
                 if (m.T is "helloOk" or "tot") TotWarning = current.TotMinutes <= 0;
                 if (m.T == "pttState") { Transmitting = m.You == true; if (Transmitting) txWatch.Start(); else { held = false; txWatch.Reset(); } if (m.Reason != null && m.Reason != "Released") Notice = text("Stop" + m.Reason); }
             });
             AudioPreferencesStore.Save(audioPath, new(AudioEnabled, AudioBitrate, AudioInput?.Id ?? "", AudioOutput?.Id ?? ""));
             Notice = "";
-            if (AudioEnabled) { try { audio = new(current, (audioFactory?.Invoke() ?? audioDeviceFactory?.Invoke(AudioInput?.Id, AudioOutput?.Id) ?? throw new InvalidOperationException("AudioUnavailable")), AudioBitrate); audio.Error += code => post(() => Notice = text(code)); audio.Start(); } catch { if (audio != null) await audio.DisposeAsync(); audio = null; Notice = text("AudioUnavailable"); } }
+            if (AudioEnabled) { try { audio = new(current, (audioFactory?.Invoke() ?? audioDeviceFactory?.Invoke(AudioInput?.Id, AudioOutput?.Id) ?? throw new InvalidOperationException("AudioUnavailable")), AudioBitrate); audio.Error += code => post(() => Notice = text(code)); audio.Failed += error => post(() => Notice = text("ClientAudioUnavailable") + " " + AudioDiagnostic.Describe(error)); audio.Start(); } catch (Exception error) { if (audio != null) try { await audio.DisposeAsync(); } catch { } audio = null; Notice = text("ClientAudioUnavailable") + " " + AudioDiagnostic.Describe(error); } }
             ConnectionOpen = true; await current.Start();
         }
         catch (Exception e) { await Disconnect(); Report(e); }
@@ -136,7 +137,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
     public void InterruptConnection() { EndPtt(); connection?.Abort(); }
     public async Task DisconnectSession() => await Disconnect();
     public async Task SuspendAudio() { EndPtt(); var old = audio; audio = null; if (old != null) await old.DisposeAsync(); }
-    public async Task ResumeAudio() { if (connection?.Connected != true || audio != null || !AudioEnabled) return; try { var current = new ClientAudio(connection, (audioFactory?.Invoke() ?? audioDeviceFactory?.Invoke(AudioInput?.Id, AudioOutput?.Id) ?? throw new InvalidOperationException("AudioUnavailable")), AudioBitrate); audio = current; current.Error += code => post(() => Notice = text(code)); current.Start(); } catch { Notice = text("AudioUnavailable"); if (audio != null) { await audio.DisposeAsync(); audio = null; } } }
+    public async Task ResumeAudio() { if (connection?.Connected != true || audio != null || !AudioEnabled) return; try { var current = new ClientAudio(connection, (audioFactory?.Invoke() ?? audioDeviceFactory?.Invoke(AudioInput?.Id, AudioOutput?.Id) ?? throw new InvalidOperationException("AudioUnavailable")), AudioBitrate); audio = current; current.Error += code => post(() => Notice = text(code)); current.Failed += error => post(() => Notice = text("ClientAudioUnavailable") + " " + AudioDiagnostic.Describe(error)); current.Start(); } catch (Exception error) { Notice = text("ClientAudioUnavailable") + " " + AudioDiagnostic.Describe(error); if (audio != null) { try { await audio.DisposeAsync(); } catch { } audio = null; } } }
     async Task Disconnect() { held = false; var old = connection; connection = null; try { if (audio != null) { await audio.DisposeAsync(); audio = null; } if (old != null) await old.DisposeAsync(); } finally { ConnectionOpen = false; Transmitting = false; txWatch.Reset(); Status = text("Disconnected"); } }
     public async ValueTask DisposeAsync() { if (disposed) return; disposed = true; timer.Dispose(); await Disconnect(); }
 }

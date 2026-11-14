@@ -19,6 +19,7 @@ try:
     config = base64.b64encode((root / 'pairing.json').read_bytes()).decode()
     launch = adb('shell', 'am', 'start', '-W', '-n', app + '/.MainActivity', '--es', 'smokeConfig', config)
     print(launch)
+    if "Error:" in launch: raise RuntimeError(launch)
     deadline = time.monotonic() + 120
     asleep = False
     while time.monotonic() < deadline:

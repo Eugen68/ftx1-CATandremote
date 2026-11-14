@@ -49,6 +49,13 @@ Date fixe de la proprietar:
 - PTT din notificare/căști rămâne opțional și nu se introduce PTT blocat.
 - Se verifică build-ul APK, testele de lifecycle și emulatorul; testarea fizică USB/4G/Bluetooth rămâne la proprietar.
 
+## Probleme raportate de proprietar în timpul Etapei 4
+
+- „Oprește serverul” deconectează stația, apoi închide întregul proces; după repornire porturile sunt gri.
+- Clientul se conectează, dar raportează audio indisponibil.
+- Cerere de corectare integrată în Etapa 4: oprire fără excepții netratate, reactivarea setărilor și pornire din nou;
+  diagnostic audio explicit pe server/client, fără slăbirea protecțiilor PTT.
+
 ## 0. Reguli de lucru
 
 1. **O etapă = un branch + un pull request.** Nu lucra direct pe `main`. CI verde e obligatoriu.

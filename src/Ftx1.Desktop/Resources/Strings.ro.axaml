@@ -148,4 +148,13 @@
   <sys:String x:Key="MobileTunePlus">+</sys:String>
   <sys:String x:Key="MobileNotificationReconnecting">Reconectare la FTX1</sys:String>
   <sys:String x:Key="MobileNotificationPausedFormat">{0:F3} MHz · {1} · audio întrerupt</sys:String>
+  <sys:String x:Key="AudioNotStarted">Audio se inițializează când se conectează clientul sau la Verifică audio.</sys:String>
+  <sys:String x:Key="AudioRunning">Audio activ:</sys:String>
+  <sys:String x:Key="ServerAudioUnavailable">Audio indisponibil pe SERVER:</sys:String>
+  <sys:String x:Key="ClientAudioUnavailable">Audio indisponibil pe CLIENT:</sys:String>
+  <sys:String x:Key="ServerCleanupWarning">O resursă a raportat o eroare la închidere; detalii în server-errors.log.</sys:String>
+  <sys:String x:Key="AudioStartServerFirst">Pornește serverul înainte de verificarea audio.</sys:String>
+  <sys:String x:Key="TestAudio">Verifică audio</sys:String>
+  <sys:String x:Key="AudioSelectionHelp">Pentru modificarea porturilor sau a plăcii audio, apasă Oprește serverul. Pe server alege intrarea și ieșirea USB ale stației; în client alege microfonul și căștile PC-ului. Eroarea exactă este afișată mai sus.</sys:String>
+  <sys:String x:Key="QrImageFailed">Imaginea QR nu a putut fi afișată; datele JSON de asociere sunt disponibile.</sys:String>
 </ResourceDictionary>

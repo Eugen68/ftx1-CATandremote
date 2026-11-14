@@ -26,6 +26,7 @@ public sealed record Message
     public bool? You { get; init; }
     public string? Reason { get; init; }
     public string? Error { get; init; }
+    public string? Detail { get; init; }
     public long? Ts { get; init; }
     public long? RequestId { get; init; }
     public string? Result { get; init; }
