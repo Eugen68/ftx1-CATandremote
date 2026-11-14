@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Ftx1.Server.AdminWindow" Title="{DynamicResource ServerTitle}" Width="850" Height="780" MinWidth="650" MinHeight="500">
+<ScrollViewer><StackPanel Margin="20" Spacing="12">
+<TextBlock Text="{DynamicResource ServerTitle}" FontSize="24"/><TextBlock Text="{Binding Status}" TextWrapping="Wrap"/>
+<WrapPanel IsEnabled="{Binding CanConfigure}">
+<StackPanel Margin="0,0,12,8"><TextBlock Text="{DynamicResource CatPort}"/><ComboBox Width="130" ItemsSource="{Binding Ports}" SelectedItem="{Binding CatPort}"/></StackPanel>
+<StackPanel Margin="0,0,12,8"><TextBlock Text="{DynamicResource Baud}"/><ComboBox Width="110" ItemsSource="{Binding BaudRates}" SelectedItem="{Binding Baud}"/></StackPanel>
+<StackPanel Margin="0,0,12,8"><TextBlock Text="{DynamicResource PttMethod}"/><ComboBox Width="100" ItemsSource="{Binding PttMethods}" SelectedItem="{Binding PttMethod}"/></StackPanel>
+<StackPanel Margin="0,0,12,8"><TextBlock Text="{DynamicResource PttPort}"/><ComboBox Width="130" ItemsSource="{Binding Ports}" SelectedItem="{Binding PttPort}"/></StackPanel>
+<CheckBox Content="{DynamicResource Simulator}" IsChecked="{Binding Simulator}"/>
+<StackPanel><TextBlock Text="{DynamicResource TxLimit}"/><NumericUpDown Value="{Binding MaxTxSeconds}" Minimum="10" Maximum="600" Width="130"/></StackPanel>
+</WrapPanel>
+<StackPanel Orientation="Horizontal" Spacing="10"><Button Content="{DynamicResource StartServer}" Command="{Binding StartCommand}"/><Button Content="{DynamicResource StopServer}" Command="{Binding StopCommand}"/><Button Content="{DynamicResource RefreshPorts}" Command="{Binding RefreshPortsCommand}"/></StackPanel>
+<CheckBox Content="{DynamicResource StartWithWindows}" IsChecked="{Binding AutoStart}"/>
+<TextBlock Text="{DynamicResource PairingHelp}" TextWrapping="Wrap"/>
+<Button Content="{DynamicResource NewPairing}" Command="{Binding NewPairingCommand}"/>
+<Image Source="{Binding QrImage}" Width="260" Height="260" HorizontalAlignment="Left"/>
+<TextBox Text="{Binding PairingData}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" Height="90"/>
+<TextBlock Text="{DynamicResource Devices}"/>
+<ComboBox ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}" MinWidth="300"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+<Button Content="{DynamicResource RevokeDevice}" Command="{Binding RevokeCommand}"/>
+<TextBlock Text="{DynamicResource ServerCloseHint}" TextWrapping="Wrap" Opacity="0.7"/>
+</StackPanel></ScrollViewer></Window>

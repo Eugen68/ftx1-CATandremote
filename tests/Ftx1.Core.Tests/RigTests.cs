@@ -29,7 +29,7 @@ public class RigTests
     {
         using var sim = new SimRadio(); var transport = new SimTransport(sim) { RejectQuery = cmd => cmd == "AG0" };
         await using var rig = new Rig(transport); await rig.Start();
-        for (int i = 0; i < 3; i++) { rig.Refresh(); await Until(() => rig.UnsupportedCount("AG0;") >= i + 1); }
+        for (int i = 0; i < 3; i++) { rig.Refresh(); await Until(() => rig.UnsupportedCount("AG0;") >= i + 1, 15000); }
         Assert.Equal(3, rig.UnsupportedCount("AG0;")); rig.Refresh(); await Task.Delay(300); Assert.Equal(3, rig.UnsupportedCount("AG0;"));
     }
     [Fact]

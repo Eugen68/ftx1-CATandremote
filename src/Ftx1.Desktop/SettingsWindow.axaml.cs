@@ -3,8 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
-using Ftx1.App.ViewModels;
-namespace Ftx1.App;
+using Ftx1.Client.ViewModels;
+namespace Ftx1.Desktop;
 
 // Station settings and the CAT console share the main view model, so the
 // connection and the log stay the same whichever window is used.

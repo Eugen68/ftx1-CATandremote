@@ -264,18 +264,19 @@ public sealed class Rig : IDisposable, IAsyncDisposable
         if (cmds.Count > 0) { Enqueue(CatCommands.Readback(key, cmds[0])); if (key == "mode") Refresh(0.3); }
         return cmds;
     }
-    public async Task<List<string>> Action(string name, object? arg = null)
+    public async Task<List<string>> Action(string name, object? arg = null, string? source = null, bool remote = false)
     {
         var commands = CatCommands.Action(name, arg, State);
         if (commands.Any(CanStartTx))
         {
-            var lease = Transmit.TryAcquire(name, () => { foreach (var c in commands) Write(c); });
+            var owner = source ?? name;
+            var lease = Transmit.TryAcquire(owner, () => { foreach (var c in commands) Write(c); }, remote);
             if (lease == null) throw new InvalidOperationException("TransmitBusy");
             try
             {
                 Enqueue("TX;"); Enqueue("AC;");
                 await Task.Delay(300, cancel.Token);
-                while (Transmit.Owner == name && (State.GetValueOrDefault("tx") is true || State.GetValueOrDefault("tuning") is true)) await Task.Delay(100, cancel.Token);
+                while (Transmit.Owner == owner && (State.GetValueOrDefault("tx") is true || State.GetValueOrDefault("tuning") is true)) await Task.Delay(100, cancel.Token);
             }
             finally { lease.Dispose(); }
         }

@@ -1,4 +1,4 @@
-<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Ftx1.App.App" RequestedThemeVariant="Dark">
+<Application xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Ftx1.Desktop.App" RequestedThemeVariant="Dark">
   <Application.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceInclude Source="avares://FTX1-CATandRemote/Resources/Strings.ro.axaml" /></ResourceDictionary.MergedDictionaries></ResourceDictionary></Application.Resources>
   <Application.Styles><FluentTheme /></Application.Styles>
 </Application>

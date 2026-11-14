@@ -1,6 +1,6 @@
 namespace Ftx1.Core.Safety;
 
-public enum StopReason { Released, Timeout, LostHeartbeat, Disconnected, Failure, Shutdown }
+public enum StopReason { Released, Timeout, LostHeartbeat, Disconnected, Failure, Shutdown, HighSwr, Revoked }
 
 /// <summary>One owner, monotonic deadlines, and an unconditional stop for every lease.</summary>
 public sealed class TransmitGuard : IDisposable
@@ -15,6 +15,7 @@ public sealed class TransmitGuard : IDisposable
     bool remote, disposed;
     public TimeSpan Limit { get; }
     public event Action<StopReason>? Stopped;
+    public event Action<string>? Started;
     public string? Owner { get { lock (gate) return owner; } }
     public TransmitGuard(Action stop, TimeSpan? limit = null, Func<double>? clock = null)
     {
@@ -30,7 +31,7 @@ public sealed class TransmitGuard : IDisposable
             if (disposed || owner != null) return null;
             owner = source; remote = isRemote; started = alive = now(); var id = ++generation;
             bool success = false;
-            try { start(); success = true; return new Lease(this, id); }
+            try { start(); Started?.Invoke(source); success = true; return new Lease(this, id); }
             finally { if (!success) End(StopReason.Failure); }
         }
     }

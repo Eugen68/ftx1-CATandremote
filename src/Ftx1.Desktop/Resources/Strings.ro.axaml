@@ -1,5 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=System.Runtime">
-  <sys:String x:Key="Title">FTX-1 CAT și control la distanță · Etapa 1</sys:String>
+  <sys:String x:Key="Title">FTX-1 CAT și control la distanță · Etapa 2</sys:String>
   <sys:String x:Key="Connection">Conexiune</sys:String>
   <sys:String x:Key="CatPort">Port CAT</sys:String>
   <sys:String x:Key="Baud">Viteză CAT</sys:String>
@@ -53,7 +53,7 @@
   <sys:String x:Key="SendRaw">Transmite</sys:String>
   <sys:String x:Key="SendRawTip">Trimite comanda CAT către stație (Enter). Nu pornește emisia radio.</sys:String>
   <sys:String x:Key="Clear">Șterge jurnalul</sys:String>
-  <sys:String x:Key="NoAudio">Etapa 1: control CAT și simulator. Audio și waterfall urmează în Etapa 2.</sys:String>
+  <sys:String x:Key="NoAudio">Etapa 2: client securizat prin rețea. Audio urmează în Etapa 3; waterfall în Etapa 6.</sys:String>
   <sys:String x:Key="ConfigError">Configurarea nu a putut fi citită.</sys:String>
   <sys:String x:Key="OperationError">Operația nu a reușit:</sys:String>
   <sys:String x:Key="InvalidFrequency">Frecvență invalidă.</sys:String>
@@ -72,4 +72,39 @@
   <sys:String x:Key="StopShutdown">Emisia a fost oprită la închiderea aplicației.</sys:String>
   <sys:String x:Key="SMeter">S: {0:F1}</sys:String>
   <sys:String x:Key="TxMeters">PO: {0:F1} W · SWR: {1:F1} · ALC: {2:F0}</sys:String>
+  <sys:String x:Key="ServerAddress">Adresa serverului (wss://…/ws)</sys:String>
+  <sys:String x:Key="Fingerprint">Amprenta SHA-256 a certificatului</sys:String>
+  <sys:String x:Key="DeviceToken">Tokenul acestui dispozitiv</sys:String>
+  <sys:String x:Key="PairingData">Datele de asociere (JSON din QR)</sys:String>
+  <sys:String x:Key="PairDevice">Asociază dispozitivul</sys:String>
+  <sys:String x:Key="LatencyFormat">Latență: {0} ms</sys:String>
+  <sys:String x:Key="PairingSucceeded">Dispozitiv asociat. Apasă Conectare.</sys:String>
+  <sys:String x:Key="InvalidPairing">Date de asociere invalide.</sys:String>
+  <sys:String x:Key="InvalidServerAddress">Adresa trebuie să fie wss://server:port/ws.</sys:String>
+  <sys:String x:Key="InvalidFingerprint">Amprenta trebuie să conțină 64 de cifre hexazecimale.</sys:String>
+  <sys:String x:Key="AuthenticationFailed">Autentificare refuzată. Verifică asocierea sau tokenul.</sys:String>
+  <sys:String x:Key="ProtocolMismatch">Versiune de protocol incompatibilă. Actualizează clientul.</sys:String>
+  <sys:String x:Key="TotWarning">TOT al stației este oprit sau nu a putut fi citit.</sys:String>
+  <sys:String x:Key="SetTot">Setează TOT la 3 minute</sys:String>
+  <sys:String x:Key="ServerTitle">FTX-1 · Serverul stației</sys:String>
+  <sys:String x:Key="ShowServer">Deschide administrarea</sys:String>
+  <sys:String x:Key="ExitApplication">Ieșire din aplicație</sys:String>
+  <sys:String x:Key="StartServer">Pornește serverul</sys:String>
+  <sys:String x:Key="StopServer">Oprește serverul</sys:String>
+  <sys:String x:Key="ServerRunning">Server pornit</sys:String>
+  <sys:String x:Key="ServerStopped">Server oprit</sys:String>
+  <sys:String x:Key="StartWithWindows">Pornește serverul cu Windows, în tray</sys:String>
+  <sys:String x:Key="PairingHelp">Instalează Tailscale pe PC și client. Asociază dispozitivul folosind QR-ul sau datele de mai jos; codul este valabil 5 minute și se folosește o singură dată.</sys:String>
+  <sys:String x:Key="NewPairing">Generează cod de asociere</sys:String>
+  <sys:String x:Key="Devices">Dispozitive asociate</sys:String>
+  <sys:String x:Key="RevokeDevice">Revocă dispozitivul selectat</sys:String>
+  <sys:String x:Key="NoTailscale">Tailscale nu este detectat; acces doar de pe acest PC</sys:String>
+  <sys:String x:Key="ServerCloseHint">X ascunde administrarea în tray. Pentru oprire completă folosește Ieșire din aplicație din meniul tray.</sys:String>
+  <sys:String x:Key="StopHighSwr">Emisia a fost oprită: SWR prea mare.</sys:String>
+  <sys:String x:Key="AuditWriteFailed">Jurnalul emisiei nu a putut fi scris.</sys:String>
+  <sys:String x:Key="OperationFailed">Operația nu a reușit.</sys:String>
+  <sys:String x:Key="MenuFailed">Operația EX nu a reușit.</sys:String>
+  <sys:String x:Key="UnsupportedMessage">Mesaj de protocol necunoscut.</sys:String>
+  <sys:String x:Key="InvalidMessage">Mesaj de protocol invalid.</sys:String>
+  <sys:String x:Key="StopRevoked">Emisia a fost oprită: dispozitivul a fost revocat.</sys:String>
 </ResourceDictionary>
