@@ -106,8 +106,9 @@ public class NetworkTests
     public async Task SustainedHighSwrStopsAndIsAudited()
     {
         SwrTransport? transport = null; await using var f = new StationFixture(r => transport = new SwrTransport(r)); await f.Start(); await using var c = await f.Client("swr-test");
+        var stopped=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);c.Received+=m=>{if(m.T=="pttState"&&m.Reason=="HighSwr")stopped.TrySetResult();};
         transport!.HighSwr = true; await c.Ptt(true); await StationFixture.Wait(() => f.Radio.State["TX"] == "1"); await StationFixture.Wait(() => f.Radio.State["TX"] == "0", 1800);
-        Assert.Contains("HighSwr", File.ReadAllText(Path.Combine(f.Root, "transmit.jsonl")));
+        await stopped.Task.WaitAsync(TimeSpan.FromSeconds(2));Assert.Contains("HighSwr",File.ReadAllText(Path.Combine(f.Root,"transmit.jsonl")));
     }
     [Fact]
     public async Task WrongWebSocketCertificatePinNeverAuthenticates()

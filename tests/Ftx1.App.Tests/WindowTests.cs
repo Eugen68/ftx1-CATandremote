@@ -29,4 +29,11 @@ public class WindowTests
     {
         await using var model = new MainViewModel(k => k, a => Dispatcher.UIThread.Post(a), new ClientSettingsStore(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")))); var window = new MainWindow(model); try { window.Show(); var settings = window.ShowSettings(SettingsWindow.ConsoleTab); Assert.Equal(SettingsWindow.ConsoleTab, settings.FindControl<TabControl>("Tabs")!.SelectedIndex); Assert.Same(model, settings.DataContext); Assert.Same(settings, window.ShowSettings(SettingsWindow.ConnectionTab)); settings.Close(); } finally { await model.DisposeAsync(); window.Close(); }
     }
+    [AvaloniaFact]
+    public void ServerAdministrationResourcesAndWindowLoad()
+    {
+        Assert.IsType<Avalonia.Controls.ResourceDictionary>(Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(new Uri("avares://FTX1-Server/Resources/Strings.ro.axaml")));
+        Assert.True(Avalonia.Platform.AssetLoader.Exists(new Uri("avares://FTX1-Server/icon.png")));
+        var admin=new AdminWindow();try{admin.Show();Assert.True(admin.IsVisible);}finally{admin.Close();}
+    }
 }

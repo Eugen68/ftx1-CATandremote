@@ -25,7 +25,7 @@ jobs:
           dotnet-version: '8.0.408'
       - run: dotnet restore Ftx1.sln
       - run: dotnet build Ftx1.sln -c Release --no-restore
-      - run: dotnet test Ftx1.sln -c Release --no-build --logger "trx;LogFileName=results.trx"
+      - run: dotnet test Ftx1.sln -c Release --no-build -m:1 --logger "trx;LogFileName=results.trx"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
