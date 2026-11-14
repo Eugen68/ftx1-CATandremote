@@ -9,6 +9,9 @@
 <CheckBox Content="{DynamicResource Simulator}" IsChecked="{Binding Simulator}"/>
 <StackPanel><TextBlock Text="{DynamicResource TxLimit}"/><NumericUpDown Value="{Binding MaxTxSeconds}" Minimum="10" Maximum="600" Width="130"/></StackPanel>
 </WrapPanel>
+<StackPanel IsEnabled="{Binding CanConfigure}" Spacing="6"><TextBlock Text="{DynamicResource AudioStationHelp}" TextWrapping="Wrap"/>
+<TextBlock Text="{DynamicResource AudioInput}"/><ComboBox ItemsSource="{Binding AudioInputs}" SelectedItem="{Binding AudioInput}" MinWidth="400"/>
+<TextBlock Text="{DynamicResource AudioOutput}"/><ComboBox ItemsSource="{Binding AudioOutputs}" SelectedItem="{Binding AudioOutput}" MinWidth="400"/></StackPanel>
 <StackPanel Orientation="Horizontal" Spacing="10"><Button Content="{DynamicResource StartServer}" Command="{Binding StartCommand}"/><Button Content="{DynamicResource StopServer}" Command="{Binding StopCommand}"/><Button Content="{DynamicResource RefreshPorts}" Command="{Binding RefreshPortsCommand}"/></StackPanel>
 <CheckBox Content="{DynamicResource StartWithWindows}" IsChecked="{Binding AutoStart}"/>
 <TextBlock Text="{DynamicResource PairingHelp}" TextWrapping="Wrap"/>

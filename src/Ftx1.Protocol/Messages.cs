@@ -2,9 +2,12 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 namespace Ftx1.Protocol;
 
-public static class ProtocolVersion { public const int Current = 1; public const int MaxMessageBytes = 65536; public const byte Audio = 1, Waterfall = 2, Microphone = 3; }
+public static class ProtocolVersion { public const int Current = 2; public const int MaxMessageBytes = 65536; public const byte Audio = 1, Waterfall = 2, Microphone = 3; }
 public sealed record Message
 {
+    public int? Bitrate { get; init; }
+    public long? AudioEpoch { get; init; }
+    public bool? AudioAvailable { get; init; }
     public string T { get; init; } = "";
     public int? ProtocolVersion { get; init; }
     public string? DeviceToken { get; init; }
@@ -29,9 +32,9 @@ public sealed record Message
     public string? Command { get; init; }
     public int? TotMinutes { get; init; }
 }
-public sealed record PairRequest(string Code, string DeviceName, int ProtocolVersion = 1);
-public sealed record PairResponse(string DeviceToken, string DeviceId, int ProtocolVersion = 1);
-public sealed record PairingQr(string Address, string Fingerprint, string Code, int ProtocolVersion = 1);
+public sealed record PairRequest(string Code, string DeviceName, int ProtocolVersion = ProtocolVersion.Current);
+public sealed record PairResponse(string DeviceToken, string DeviceId, int ProtocolVersion = ProtocolVersion.Current);
+public sealed record PairingQr(string Address, string Fingerprint, string Code, int ProtocolVersion = ProtocolVersion.Current);
 public sealed record ClientSettings(string Address, string Fingerprint, string DeviceToken);
 public sealed record DeviceRecord(string Id, string Name, string TokenHash, DateTimeOffset Created);
 public sealed record TxAudit(string Owner, string DeviceName, DateTimeOffset Started, long Frequency, double Duration, string Reason);

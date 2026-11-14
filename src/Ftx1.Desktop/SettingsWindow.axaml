@@ -28,5 +28,18 @@
         <ListBox x:Name="Log" ItemsSource="{Binding CatLog}" FontFamily="monospace" FontSize="12"/>
       </DockPanel>
     </TabItem>
+    <TabItem Header="{DynamicResource AudioTitle}">
+      <StackPanel Margin="4,12" Spacing="10">
+        <TextBlock Text="{DynamicResource AudioHelp}" TextWrapping="Wrap"/>
+        <StackPanel IsEnabled="{Binding CanConfigure}" Spacing="8">
+          <CheckBox Content="{DynamicResource AudioEnabled}" IsChecked="{Binding AudioEnabled}"/>
+          <TextBlock Text="{DynamicResource AudioInput}"/><ComboBox ItemsSource="{Binding AudioInputs}" SelectedItem="{Binding AudioInput}" MinWidth="400"/>
+          <TextBlock Text="{DynamicResource AudioOutput}"/><ComboBox ItemsSource="{Binding AudioOutputs}" SelectedItem="{Binding AudioOutput}" MinWidth="400"/>
+          <TextBlock Text="{DynamicResource AudioBitrate}"/><ComboBox ItemsSource="{Binding AudioBitrates}" SelectedItem="{Binding AudioBitrate}"/>
+        </StackPanel>
+        <TextBlock Text="{Binding AudioQuality}"/>
+        <TextBlock Text="{Binding Notice}" TextWrapping="Wrap"/>
+      </StackPanel>
+    </TabItem>
   </TabControl>
 </Window>

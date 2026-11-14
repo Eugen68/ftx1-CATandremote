@@ -1,12 +1,12 @@
-# FTX1-CATandRemote · Etapa 2 (fără audio)
+# FTX1-CATandRemote · Etapa 3 — audio Opus
 
 Control CAT al Yaesu FTX-1 printr-un server Windows și un client desktop Avalonia.
-Etapa 2 din [PLAN.md](PLAN.md) folosește planul v2: **server și protocol înaintea audio**.
+Etapa 3 din [PLAN.md](PLAN.md): control CAT și audio bidirecțional securizat prin internet.
 Comportamentul CAT provine din `Eugen68/ftx1-pult`, commit `d453771` (2.10.2).
 Meniul și fereastra „Setări stație” adăugate de proprietar în Etapa 1 sunt păstrate în client.
 
-Etapa 1 este încă în PR #1. Această etapă este un PR separat bazat pe el și include planul actualizat
- din `main`, fără să facă merge în locul proprietarului. Testarea pe stație și decizia de merge rămân la proprietar.
+Etapele anterioare rămân în PR-urile #1 și #2. Etapa 2 a fost testată și confirmată de proprietar;
+această etapă continuă pe un branch separat, fără merge automat în `main`.
 
 ## Pachetul Windows
 
@@ -46,13 +46,44 @@ Fereastra serverului se ascunde în tray la X. Oprirea completă se face prin **
   nu a putut fi citit și oferă **Setează TOT la 3 minute**. Unitatea și codul EX trebuie verificate pe FTX-1.
 - `transmit.jsonl` păstrează cine, când, frecvența, durata și motivul opririi.
 
-**Nu există audio în Etapa 2.** Regula „microfon oprit peste o secundă ⇒ TX0” se implementează
-împreună cu fluxul audio în Etapa 3. Evenimentele Android și serviciul de fundal vin în Etapa 4.
-Testele de purtător / PTT se fac doar cu sarcină artificială, în modul adecvat; nu se pretinde că
-PTT produce singur un purtător în fiecare mod al transceiverului.
+## Audio prin internet
+
+- Actualizează **ambele executabile** din același pachet: protocolul este v2; clienții Etapei 2 sunt refuzați explicit.
+- În server, alege perechea USB Audio CODEC (intrare RX / ieșire TX) sau lasă detectarea automată.
+  Se păstrează preferința pentru „USB Audio CODEC”, apoi „USB Audio Device”, din `audio.py:guess_codec`.
+  Nu se alege automat un difuzor fără legătură cu stația. Simulatorul nu necesită un dispozitiv USB.
+- În client, **F2 → Audio prin internet**: activează audio, alege microfonul și căștile și debitul
+  **12000 / 24000 / 32000 biți/s**. Modifică aceste setări când clientul este deconectat, apoi reconectează.
+  Dispozitivele implicite sunt cele Windows pentru comunicații. Folosește căști pentru evitarea ecoului.
+- WASAPI în modul shared folosește formatul endpoint-ului Windows (de regulă 48 kHz);
+  WDL face conversia cu filtrare la **16 kHz mono**. Ieșirea este convertită de NAudio la formatul endpoint-ului.
+  Opus/Concentus, VOIP, **20 ms**, implicit 24 kbit/s, fără DTX: tăcerea produce în continuare cadre valide.
+- Audio circulă în cadre binare pe același WSS autentificat. Tamponul adaptiv urmărește 60–120 ms;
+  cozile au dimensiune fixă și elimină cadrele vechi după blocaje, fără acumulare nelimitată de latență.
+  Indicatorul arată tamponul curent/ținta și numărul de cadre lipsă ori întârziate. Latența afișată separat
+  este RTT-ul de control, **nu** o măsurătoare a latenței acustice de la un capăt la altul.
+- PTT vocal necesită audio activ. Microfonul este codificat/transmis numai pentru deținătorul PTT.
+  Tampoanele se golesc la pornirea și oprirea emisiei; fiecare emisie primește un identificator nou,
+  astfel încât cadrele vechi sau ale altui client nu pot alimenta emisia curentă.
+- **Lipsa audio valid peste 1 s oprește TX**, chiar dacă heartbeat-ul de control continuă.
+  Oprirea audio, pierderea dispozitivului sau închiderea clientului eliberează PTT.
+- Simulatorul generează zgomot și tonuri de 700/1200 Hz și un ecou al microfonului întârziat cu 200 ms.
+  Nu este o portare a decodoarelor FT8/CW. Pentru test, serverul rămâne pe Simulator, iar clientul
+  folosește microfonul/căștile reale. Astfel se poate verifica fluxul complet fără emisie radio.
+- UDP se adaugă numai după măsurători 4G care depășesc constant pragul de 400 ms din plan.
+  Android și funcționarea cu ecranul stins vin în Etapa 4.
+
+### Protocol audio v2
+
+`audioConfig{on,bitrate}` → `audioReady{audioAvailable,audioEpoch,bitrate}`. `pttState` pentru
+proprietar include un `audioEpoch` separat, nou la fiecare emisie. Tipurile binare sunt 1 (RX) și 3 (microfon).
+Antetul little-endian: tip u8, epoch i64, secvență u32, timp monoton al expeditorului în ms i64,
+apoi un singur pachet Opus de 20 ms (maxim 1275 octeți). Secvențele/timpii se referă la flux, nu la ora UTC.
+Antetul și audio sunt protejate de TLS; nu există endpoint audio separat neautentificat.
 
 ## Date și configurație
 
+Preferințele audio sunt în `server-audio.json` și `desktop-audio.json` în același profil.
 Serverul păstrează certificatul, hash-urile tokenurilor, jurnalul și `station/config.json` în
 `%APPDATA%/FTX1-CATandRemote/`. `desktop-connection.json` conține tokenul clientului local.
 Fișierele de autentificare sunt private; nu le distribui și nu le copia din proiectul Python.
@@ -78,7 +109,8 @@ Proiectele server și protocol vizează `net8.0`, astfel încât testele TLS/Kes
 accesul fizic la stație și autostart-ul sunt funcții Windows. `global.json` acceptă SDK-uri .NET 8.0.1xx și ulterioare.
 
 - `Ftx1.Core`, `Ftx1.Sim`: nucleul Etapei 1 și vectorii Python; 680 de teste.
-- `Ftx1.Protocol`: JSON cu source generator, versiune și tipuri binare rezervate pentru etapele viitoare.
+- `Ftx1.Protocol`: JSON cu source generator, protocol v2 și cadre audio binare cu epoch/secvență/timp.
+- `Ftx1.Audio`: Opus/Concentus, WASAPI/NAudio, jitter buffer adaptiv și simulator audio.
 - `Ftx1.Server`: Kestrel, TLS, asociere, tokenuri hash-uite, limitarea încercărilor pe IP, PTT, TOT, SWR, audit și tray.
 - `Ftx1.Client`: conexiune cu pinning, reconectare, heartbeat, starea și ViewModel-urile comune.
 - `Ftx1.Desktop`: fereastra Avalonia și meniul, fără acces la porturile CAT/PTT.
@@ -87,12 +119,21 @@ accesul fizic la stație și autostart-ul sunt funcții Windows. `global.json` a
   reconectare, revocare, SWR, TOT și jurnal. Testele Avalonia verifică fereastra și oprirea PTT la închidere.
 
 CI validează Windows și Ubuntu. La un PR de etapă gata de review, după validare, generează executabilele
-și verifică pe Windows serverul publicat (TLS, autentificare, CAT și PTT on/off). Există și pornire manuală
+și verifică pe Windows serverul publicat (TLS, autentificare, CAT, audio Opus RX/TX simulat și PTT on/off). Există și pornire manuală
 cu `publish_windows`. Nu publică executabile doar pentru un push pe `main`.
 
 **De verificat pe stație/telefon:** porturile și toate metodele PTT, citirea/scrierea TOT, pragul SWR,
 Tailscale între două dispozitive reale, eliberarea PTT la pierderea internetului și revenirea după schimbarea rețelei.
-Android și audio nu sunt încă implementate. Nu a fost efectuat un test pe FTX-1 fizic.
+Android urmează în Etapa 4. Audio fizic WASAPI trebuie verificat pe PC-ul stației; testele automate folosesc dispozitive simulate.
 
 Proveniența codului este în [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Proprietarul a declarat
 în PLAN.md că aspectul legal este rezolvat; acest repo nu acordă o licență nouă asupra surselor originale.
+
+## De verificat pe stație / PC-ul client
+
+- Selecția perechii USB RX/TX, rata de mixaj Windows și nivelurile microfonului/ALC, inițial cu sarcină artificială.
+- Audio RX și emisie SSB cu căști, prin Tailscale; latența acustică și eventualele întreruperi pe conexiunea reală.
+- Scoaterea USB/microfonului în TX, pierderea conexiunii, schimbarea clientului și reconectarea fără reactivarea PTT.
+- TOT, pragul SWR și limitele PTT din etapele anterioare se păstrează.
+
+Testele automate folosesc dispozitive simulate. Nu înlocuiesc verificarea WASAPI pe placa USB fizică.

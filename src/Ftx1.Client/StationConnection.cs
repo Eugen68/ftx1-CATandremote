@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
+using System.Threading.Channels;
 using Ftx1.Protocol;
 namespace Ftx1.Client;
 
@@ -12,7 +13,11 @@ public sealed class StationConnection : IAsyncDisposable
 {
     readonly ClientSettings settings; readonly CancellationTokenSource lifetime = new(); readonly SemaphoreSlim sendGate = new(1, 1); readonly object gate = new();
     readonly Dictionary<string, object> state = []; readonly ConcurrentDictionary<long, TaskCompletionSource<Message>> requests = new();
-    ClientWebSocket? socket; Task? run; Task? pulses; long sequence; long lastPing; volatile bool pressed, owns, connected; long lastReply;
+    ClientWebSocket? socket; Task? run; Task? pulses; Task? audioSender;
+    readonly Channel<AudioPacket> audioQueue = Channel.CreateBounded<AudioPacket>(new BoundedChannelOptions(3) { FullMode = BoundedChannelFullMode.DropOldest });
+    public long TransmitEpoch { get; private set; }
+    public event Action<AudioPacket>? AudioReceived;
+    public event Action<bool>? ConnectionChanged; long sequence; long lastPing; volatile bool pressed, owns, connected; long lastReply;
     public bool Connected => connected;
     public int LatencyMs { get; private set; }
     public int TotMinutes { get; private set; } = -1;
@@ -26,7 +31,7 @@ public sealed class StationConnection : IAsyncDisposable
     public static void ValidateSettings(ClientSettings s) { if (!Uri.TryCreate(s.Address, UriKind.Absolute, out var u) || u.Scheme != "wss" || u.AbsolutePath != "/ws") throw new ArgumentException("InvalidServerAddress"); if (!ValidPin(s.Fingerprint)) throw new ArgumentException("InvalidFingerprint"); }
     static bool ValidPin(string pin) => pin.Length == 64 && pin.All(Uri.IsHexDigit);
     static bool Pinned(X509Certificate? cert, string pin) => cert != null && ValidPin(pin) && CryptographicOperations.FixedTimeEquals(SHA256.HashData(cert.GetRawCertData()), Convert.FromHexString(pin));
-    public Task Start() { if (run != null) return Task.CompletedTask; run = Task.Run(Run); pulses = Task.Run(Pulse); return Task.CompletedTask; }
+    public Task Start() { if (run != null) return Task.CompletedTask; run = Task.Run(Run); pulses = Task.Run(Pulse); audioSender = Task.Run(SendAudioLoop); return Task.CompletedTask; }
     async Task Run()
     {
         int delay = 1;
@@ -43,14 +48,14 @@ public sealed class StationConnection : IAsyncDisposable
                 if (hello.T != "helloOk") { Error?.Invoke(hello.Error ?? "AuthenticationFailed"); lifetime.Cancel(); return; }
                 if (hello.ProtocolVersion != ProtocolVersion.Current) { Error?.Invoke("ProtocolMismatch"); lifetime.Cancel(); return; }
                 auth.CancelAfter(Timeout.InfiniteTimeSpan);
-                pressed = owns = false; connected = true; delay = 1; TotMinutes = hello.TotMinutes ?? -1; lastReply = Stopwatch.GetTimestamp(); Apply(hello.State ?? [], true); Received?.Invoke(hello);
+                pressed = owns = false; connected = true; delay = 1; TotMinutes = hello.TotMinutes ?? -1; lastReply = Stopwatch.GetTimestamp(); Apply(hello.State ?? [], true); ConnectionChanged?.Invoke(true); Received?.Invoke(hello);
                 while (!lifetime.IsCancellationRequested)
                 {
-                    var bytes = await SocketFrames.Receive(ws, lifetime.Token); if (bytes == null) break; lastReply = Stopwatch.GetTimestamp(); var message = Wire.Decode(bytes);
+                    var frame = await SocketFrames.ReceiveFrame(ws, lifetime.Token); if (frame == null) break; lastReply = Stopwatch.GetTimestamp(); if (frame.Binary) { AudioReceived?.Invoke(AudioPacket.Decode(frame.Bytes)); continue; } var message = Wire.Decode(frame.Bytes);
                     switch (message.T)
                     {
                         case "state": Apply(message.Diff ?? [], false); break;
-                        case "pttState": owns = message.You == true; if (!owns) pressed = false; break;
+                        case "pttState": owns = message.You == true; TransmitEpoch = owns ? message.AudioEpoch ?? 0 : 0; if (!owns) pressed = false; break;
                         case "pong": if (message.Ts is { } ts) LatencyMs = (int)Math.Max(0, Environment.TickCount64 - ts); break;
                         case "tot": TotMinutes = message.TotMinutes ?? -1; break;
                         case "error": Error?.Invoke(message.Error ?? "OperationFailed"); break;
@@ -60,7 +65,7 @@ public sealed class StationConnection : IAsyncDisposable
                 }
             }
             catch (Exception e) when (e is WebSocketException or IOException or OperationCanceledException or JsonException or InvalidDataException) { if (!lifetime.IsCancellationRequested) Error?.Invoke("Disconnected"); }
-            finally { connected = pressed = owns = false; Apply(new() { { "connected", Wire.Element(false) }, { "tx", Wire.Element(false) } }, false); foreach (var (id, tcs) in requests) if (requests.TryRemove(id, out _)) tcs.TrySetException(new IOException("Disconnected")); if (ReferenceEquals(socket, ws)) socket = null; }
+            finally { connected = pressed = owns = false; TransmitEpoch = 0; ConnectionChanged?.Invoke(false); Apply(new() { { "connected", Wire.Element(false) }, { "tx", Wire.Element(false) } }, false); foreach (var (id, tcs) in requests) if (requests.TryRemove(id, out _)) tcs.TrySetException(new IOException("Disconnected")); if (ReferenceEquals(socket, ws)) socket = null; }
             try { await Task.Delay(TimeSpan.FromSeconds(delay), lifetime.Token); delay = Math.Min(10, delay * 2); } catch (OperationCanceledException) { break; }
         }
     }
@@ -73,6 +78,26 @@ public sealed class StationConnection : IAsyncDisposable
     {
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime.Token); timeout.CancelAfter(1500);
         await sendGate.WaitAsync(timeout.Token); try { var ws = socket; if (ws?.State != WebSocketState.Open) throw new IOException("Disconnected"); await ws.SendAsync(Wire.Encode(message), WebSocketMessageType.Text, true, timeout.Token); } finally { sendGate.Release(); }
+    }
+    public void QueueMicrophone(AudioPacket packet) { if (owns && packet.Epoch == TransmitEpoch) audioQueue.Writer.TryWrite(packet); }
+    async Task SendAudioLoop()
+    {
+        try
+        {
+            await foreach (var packet in audioQueue.Reader.ReadAllAsync(lifetime.Token))
+            {
+                if (!owns || packet.Epoch != TransmitEpoch) continue;
+                try
+                {
+                    using var timeout = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token); timeout.CancelAfter(500);
+                    await sendGate.WaitAsync(timeout.Token);
+                    try { var ws = socket; if (ws?.State == WebSocketState.Open && owns && packet.Epoch == TransmitEpoch) await ws.SendAsync(packet.Encode(), WebSocketMessageType.Binary, true, timeout.Token); }
+                    finally { sendGate.Release(); }
+                }
+                catch (Exception e) when (e is OperationCanceledException or WebSocketException or IOException) { if (!lifetime.IsCancellationRequested) socket?.Abort(); }
+            }
+        }
+        catch (OperationCanceledException) { }
     }
     async Task Pulse()
     {
@@ -105,6 +130,6 @@ public sealed class StationConnection : IAsyncDisposable
     {
         if (lifetime.IsCancellationRequested) return;
         try { if (connected) try { await Ptt(false); } catch (Exception e) when (e is IOException or OperationCanceledException or WebSocketException) { } }
-        finally { lifetime.Cancel(); socket?.Abort(); if (run != null) await run; if (pulses != null) await pulses; }
+        finally { lifetime.Cancel(); socket?.Abort(); if (run != null) await run; if (pulses != null) await pulses; if (audioSender != null) await audioSender; }
     }
 }

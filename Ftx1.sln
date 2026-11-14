@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -27,6 +27,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{7FB76EA7-BBFC-43E3-9F0A-F891BE39072D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ftx1.PackageSmoke", "tools\Ftx1.PackageSmoke\Ftx1.PackageSmoke.csproj", "{B0CA77D7-D418-4339-8BBB-CF3175A78178}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ftx1.Audio", "src\Ftx1.Audio\Ftx1.Audio.csproj", "{750ACFD0-C016-4F80-8B9A-CB58811EA576}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +79,10 @@ Global
 		{B0CA77D7-D418-4339-8BBB-CF3175A78178}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0CA77D7-D418-4339-8BBB-CF3175A78178}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0CA77D7-D418-4339-8BBB-CF3175A78178}.Release|Any CPU.Build.0 = Release|Any CPU
+		{750ACFD0-C016-4F80-8B9A-CB58811EA576}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{750ACFD0-C016-4F80-8B9A-CB58811EA576}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{750ACFD0-C016-4F80-8B9A-CB58811EA576}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{750ACFD0-C016-4F80-8B9A-CB58811EA576}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{08812243-DB80-48FC-B75E-9590336CD1EC} = {037EF656-2562-4431-B061-F8E05DD2945D}
@@ -89,5 +95,6 @@ Global
 		{E38CCDD0-903D-408D-8695-3B9B2ABCB5F5} = {037EF656-2562-4431-B061-F8E05DD2945D}
 		{509DD097-1831-4B38-BDF3-7C562DBB70E6} = {E6439224-97D4-4DCE-AA23-78821A0699E1}
 		{B0CA77D7-D418-4339-8BBB-CF3175A78178} = {7FB76EA7-BBFC-43E3-9F0A-F891BE39072D}
+		{750ACFD0-C016-4F80-8B9A-CB58811EA576} = {037EF656-2562-4431-B061-F8E05DD2945D}
 	EndGlobalSection
 EndGlobal

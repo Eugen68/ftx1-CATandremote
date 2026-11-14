@@ -1,6 +1,6 @@
 namespace Ftx1.Core.Safety;
 
-public enum StopReason { Released, Timeout, LostHeartbeat, Disconnected, Failure, Shutdown, HighSwr, Revoked }
+public enum StopReason { Released, Timeout, LostHeartbeat, Disconnected, Failure, Shutdown, HighSwr, Revoked, LostAudio }
 
 /// <summary>One owner, monotonic deadlines, and an unconditional stop for every lease.</summary>
 public sealed class TransmitGuard : IDisposable
@@ -11,7 +11,8 @@ public sealed class TransmitGuard : IDisposable
     readonly Timer timer;
     string? owner;
     long generation;
-    double started, alive;
+    double started, alive, audioAlive;
+    bool audioRequired;
     bool remote, disposed;
     public TimeSpan Limit { get; }
     public event Action<StopReason>? Stopped;
@@ -29,19 +30,23 @@ public sealed class TransmitGuard : IDisposable
         lock (gate)
         {
             if (disposed || owner != null) return null;
-            owner = source; remote = isRemote; started = alive = now(); var id = ++generation;
+            owner = source; audioRequired = false; remote = isRemote; started = alive = now(); var id = ++generation;
             bool success = false;
             try { start(); Started?.Invoke(source); success = true; return new Lease(this, id); }
             finally { if (!success) End(StopReason.Failure); }
         }
     }
     public void Heartbeat(string source) { lock (gate) { if (owner == source) alive = now(); } }
+    public void RequireAudio(string source) { lock (gate) { if (owner == source) { audioRequired = true; audioAlive = now(); } } }
+    public void AudioHeartbeat(string source) { lock (gate) { if (owner == source && audioRequired) audioAlive = now(); } }
+    public bool WithOwner(string source, Action action) { lock (gate) { if (owner != source) return false; action(); return true; } }
     public void Tick()
     {
         lock (gate)
         {
             if (owner == null) return;
             if (now() - started >= Limit.TotalSeconds) End(StopReason.Timeout);
+            else if (audioRequired && now() - audioAlive > 1) End(StopReason.LostAudio);
             else if (remote && now() - alive > 1.5) End(StopReason.LostHeartbeat);
         }
     }

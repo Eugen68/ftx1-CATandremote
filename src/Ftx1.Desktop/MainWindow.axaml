@@ -58,7 +58,7 @@
       </WrapPanel>
       <StackPanel Orientation="Horizontal" Spacing="12"><Button Content="{DynamicResource Ptt}" Background="#266256" MinWidth="250" PointerPressed="PttPressed" PointerReleased="PttReleased" PointerCaptureLost="PttCaptureLost"/><Button Content="{DynamicResource Stop}" Command="{Binding StopCommand}" Background="#803B41"/><TextBlock Text="{Binding TxTime}" FontSize="22" VerticalAlignment="Center"/></StackPanel>
     </StackPanel></Border>
-    <TextBlock Text="{DynamicResource NoAudio}" Opacity="0.65" TextWrapping="Wrap"/>
+    <TextBlock Text="{Binding AudioQuality}" Opacity="0.8" TextWrapping="Wrap"/>
   </StackPanel></ScrollViewer>
   </DockPanel>
 </Window>

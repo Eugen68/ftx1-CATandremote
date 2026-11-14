@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Ftx1.Client;
+using Ftx1.Audio;
 using Ftx1.Core;
 using Ftx1.Core.Cat;
 using Ftx1.Protocol;
@@ -15,16 +16,18 @@ namespace Ftx1.Network.Tests;
 
 public sealed class StationFixture : IAsyncDisposable
 {
+    readonly List<ClientAudio> audio = [];
+    public async Task EnableAudio(StationConnection client) { var stream = new ClientAudio(client, new SimVoiceDevice()); audio.Add(stream); stream.Start(); await Wait(() => stream.Ready, 10000); }
     public string Root { get; } = Path.Combine(Path.GetTempPath(), "ftx1-net-" + Guid.NewGuid().ToString("N"));
     public SimRadio Radio { get; } = new(); public StationServer Server { get; }
     public StationFixture(Func<SimRadio, ITransport>? factory = null) { Server = new(new(Root, new StationConfig(), 0, [IPAddress.Loopback]), factory?.Invoke(Radio) ?? new SimTransport(Radio)); }
     public async Task Start() => await Server.Start();
     public async Task<StationConnection> Client(string name = "test")
     {
-        var token = Server.Tokens.Create(name); var client = new StationConnection(new(Server.Address!.ToString(), Server.Certificate.Fingerprint, token.DeviceToken)); await client.Start(); await Wait(() => client.Connected && client.State.GetValueOrDefault("connected") is true && client.State.GetValueOrDefault("radio_id") as string=="0840",10000); return client;
+        var token = Server.Tokens.Create(name); var client = new StationConnection(new(Server.Address!.ToString(), Server.Certificate.Fingerprint, token.DeviceToken)); await client.Start(); await Wait(() => client.Connected && client.State.GetValueOrDefault("connected") is true && client.State.GetValueOrDefault("radio_id") as string=="0840",10000); await EnableAudio(client); return client;
     }
     public static async Task Wait(Func<bool> condition, int timeout = 5000) { using var cts = new CancellationTokenSource(timeout); while (!condition()) await Task.Delay(10, cts.Token); }
-    public async ValueTask DisposeAsync() { await Server.DisposeAsync(); Radio.Dispose(); if (Directory.Exists(Root)) Directory.Delete(Root, true); }
+    public async ValueTask DisposeAsync() { foreach (var stream in audio) await stream.DisposeAsync(); await Server.DisposeAsync(); Radio.Dispose(); if (Directory.Exists(Root)) Directory.Delete(Root, true); }
 }
 public class NetworkTests
 {
@@ -43,7 +46,7 @@ public class NetworkTests
     public async Task LocalhostDoesNotBypassAuthentication(string? token)
     {
         await using var f = new StationFixture(); await f.Start(); using var ws = new ClientWebSocket(); ws.Options.RemoteCertificateValidationCallback = (_, cert, _, _) => cert != null && Convert.ToHexString(SHA256.HashData(cert.GetRawCertData())) == f.Server.Certificate.Fingerprint;
-        using var timeout = new CancellationTokenSource(4000); await ws.ConnectAsync(f.Server.Address!, timeout.Token); await ws.SendAsync(Wire.Encode(new() { T = "hello", ProtocolVersion = 1, DeviceToken = token }), WebSocketMessageType.Text, true, timeout.Token);
+        using var timeout = new CancellationTokenSource(4000); await ws.ConnectAsync(f.Server.Address!, timeout.Token); await ws.SendAsync(Wire.Encode(new() { T = "hello", ProtocolVersion = ProtocolVersion.Current, DeviceToken = token }), WebSocketMessageType.Text, true, timeout.Token);
         var response = Wire.Decode((await SocketFrames.Receive(ws, timeout.Token))!); Assert.Equal("authFail", response.T); Assert.Equal("AuthenticationFailed", response.Error); Assert.Equal("0", f.Radio.State["TX"]);
     }
     [Fact]
@@ -73,6 +76,7 @@ public class NetworkTests
         var errors=new System.Collections.Concurrent.ConcurrentQueue<string>();c.Error+=errors.Enqueue;
         await c.Start();
         try{await StationFixture.Wait(() => c.Connected && c.State.GetValueOrDefault("connected") is true && c.State.GetValueOrDefault("radio_id") as string=="0840",10000);}catch(OperationCanceledException){throw new TimeoutException("Paired client could not connect: "+string.Join(",",errors));}
+        await f.EnableAudio(c);
         await c.Ptt(true);
         try{await StationFixture.Wait(() => f.Radio.State["TX"] == "1");}catch(OperationCanceledException){throw new TimeoutException("Paired client could not acquire PTT: "+string.Join(",",errors)+"; connected="+f.Server.Station.State.GetValueOrDefault("connected"));}
         f.Server.Tokens.Revoke(pair.DeviceId);

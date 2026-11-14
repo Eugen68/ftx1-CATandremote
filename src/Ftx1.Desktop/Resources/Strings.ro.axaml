@@ -1,5 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=System.Runtime">
-  <sys:String x:Key="Title">FTX-1 CAT și control la distanță · Etapa 2</sys:String>
+  <sys:String x:Key="Title">FTX-1 CAT și control la distanță · Etapa 3</sys:String>
   <sys:String x:Key="Connection">Conexiune</sys:String>
   <sys:String x:Key="CatPort">Port CAT</sys:String>
   <sys:String x:Key="Baud">Viteză CAT</sys:String>
@@ -53,7 +53,6 @@
   <sys:String x:Key="SendRaw">Transmite</sys:String>
   <sys:String x:Key="SendRawTip">Trimite comanda CAT către stație (Enter). Nu pornește emisia radio.</sys:String>
   <sys:String x:Key="Clear">Șterge jurnalul</sys:String>
-  <sys:String x:Key="NoAudio">Etapa 2: client securizat prin rețea. Audio urmează în Etapa 3; waterfall în Etapa 6.</sys:String>
   <sys:String x:Key="ConfigError">Configurarea nu a putut fi citită.</sys:String>
   <sys:String x:Key="OperationError">Operația nu a reușit:</sys:String>
   <sys:String x:Key="InvalidFrequency">Frecvență invalidă.</sys:String>
@@ -107,4 +106,20 @@
   <sys:String x:Key="UnsupportedMessage">Mesaj de protocol necunoscut.</sys:String>
   <sys:String x:Key="InvalidMessage">Mesaj de protocol invalid.</sys:String>
   <sys:String x:Key="StopRevoked">Emisia a fost oprită: dispozitivul a fost revocat.</sys:String>
+  <sys:String x:Key="AudioTitle">Audio prin internet</sys:String>
+  <sys:String x:Key="AudioHelp">Opus mono 16 kHz, cadre de 20 ms. Folosește căști pentru a evita ecoul. Modifică dispozitivele sau debitul după deconectare. Microfonul este transmis numai cât ții apăsat PTT.</sys:String>
+  <sys:String x:Key="AudioEnabled">Activează audio (necesar pentru PTT vocal)</sys:String>
+  <sys:String x:Key="AudioInput">Intrare audio / microfon</sys:String>
+  <sys:String x:Key="AudioOutput">Ieșire audio / difuzor</sys:String>
+  <sys:String x:Key="AudioDefault">Dispozitiv implicit de comunicații Windows</sys:String>
+  <sys:String x:Key="AudioAutoUsb">Detectează automat USB Audio CODEC</sys:String>
+  <sys:String x:Key="AudioBitrate">Debit Opus (biți/s): 12000 / 24000 / 32000</sys:String>
+  <sys:String x:Key="AudioQualityFormat">Opus · tampon {0}/{1} ms · cadre lipsă {2} · întârziate {3}</sys:String>
+  <sys:String x:Key="AudioInactive">Audio inactiv</sys:String>
+  <sys:String x:Key="AudioUnavailable">Audio indisponibil. Verifică dispozitivele, permisiunea microfonului și setările audio.</sys:String>
+  <sys:String x:Key="AudioRequired">Activează audio și așteaptă conectarea înainte de PTT.</sys:String>
+  <sys:String x:Key="UsbCodecNotFound">Nu s-a găsit perechea USB Audio CODEC. Alege intrarea și ieșirea stației în server.</sys:String>
+  <sys:String x:Key="AudioWindowsOnly">Audio WASAPI este disponibil pe Windows.</sys:String>
+  <sys:String x:Key="AudioStationHelp">Audio stație: USB Audio CODEC pentru intrare și ieșire. Simulatorul generează tonuri și ecou întârziat.</sys:String>
+  <sys:String x:Key="StopLostAudio">Emisia a fost oprită: fluxul microfonului lipsește de peste o secundă.</sys:String>
 </ResourceDictionary>
