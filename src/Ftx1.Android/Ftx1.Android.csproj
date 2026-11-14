@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-android</TargetFramework><SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType><ApplicationId>ro.eugen68.ftx1remote</ApplicationId><ApplicationTitle>FTX1 Remote</ApplicationTitle>
+    <ApplicationVersion>4</ApplicationVersion><ApplicationDisplayVersion>0.4.0</ApplicationDisplayVersion>
+    <AndroidPackageFormats>apk</AndroidPackageFormats><AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <AndroidLinkMode>None</AndroidLinkMode><PublishTrimmed>false</PublishTrimmed><RunAOTCompilation>false</RunAOTCompilation>
+    <RuntimeIdentifiers>android-arm64;android-x64</RuntimeIdentifiers><AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+    <NoWarn>$(NoWarn);CA1422</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(SmokeTestBuild)' == 'true'"><DefineConstants>$(DefineConstants);ANDROID_SMOKE</DefineConstants></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Ftx1.Client/Ftx1.Client.csproj"/>
+    <PackageReference Include="Avalonia.Android" Version="11.2.3"/><PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3"/>
+    <PackageReference Include="ZXing.Net" Version="0.16.10"/>
+    <AvaloniaResource Include="../Ftx1.Desktop/Resources/Strings.ro.axaml" Link="Resources/Strings.ro.axaml"/>
+  </ItemGroup>
+</Project>

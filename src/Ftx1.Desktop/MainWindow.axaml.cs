@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Ftx1.Client.ViewModels;
+using Ftx1.Audio;
 namespace Ftx1.Desktop;
 
 // View-only input adaptation. CAT, ownership and lifecycle logic stay in the VM/Core.
@@ -16,7 +17,7 @@ public partial class MainWindow : Window
     {
         AvaloniaXamlLoader.Load(this);
         string Text(string key) => this.TryFindResource(key, out var value) ? value?.ToString() ?? key : key;
-        model = viewModel ?? new MainViewModel(Text, a => Dispatcher.UIThread.Post(a)); DataContext = model;
+        model = viewModel ?? new MainViewModel(Text, a => Dispatcher.UIThread.Post(a), audioDeviceFactory: (input, output) => AudioDevices.Create(false, input, output), audioDeviceList: AudioDevices.List); DataContext = model;
         AddHandler(KeyDownEvent, KeyPressed, RoutingStrategies.Tunnel);
         AddHandler(KeyUpEvent, KeyReleased, RoutingStrategies.Tunnel);
         Deactivated += (_, _) => model.EndPtt();

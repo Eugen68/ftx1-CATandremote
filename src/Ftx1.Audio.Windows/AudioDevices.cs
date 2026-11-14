@@ -3,15 +3,6 @@ using NAudio.CoreAudioApi;
 using NAudio.Wave;
 namespace Ftx1.Audio;
 
-public sealed record AudioDeviceInfo(string Id, string Name) { public override string ToString() => Name; }
-public interface IVoiceDevice : IDisposable
-{
-    event Action<short[]>? Captured;
-    event Action<Exception>? Failed;
-    void Start();
-    void Play(short[] samples);
-    void Clear();
-}
 public static class AudioDevices
 {
     public static IReadOnlyList<AudioDeviceInfo> List(bool input)

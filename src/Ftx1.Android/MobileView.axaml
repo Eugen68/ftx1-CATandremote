@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Ftx1.Android.MobileView">
+<UserControl.Styles>
+<Style Selector="Border.card"><Setter Property="Background" Value="#172534"/><Setter Property="CornerRadius" Value="12"/><Setter Property="Padding" Value="14"/><Setter Property="Margin" Value="0,0,0,10"/></Style>
+<Style Selector="Button"><Setter Property="MinHeight" Value="44"/></Style>
+<Style Selector="TextBox"><Setter Property="MinHeight" Value="44"/></Style>
+<Style Selector="Button.ptt"><Setter Property="Background" Value="#25665D"/><Setter Property="Foreground" Value="White"/></Style>
+<Style Selector="Button.ptt.transmitting"><Setter Property="Background" Value="#B52D42"/></Style>
+</UserControl.Styles>
+<TabControl x:Name="Pages" Margin="6,8,6,0">
+<TabItem Header="{DynamicResource MobileRadioTab}">
+<ScrollViewer><StackPanel Margin="4,10" Spacing="5">
+<TextBlock Text="{DynamicResource MobileAppName}" FontSize="23" FontWeight="Bold"/>
+<StackPanel Orientation="Horizontal" Spacing="8"><Button Content="{Binding ConnectionLabel}" Click="Connect"/><TextBlock Text="{Binding Latency}" VerticalAlignment="Center"/></StackPanel>
+<TextBlock Text="{Binding Status}" TextWrapping="Wrap" FontSize="12"/>
+<Border Classes="card"><StackPanel Spacing="8">
+<TextBlock x:Name="Frequency" Text="{Binding FrequencyDisplay}" FontSize="37" FontFamily="monospace" HorizontalAlignment="Center" PointerPressed="TuneStart" PointerReleased="TuneEnd"/>
+<TextBlock Text="{DynamicResource MobileTuneHint}" TextWrapping="Wrap" FontSize="11" Opacity="0.7"/>
+<Grid ColumnDefinitions="Auto,*,Auto"><Button Content="{DynamicResource MobileTuneMinus}" Click="TuneDown"/><ComboBox Grid.Column="1" x:Name="Step" ItemsSource="{Binding TuningSteps}" SelectedIndex="2" Margin="8,0"/><Button Grid.Column="2" Content="{DynamicResource MobileTunePlus}" Click="TuneUp"/></Grid>
+<StackPanel Orientation="Horizontal" Spacing="8"><ComboBox Width="120" ItemsSource="{Binding Modes}" SelectedItem="{Binding Mode}"/><ComboBox Width="150" ItemsSource="{Binding Bands}" SelectedIndex="{Binding SelectedBand}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
+<TextBlock Text="{Binding Meter}" FontSize="18" Foreground="#69DDCB" TextWrapping="Wrap"/>
+</StackPanel></Border>
+<Button x:Name="Ptt" Classes="ptt" Classes.transmitting="{Binding Transmitting}" Content="{DynamicResource MobilePtt}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Stretch" Height="90" PointerPressed="PttDown" PointerReleased="PttUp" PointerCaptureLost="PttLost"/>
+<Grid ColumnDefinitions="*,*"><Button Content="{DynamicResource Stop}" Command="{Binding StopCommand}"/><TextBlock Grid.Column="1" Text="{Binding TxTime}" FontSize="24" HorizontalAlignment="Right"/></Grid>
+<Border Classes="card"><StackPanel>
+<TextBlock Text="{DynamicResource Af}"/><Slider Value="{Binding Af}" Minimum="0" Maximum="255"/>
+<TextBlock Text="{DynamicResource Power}"/><Slider Value="{Binding Power}" Minimum="{Binding MinPower}" Maximum="{Binding MaxPower}"/>
+<TextBlock Text="{DynamicResource Mic}"/><Slider Value="{Binding Mic}" Minimum="0" Maximum="100"/>
+<StackPanel Orientation="Horizontal" Spacing="8"><Button Content="{DynamicResource Nb}" Command="{Binding ToggleCommand}" CommandParameter="nb"/><Button Content="{DynamicResource Dnr}" Command="{Binding ToggleCommand}" CommandParameter="nr"/></StackPanel>
+</StackPanel></Border>
+<TextBlock Text="{Binding AudioQuality}" TextWrapping="Wrap" FontSize="11"/>
+<TextBlock Text="{Binding Notice}" TextWrapping="Wrap" Foreground="#FFBE77"/>
+<StackPanel IsVisible="{Binding TotWarning}"><TextBlock Text="{DynamicResource TotWarning}" TextWrapping="Wrap"/><Button Content="{DynamicResource SetTot}" Command="{Binding SetTotCommand}"/></StackPanel>
+</StackPanel></ScrollViewer>
+</TabItem>
+<TabItem Header="{DynamicResource MobileSettingsTab}"><ScrollViewer><StackPanel Margin="10" Spacing="10">
+<TextBlock Text="{DynamicResource MobilePairHelp}" TextWrapping="Wrap"/>
+<Button Content="{DynamicResource MobileScanQr}" Click="Scan" IsEnabled="{Binding CanConfigure}"/>
+<StackPanel IsEnabled="{Binding CanConfigure}" Spacing="8">
+<TextBlock Text="{DynamicResource DeviceName}"/><TextBox Text="{Binding DeviceName}"/>
+<TextBlock Text="{DynamicResource PairingData}"/><TextBox Text="{Binding PairingText}" AcceptsReturn="True" Height="100"/>
+<Button Content="{DynamicResource PairDevice}" Command="{Binding PairCommand}"/>
+<TextBlock Text="{DynamicResource ServerAddress}"/><TextBox Text="{Binding ServerAddress}"/>
+<TextBlock Text="{DynamicResource Fingerprint}"/><TextBox Text="{Binding Fingerprint}" IsReadOnly="True"/>
+<TextBlock Text="{DynamicResource AudioBitrate}"/><ComboBox ItemsSource="{Binding AudioBitrates}" SelectedItem="{Binding AudioBitrate}"/>
+</StackPanel>
+<TextBlock Text="{DynamicResource MobileBackgroundHelp}" TextWrapping="Wrap"/>
+<Button Content="{DynamicResource MobileResumeAudio}" Click="ResumeAudio"/>
+<TextBlock Text="{Binding Notice}" Foreground="#FFBE77" TextWrapping="Wrap"/>
+</StackPanel></ScrollViewer></TabItem>
+<TabItem Header="{DynamicResource MobileConsoleTab}"><DockPanel Margin="8">
+<TextBlock DockPanel.Dock="Top" Text="{DynamicResource ConsoleHint}" TextWrapping="Wrap"/>
+<StackPanel DockPanel.Dock="Bottom" Spacing="6"><TextBox Text="{Binding RawCommand}" Watermark="{DynamicResource CommandWatermark}"/><Button Content="{DynamicResource SendRaw}" Command="{Binding SendRawCommand}"/><TextBlock Text="{Binding Notice}" TextWrapping="Wrap"/></StackPanel>
+<ListBox ItemsSource="{Binding CatLog}" FontFamily="monospace" FontSize="11"/>
+</DockPanel></TabItem>
+<TabItem Header="{DynamicResource MobileDevicesTab}"><StackPanel Margin="12" Spacing="12"><TextBlock Text="{DynamicResource MobileDevicesHelp}" TextWrapping="Wrap"/><TextBlock Text="{Binding DeviceName}"/><TextBlock Text="{Binding ServerAddress}" TextWrapping="Wrap"/><TextBlock Text="{DynamicResource MobileKeyProtected}" TextWrapping="Wrap"/><Button Content="{DynamicResource Disconnect}" Click="Disconnect"/></StackPanel></TabItem>
+</TabControl>
+</UserControl>
