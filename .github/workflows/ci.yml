@@ -1,4 +1,4 @@
-name: CAT and network validation
+name: CAT, network and audio validation
 on:
   push:
     branches: ['**']
@@ -58,3 +58,4 @@ jobs:
             artifacts/server/SHA256.txt
             README.md
             THIRD_PARTY_NOTICES.md
+            licenses/*.txt

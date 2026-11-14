@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Ftx1.Client;
+using Ftx1.Audio;
 using Ftx1.Protocol;
 var root = Path.Combine(Path.GetTempPath(), "ftx1-package-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(root);
 var start = new ProcessStartInfo(Path.GetFullPath(args[0])) { UseShellExecute = false, CreateNoWindow = true }; foreach (var arg in new[] { "--headless", "--sim", "--port", "0", "--data-dir", root }) start.ArgumentList.Add(arg);
@@ -11,7 +12,15 @@ try
     var file = Path.Combine(root, "desktop-connection.json"); await Wait(() => File.Exists(file)); var cfg = JsonSerializer.Deserialize(File.ReadAllBytes(file), ProtocolJson.Default.ClientSettings)!;
     await using var client = new StationConnection(cfg); await client.Start(); await Wait(() => client.Connected && client.State.GetValueOrDefault("radio_id") as string == "0840");
     await client.Send(new() { T = "set", Key = "af", Value = Wire.Element(88) }); await Wait(() => client.State.GetValueOrDefault("af") is 88);
-    await client.Ptt(true); await Wait(() => client.State.GetValueOrDefault("tx") is true); await client.Ptt(false); await Wait(() => client.State.GetValueOrDefault("tx") is false);
-    Console.WriteLine("RESULT OK: packaged server, TLS pin, device authentication, CAT, PTT on/off");
+    var endpoint = new SmokeAudio(); await using var audio = new ClientAudio(client, endpoint); audio.Start(); await Wait(() => audio.Ready && endpoint.Received > 5);
+    await client.Ptt(true); await Wait(() => client.State.GetValueOrDefault("tx") is true); await Wait(() => client.OwnsTransmit); await Task.Delay(300); await client.Ptt(false); await Wait(() => client.State.GetValueOrDefault("tx") is false);
+    Console.WriteLine("RESULT OK: packaged server, TLS pin, device authentication, CAT, Opus RX, microphone TX, PTT on/off");
 }
 finally { if (!server.HasExited) { server.Kill(true); await server.WaitForExitAsync(); } Directory.Delete(root, true); }
+
+sealed class SmokeAudio : IVoiceDevice
+{
+    readonly SimVoiceDevice inner = new(); public int Received; public event Action<short[]>? Captured; public event Action<Exception>? Failed;
+    public SmokeAudio() { inner.Captured += pcm => Captured?.Invoke(pcm); inner.Failed += e => Failed?.Invoke(e); }
+    public void Start() => inner.Start(); public void Play(short[] pcm) { if (pcm.Any(x => Math.Abs((int)x) > 100)) Interlocked.Increment(ref Received); } public void Clear() { } public void Dispose() => inner.Dispose();
+}

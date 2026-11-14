@@ -16,3 +16,16 @@ această portare nu acordă o licență nouă asupra codului derivat. Pictograma
 
 Dependențele NuGet au propriile licențe; sunt folosite versiunile declarate în fișierele `.csproj`.
 `ft8_lib` nu este inclus în Etapa 1. Când va fi introdus, trebuie păstrată licența sa MIT.
+
+## Etapa 3 — audio
+
+- `ftx1-pult/server/audio.py` (`guess_codec`) și `server/sim.py` (`SimAudio`), plus
+  `web/worklets.js`: referințe pentru selecția dispozitivelor, buffering și simulator.
+  Simulatorul audio C# este simplificat (zgomot, tonuri și ecou), fără decodoarele digitale Python.
+- Concentus 2.2.2: implementare Opus C# de Logan Stromberg și contribuitori, BSD-3-Clause;
+  include portări ale codului Opus/SILK/CELT/Speex. Vezi notificările upstream:
+  https://github.com/lostromb/concentus/blob/master/LICENSE
+- NAudio 2.2.1: Mark Heath și contribuitori, MIT; include resampler-ul WDL și notificările aferente:
+  https://github.com/naudio/NAudio/blob/v2.2.1/license.txt
+
+Pachetele NuGet și sursele upstream păstrează textele complete ale licențelor componentelor lor.

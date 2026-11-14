@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Ftx1.Audio;
 using Ftx1.Core;
 using Ftx1.Protocol;
 namespace Ftx1.Client.ViewModels;
@@ -10,6 +11,15 @@ public sealed record FrequencyDigit(string Text, long Power);
 public partial class MainViewModel : ObservableObject, IAsyncDisposable
 {
     readonly Func<string, string> text; readonly Action<Action> post; readonly ClientSettingsStore store; readonly Timer timer;
+    ClientAudio? audio; readonly Func<IVoiceDevice>? audioFactory; readonly string audioPath;
+    public ObservableCollection<AudioDeviceInfo> AudioInputs { get; } = [];
+    public ObservableCollection<AudioDeviceInfo> AudioOutputs { get; } = [];
+    public int[] AudioBitrates { get; } = [12000, 24000, 32000];
+    [ObservableProperty] bool audioEnabled = true;
+    [ObservableProperty] int audioBitrate = 24000;
+    [ObservableProperty] AudioDeviceInfo? audioInput;
+    [ObservableProperty] AudioDeviceInfo? audioOutput;
+    [ObservableProperty] string audioQuality = "";
     StationConnection? connection; bool applying, disposed, held; long freqA = 14074000;
     public ObservableCollection<string> CatLog { get; } = []; public ObservableCollection<FrequencyDigit> Digits { get; } = [];
     public IReadOnlyList<string> Modes => RadioControls.Modes; public IReadOnlyList<RadioControls.Band> Bands => RadioControls.Bands;
@@ -40,13 +50,16 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
     [ObservableProperty] double mic = 50;
     [ObservableProperty] string rawCommand = "";
     readonly System.Diagnostics.Stopwatch txWatch = new();
+    public bool AudioReady => audio?.Ready == true;
     public bool CanConfigure => !ConnectionOpen;
     public string ConnectionLabel => text(ConnectionOpen ? "Disconnect" : "Connect");
-    public MainViewModel(Func<string, string> text, Action<Action> post, ClientSettingsStore? settingsStore = null)
+    public MainViewModel(Func<string, string> text, Action<Action> post, ClientSettingsStore? settingsStore = null, Func<IVoiceDevice>? audioFactory = null)
     {
-        this.text = text; this.post = post; store = settingsStore ?? new();
+        this.audioFactory = audioFactory; this.text = text; this.post = post; store = settingsStore ?? new();
         try { if (store.Load() is { } cfg) { ServerAddress = cfg.Address; Fingerprint = cfg.Fingerprint; DeviceToken = cfg.DeviceToken; } } catch (Exception e) { Notice = text("ConfigError") + " " + e.Message; }
-        Status = text("Disconnected"); RenderFrequency(); timer = new Timer(_ => post(() => { if (disposed) return; Latency = string.Format(CultureInfo.InvariantCulture, text("LatencyFormat"), connection?.LatencyMs ?? 0); TxTime = txWatch.IsRunning ? txWatch.Elapsed.ToString(@"mm\:ss", CultureInfo.InvariantCulture) : ""; }), null, 250, 250);
+        audioPath = Path.Combine(Path.GetDirectoryName(store.PathName)!, "desktop-audio.json");
+        try { var prefs = AudioPreferencesStore.Load(audioPath); AudioEnabled = prefs.Enabled; AudioBitrate = prefs.Bitrate; AudioInputs.Add(new("", text("AudioDefault"))); AudioOutputs.Add(new("", text("AudioDefault"))); foreach (var d in AudioDevices.List(true)) AudioInputs.Add(d); foreach (var d in AudioDevices.List(false)) AudioOutputs.Add(d); AudioInput = AudioInputs.FirstOrDefault(d => d.Id == prefs.Input) ?? AudioInputs[0]; AudioOutput = AudioOutputs.FirstOrDefault(d => d.Id == prefs.Output) ?? AudioOutputs[0]; } catch { Notice = text("AudioUnavailable"); }
+        Status = text("Disconnected"); RenderFrequency(); timer = new Timer(_ => post(() => { if (disposed) return; AudioQuality = audio is { Ready: true } ? string.Format(CultureInfo.InvariantCulture, text("AudioQualityFormat"), audio.Quality.BufferedMs, audio.Quality.TargetMs, audio.Quality.Lost, audio.Quality.Late) : text("AudioInactive"); Latency = string.Format(CultureInfo.InvariantCulture, text("LatencyFormat"), connection?.LatencyMs ?? 0); TxTime = txWatch.IsRunning ? txWatch.Elapsed.ToString(@"mm\:ss", CultureInfo.InvariantCulture) : ""; }), null, 250, 250);
     }
     void Log(string s) { if (disposed) return; CatLog.Add(s); while (CatLog.Count > 500) CatLog.RemoveAt(0); }
     void Report(Exception e) { Notice = text("OperationError") + " " + text(e.Message); Log(Notice); }
@@ -59,7 +72,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
         if (ConnectionOpen) { await Disconnect(); return; }
         try
         {
-            if(connection!=null){var stale=connection;connection=null;await stale.DisposeAsync();}
+            if(connection!=null){if(audio!=null){await audio.DisposeAsync();audio=null;}var stale=connection;connection=null;await stale.DisposeAsync();}
             var cfg = new ClientSettings(ServerAddress, Fingerprint, DeviceToken); store.Save(cfg); var current = new StationConnection(cfg); connection = current;
             current.Changed += diff => post(() => { if (!disposed && ReferenceEquals(connection, current)) Apply(); });
             current.Error += code => post(() => { if (ReferenceEquals(connection, current)) { Notice = text(code); if (code is "AuthenticationFailed" or "ProtocolMismatch") ConnectionOpen = false; } });
@@ -70,7 +83,10 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
                 if (m.T is "helloOk" or "tot") TotWarning = current.TotMinutes <= 0;
                 if (m.T == "pttState") { Transmitting = m.You == true; if (Transmitting) txWatch.Start(); else { held = false; txWatch.Reset(); } if (m.Reason != null && m.Reason != "Released") Notice = text("Stop" + m.Reason); }
             });
-            ConnectionOpen = true; await current.Start(); Notice = "";
+            AudioPreferencesStore.Save(audioPath, new(AudioEnabled, AudioBitrate, AudioInput?.Id ?? "", AudioOutput?.Id ?? ""));
+            Notice = "";
+            if (AudioEnabled) { try { audio = new(current, audioFactory?.Invoke() ?? AudioDevices.Create(false, AudioInput?.Id, AudioOutput?.Id), AudioBitrate); audio.Error += code => post(() => Notice = text(code)); audio.Start(); } catch { if (audio != null) await audio.DisposeAsync(); audio = null; Notice = text("AudioUnavailable"); } }
+            ConnectionOpen = true; await current.Start();
         }
         catch (Exception e) { await Disconnect(); Report(e); }
     }
@@ -112,6 +128,6 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
     [RelayCommand] Task SetTot() => Send(new() { T = "setTot" });
     [RelayCommand] void SendRaw() { Queue(new() { T = "cat", Command = RawCommand }); RawCommand = ""; }
     [RelayCommand] void ClearLog() => CatLog.Clear();
-    async Task Disconnect() { held = false; var old = connection; connection = null; try { if (old != null) await old.DisposeAsync(); } finally { ConnectionOpen = false; Transmitting = false; txWatch.Reset(); Status = text("Disconnected"); } }
+    async Task Disconnect() { held = false; var old = connection; connection = null; try { if (audio != null) { await audio.DisposeAsync(); audio = null; } if (old != null) await old.DisposeAsync(); } finally { ConnectionOpen = false; Transmitting = false; txWatch.Reset(); Status = text("Disconnected"); } }
     public async ValueTask DisposeAsync() { if (disposed) return; disposed = true; timer.Dispose(); await Disconnect(); }
 }

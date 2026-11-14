@@ -32,6 +32,13 @@ Date fixe de la proprietar:
 - Etapa 2 este pregătită pe branch separat, bazat pe PR #1 până la merge-ul lui;
   proprietarul păstrează verificarea hardware și decizia de merge. Nu se declară testele hardware efectuate.
 
+## Continuare autorizată — Etapa 3 (14.11.2026)
+
+- Proprietarul a testat Etapa 2 și a confirmat că funcționează.
+- Cerere explicită: începerea Etapei 3, audio Opus prin internet și executabile la final.
+- Branch `feat/stage3-internet-audio`, bazat pe Etapa 2 testată, până la merge-ul PR-urilor anterioare; `main` rămâne nemodificat.
+- Se implementează WASAPI, Opus 16 kHz/20 ms, tampon adaptiv, simulator cu ecou și oprire PTT la lipsa audio. UDP se amână până există măsurători 4G peste pragul din plan.
+
 ## 0. Reguli de lucru
 
 1. **O etapă = un branch + un pull request.** Nu lucra direct pe `main`. CI verde e obligatoriu.
