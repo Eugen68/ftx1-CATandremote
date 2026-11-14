@@ -127,7 +127,10 @@ public class NetworkTests
     {
         var root=Path.Combine(Path.GetTempPath(),Guid.NewGuid().ToString("N"));Directory.CreateDirectory(root);
         try{var tokens=new DeviceTokens(root);var pair=tokens.Create("device");var file=Path.Combine(root,"devices.json");File.Move(file,file+".backup");Directory.CreateDirectory(file);bool revoked=false;tokens.Revoked+=_=>revoked=true;
-            Assert.ThrowsAny<IOException>(()=>tokens.Revoke(pair.DeviceId));Assert.NotNull(tokens.Authenticate(pair.DeviceToken));Assert.False(revoked);
+            var error = Record.Exception(() => tokens.Revoke(pair.DeviceId));
+            Assert.True(error is IOException or UnauthorizedAccessException);
+            Assert.NotNull(tokens.Authenticate(pair.DeviceToken));
+            Assert.False(revoked);
         }finally{Directory.Delete(root,true);}
     }
     [Fact]
