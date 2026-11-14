@@ -11,6 +11,7 @@ public sealed class ClientAudio : IAsyncDisposable
     public AudioQuality Quality => jitter.Quality;
     public bool Ready { get; private set; }
     public event Action<string>? Error;
+    public event Action<Exception>? Failed;
     public ClientAudio(StationConnection connection, IVoiceDevice device, int bitrate = 24000)
     {
         this.connection = connection; this.device = device; this.bitrate = bitrate; encoder = new(bitrate);
@@ -49,7 +50,7 @@ public sealed class ClientAudio : IAsyncDisposable
         catch (OperationCanceledException) { }
         catch (Exception e) { DeviceFailed(e); }
     }
-    void DeviceFailed(Exception error) { Ready = false; connection.Abort(); Error?.Invoke("AudioUnavailable"); }
+    void DeviceFailed(Exception error) { Ready = false; connection.Abort(); Error?.Invoke("ClientAudioUnavailable"); Failed?.Invoke(error); }
     public async ValueTask DisposeAsync()
     {
         if (disposed) return; disposed = true; Ready = false;

@@ -64,7 +64,7 @@ public sealed class StationConnection : IAsyncDisposable
                     Received?.Invoke(message);
                 }
             }
-            catch (Exception e) when (e is WebSocketException or IOException or OperationCanceledException or JsonException or InvalidDataException) { if (!lifetime.IsCancellationRequested) Error?.Invoke("Disconnected"); }
+            catch (Exception e) when (e is WebSocketException or IOException or OperationCanceledException or JsonException or InvalidDataException or ObjectDisposedException) { if (!lifetime.IsCancellationRequested) Error?.Invoke("Disconnected"); }
             finally { connected = pressed = owns = false; TransmitEpoch = 0; ConnectionChanged?.Invoke(false); Apply(new() { { "connected", Wire.Element(false) }, { "tx", Wire.Element(false) } }, false); foreach (var (id, tcs) in requests) if (requests.TryRemove(id, out _)) tcs.TrySetException(new IOException("Disconnected")); if (ReferenceEquals(socket, ws)) socket = null; }
             try { await Task.Delay(TimeSpan.FromSeconds(delay), lifetime.Token); delay = Math.Min(10, delay * 2); } catch (OperationCanceledException) { break; }
         }
@@ -94,7 +94,7 @@ public sealed class StationConnection : IAsyncDisposable
                     try { var ws = socket; if (ws?.State == WebSocketState.Open && owns && packet.Epoch == TransmitEpoch) await ws.SendAsync(packet.Encode(), WebSocketMessageType.Binary, true, timeout.Token); }
                     finally { sendGate.Release(); }
                 }
-                catch (Exception e) when (e is OperationCanceledException or WebSocketException or IOException) { if (!lifetime.IsCancellationRequested) socket?.Abort(); }
+                catch (Exception e) when (e is OperationCanceledException or WebSocketException or IOException or ObjectDisposedException) { if (!lifetime.IsCancellationRequested) socket?.Abort(); }
             }
         }
         catch (OperationCanceledException) { }
@@ -107,7 +107,7 @@ public sealed class StationConnection : IAsyncDisposable
             {
                 await Task.Delay(250, lifetime.Token); if (!connected) continue;
                 try { if ((owns || pressed) && HeartbeatsEnabled) await Send(new() { T = "pttHeartbeat" }); if (Environment.TickCount64 - lastPing >= 1000) { lastPing = Environment.TickCount64; await Send(new() { T = "ping", Ts = lastPing }); } if (Stopwatch.GetElapsedTime(lastReply).TotalSeconds > 5) socket?.Abort(); }
-                catch (Exception e) when (e is IOException or WebSocketException or OperationCanceledException) { socket?.Abort(); }
+                catch (Exception e) when (e is IOException or WebSocketException or OperationCanceledException or ObjectDisposedException) { socket?.Abort(); }
             }
         }
         catch (OperationCanceledException) { }
@@ -129,7 +129,7 @@ public sealed class StationConnection : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         if (lifetime.IsCancellationRequested) return;
-        try { if (connected) try { await Ptt(false); } catch (Exception e) when (e is IOException or OperationCanceledException or WebSocketException) { } }
+        try { if (connected) try { await Ptt(false); } catch (Exception e) when (e is IOException or OperationCanceledException or WebSocketException or ObjectDisposedException) { } }
         finally { lifetime.Cancel(); socket?.Abort(); if (run != null) await run; if (pulses != null) await pulses; if (audioSender != null) await audioSender; }
     }
 }

@@ -1,5 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=System.Runtime">
-  <sys:String x:Key="Title">FTX-1 CAT și control la distanță · Etapa 3</sys:String>
+  <sys:String x:Key="Title">FTX-1 CAT și control la distanță · Etapa 4</sys:String>
   <sys:String x:Key="Connection">Conexiune</sys:String>
   <sys:String x:Key="CatPort">Port CAT</sys:String>
   <sys:String x:Key="Baud">Viteză CAT</sys:String>
@@ -122,4 +122,39 @@
   <sys:String x:Key="AudioWindowsOnly">Audio WASAPI este disponibil pe Windows.</sys:String>
   <sys:String x:Key="AudioStationHelp">Audio stație: USB Audio CODEC pentru intrare și ieșire. Simulatorul generează tonuri și ecou întârziat.</sys:String>
   <sys:String x:Key="StopLostAudio">Emisia a fost oprită: fluxul microfonului lipsește de peste o secundă.</sys:String>
+  <sys:String x:Key="MobileAppName">FTX1 Remote</sys:String>
+  <sys:String x:Key="MobileRadioTab">Stație</sys:String>
+  <sys:String x:Key="MobileSettingsTab">Setări</sys:String>
+  <sys:String x:Key="MobileTuneHint">Glisează frecvența sau folosește − / + cu pasul selectat (Hz).</sys:String>
+  <sys:String x:Key="MobilePtt">PTT · ține apăsat</sys:String>
+  <sys:String x:Key="DeviceName">Numele dispozitivului</sys:String>
+  <sys:String x:Key="MobilePairHelp">Asociază telefonul cu QR-ul din serverul Windows. Tailscale trebuie să fie conectat pe ambele dispozitive. Poți lipi și datele JSON de sub QR.</sys:String>
+  <sys:String x:Key="MobileScanQr">Scanează QR</sys:String>
+  <sys:String x:Key="MobileQrHint">Îndreaptă camera spre codul QR afișat de server.</sys:String>
+  <sys:String x:Key="MobilePermissionsDenied">Permisiunile microfonului și notificărilor sunt necesare pentru audio. Activează-le în setările Android ale aplicației.</sys:String>
+  <sys:String x:Key="MobileCameraDenied">Camera nu este disponibilă sau permisiunea a fost refuzată. Poți lipi datele de asociere în Setări.</sys:String>
+  <sys:String x:Key="MobileFocusUnavailable">Audio este folosit de altă aplicație sau există un apel. Revino și conectează din nou.</sys:String>
+  <sys:String x:Key="MobilePttUnavailable">PTT necesită ecranul aplicației activ, serviciul pornit, audio disponibil și rețea.</sys:String>
+  <sys:String x:Key="MobileNotificationChannel">Conexiune și audio FTX1</sys:String>
+  <sys:String x:Key="MobileNotificationTitle">Conectat la FTX1</sys:String>
+  <sys:String x:Key="MobileNotificationFormat">{0:F3} MHz · {1} · audio activ</sys:String>
+  <sys:String x:Key="MobileBackgroundHelp">Recepția continuă cu ecranul stins cât notificarea conexiunii este prezentă. Ieșirea din ecran eliberează PTT. Apelurile și deconectarea căștilor întrerup emisia; după ele poți relua audio.</sys:String>
+  <sys:String x:Key="MobileResumeAudio">Reia audio</sys:String>
+  <sys:String x:Key="MobileDevicesHelp">Acest telefon este un dispozitiv asociat. Lista completă și revocarea dispozitivelor sunt în administrarea serverului Windows.</sys:String>
+  <sys:String x:Key="MobileKeyProtected">Datele de autentificare sunt criptate cu o cheie protejată de Android Keystore.</sys:String>
+  <sys:String x:Key="MobileConsoleTab">CAT</sys:String>
+  <sys:String x:Key="MobileDevicesTab">Dispozitiv</sys:String>
+  <sys:String x:Key="MobileTuneMinus">−</sys:String>
+  <sys:String x:Key="MobileTunePlus">+</sys:String>
+  <sys:String x:Key="MobileNotificationReconnecting">Reconectare la FTX1</sys:String>
+  <sys:String x:Key="MobileNotificationPausedFormat">{0:F3} MHz · {1} · audio întrerupt</sys:String>
+  <sys:String x:Key="AudioNotStarted">Audio se inițializează când se conectează clientul sau la Verifică audio.</sys:String>
+  <sys:String x:Key="AudioRunning">Audio activ:</sys:String>
+  <sys:String x:Key="ServerAudioUnavailable">Audio indisponibil pe SERVER:</sys:String>
+  <sys:String x:Key="ClientAudioUnavailable">Audio indisponibil pe CLIENT:</sys:String>
+  <sys:String x:Key="ServerCleanupWarning">O resursă a raportat o eroare la închidere; detalii în server-errors.log.</sys:String>
+  <sys:String x:Key="AudioStartServerFirst">Pornește serverul înainte de verificarea audio.</sys:String>
+  <sys:String x:Key="TestAudio">Verifică audio</sys:String>
+  <sys:String x:Key="AudioSelectionHelp">Pentru modificarea porturilor sau a plăcii audio, apasă Oprește serverul. Pe server alege intrarea și ieșirea USB ale stației; în client alege microfonul și căștile PC-ului. Eroarea exactă este afișată mai sus.</sys:String>
+  <sys:String x:Key="QrImageFailed">Imaginea QR nu a putut fi afișată; datele JSON de asociere sunt disponibile.</sys:String>
 </ResourceDictionary>

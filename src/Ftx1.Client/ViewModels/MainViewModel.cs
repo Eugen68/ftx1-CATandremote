@@ -11,7 +11,7 @@ public sealed record FrequencyDigit(string Text, long Power);
 public partial class MainViewModel : ObservableObject, IAsyncDisposable
 {
     readonly Func<string, string> text; readonly Action<Action> post; readonly ClientSettingsStore store; readonly Timer timer;
-    ClientAudio? audio; readonly Func<IVoiceDevice>? audioFactory; readonly string audioPath;
+    ClientAudio? audio; readonly Func<IVoiceDevice>? audioFactory; readonly Func<string?, string?, IVoiceDevice>? audioDeviceFactory; readonly string audioPath;
     public ObservableCollection<AudioDeviceInfo> AudioInputs { get; } = [];
     public ObservableCollection<AudioDeviceInfo> AudioOutputs { get; } = [];
     public int[] AudioBitrates { get; } = [12000, 24000, 32000];
@@ -53,12 +53,12 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
     public bool AudioReady => audio?.Ready == true;
     public bool CanConfigure => !ConnectionOpen;
     public string ConnectionLabel => text(ConnectionOpen ? "Disconnect" : "Connect");
-    public MainViewModel(Func<string, string> text, Action<Action> post, ClientSettingsStore? settingsStore = null, Func<IVoiceDevice>? audioFactory = null)
+    public MainViewModel(Func<string, string> text, Action<Action> post, ClientSettingsStore? settingsStore = null, Func<IVoiceDevice>? audioFactory = null, Func<string?, string?, IVoiceDevice>? audioDeviceFactory = null, Func<bool, IReadOnlyList<AudioDeviceInfo>>? audioDeviceList = null)
     {
-        this.audioFactory = audioFactory; this.text = text; this.post = post; store = settingsStore ?? new();
+        this.audioFactory = audioFactory; this.audioDeviceFactory = audioDeviceFactory; this.text = text; this.post = post; store = settingsStore ?? new();
         try { if (store.Load() is { } cfg) { ServerAddress = cfg.Address; Fingerprint = cfg.Fingerprint; DeviceToken = cfg.DeviceToken; } } catch (Exception e) { Notice = text("ConfigError") + " " + e.Message; }
         audioPath = Path.Combine(Path.GetDirectoryName(store.PathName)!, "desktop-audio.json");
-        try { var prefs = AudioPreferencesStore.Load(audioPath); AudioEnabled = prefs.Enabled; AudioBitrate = prefs.Bitrate; AudioInputs.Add(new("", text("AudioDefault"))); AudioOutputs.Add(new("", text("AudioDefault"))); foreach (var d in AudioDevices.List(true)) AudioInputs.Add(d); foreach (var d in AudioDevices.List(false)) AudioOutputs.Add(d); AudioInput = AudioInputs.FirstOrDefault(d => d.Id == prefs.Input) ?? AudioInputs[0]; AudioOutput = AudioOutputs.FirstOrDefault(d => d.Id == prefs.Output) ?? AudioOutputs[0]; } catch { Notice = text("AudioUnavailable"); }
+        try { var prefs = AudioPreferencesStore.Load(audioPath); AudioEnabled = prefs.Enabled; AudioBitrate = prefs.Bitrate; AudioInputs.Add(new("", text("AudioDefault"))); AudioOutputs.Add(new("", text("AudioDefault"))); foreach (var d in (audioDeviceList?.Invoke(true) ?? [])) AudioInputs.Add(d); foreach (var d in (audioDeviceList?.Invoke(false) ?? [])) AudioOutputs.Add(d); AudioInput = AudioInputs.FirstOrDefault(d => d.Id == prefs.Input) ?? AudioInputs[0]; AudioOutput = AudioOutputs.FirstOrDefault(d => d.Id == prefs.Output) ?? AudioOutputs[0]; } catch { Notice = text("AudioUnavailable"); }
         Status = text("Disconnected"); RenderFrequency(); timer = new Timer(_ => post(() => { if (disposed) return; AudioQuality = audio is { Ready: true } ? string.Format(CultureInfo.InvariantCulture, text("AudioQualityFormat"), audio.Quality.BufferedMs, audio.Quality.TargetMs, audio.Quality.Lost, audio.Quality.Late) : text("AudioInactive"); Latency = string.Format(CultureInfo.InvariantCulture, text("LatencyFormat"), connection?.LatencyMs ?? 0); TxTime = txWatch.IsRunning ? txWatch.Elapsed.ToString(@"mm\:ss", CultureInfo.InvariantCulture) : ""; }), null, 250, 250);
     }
     void Log(string s) { if (disposed) return; CatLog.Add(s); while (CatLog.Count > 500) CatLog.RemoveAt(0); }
@@ -79,13 +79,14 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
             current.Received += m => post(() =>
             {
                 if (disposed || !ReferenceEquals(connection, current)) return;
+                if (m.T == "error" && m.Detail != null) { Notice = text(m.Error ?? "OperationFailed") + " " + m.Detail; Log(Notice); }
                 if (m.T == "catLine") Log(m.Command ?? "");
                 if (m.T is "helloOk" or "tot") TotWarning = current.TotMinutes <= 0;
                 if (m.T == "pttState") { Transmitting = m.You == true; if (Transmitting) txWatch.Start(); else { held = false; txWatch.Reset(); } if (m.Reason != null && m.Reason != "Released") Notice = text("Stop" + m.Reason); }
             });
             AudioPreferencesStore.Save(audioPath, new(AudioEnabled, AudioBitrate, AudioInput?.Id ?? "", AudioOutput?.Id ?? ""));
             Notice = "";
-            if (AudioEnabled) { try { audio = new(current, audioFactory?.Invoke() ?? AudioDevices.Create(false, AudioInput?.Id, AudioOutput?.Id), AudioBitrate); audio.Error += code => post(() => Notice = text(code)); audio.Start(); } catch { if (audio != null) await audio.DisposeAsync(); audio = null; Notice = text("AudioUnavailable"); } }
+            if (AudioEnabled) { try { audio = new(current, (audioFactory?.Invoke() ?? audioDeviceFactory?.Invoke(AudioInput?.Id, AudioOutput?.Id) ?? throw new InvalidOperationException("AudioUnavailable")), AudioBitrate); audio.Error += code => post(() => Notice = text(code)); audio.Failed += error => post(() => Notice = text("ClientAudioUnavailable") + " " + AudioDiagnostic.Describe(error)); audio.Start(); } catch (Exception error) { if (audio != null) try { await audio.DisposeAsync(); } catch { } audio = null; Notice = text("ClientAudioUnavailable") + " " + AudioDiagnostic.Describe(error); } }
             ConnectionOpen = true; await current.Start();
         }
         catch (Exception e) { await Disconnect(); Report(e); }
@@ -111,7 +112,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
         }
         finally { applying = false; }
     }
-    void RenderFrequency() { var str = freqA.ToString("D9", CultureInfo.InvariantCulture); Digits.Clear(); long pow = 100000000; foreach (var c in str) { Digits.Add(new(c.ToString(), pow)); pow /= 10; } }
+    void RenderFrequency() { OnPropertyChanged(nameof(CurrentFrequency)); OnPropertyChanged(nameof(FrequencyDisplay)); var str = freqA.ToString("D9", CultureInfo.InvariantCulture); Digits.Clear(); long pow = 100000000; foreach (var c in str) { Digits.Add(new(c.ToString(), pow)); pow /= 10; } }
     public void TuneDigit(long power, int direction) => SetParam("freq_a", Math.Clamp(freqA + power * direction, 30000, 470000000));
     [RelayCommand] void TuneInput() { try { SetParam("freq_a", RadioControls.ParseFrequency(FrequencyInput)); FrequencyInput = ""; } catch (Exception e) { Report(e); } }
     void SetParam(string key, object value) { if (!applying) Queue(new() { T = "set", Key = key, Value = Wire.Element(value) }); }
@@ -128,6 +129,15 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
     [RelayCommand] Task SetTot() => Send(new() { T = "setTot" });
     [RelayCommand] void SendRaw() { Queue(new() { T = "cat", Command = RawCommand }); RawCommand = ""; }
     [RelayCommand] void ClearLog() => CatLog.Clear();
+    public bool NetworkConnected => connection?.Connected == true;
+    public long CurrentFrequency => freqA;
+    public string FrequencyDisplay => freqA.ToString("000,000,000", CultureInfo.InvariantCulture);
+    public long[] TuningSteps { get; } = [10, 50, 100, 500, 1000, 5000, 10000];
+    public void TuneByStep(long step, int direction) => TuneDigit(step, direction);
+    public void InterruptConnection() { EndPtt(); connection?.Abort(); }
+    public async Task DisconnectSession() => await Disconnect();
+    public async Task SuspendAudio() { EndPtt(); var old = audio; audio = null; if (old != null) await old.DisposeAsync(); }
+    public async Task ResumeAudio() { if (connection?.Connected != true || audio != null || !AudioEnabled) return; try { var current = new ClientAudio(connection, (audioFactory?.Invoke() ?? audioDeviceFactory?.Invoke(AudioInput?.Id, AudioOutput?.Id) ?? throw new InvalidOperationException("AudioUnavailable")), AudioBitrate); audio = current; current.Error += code => post(() => Notice = text(code)); current.Failed += error => post(() => Notice = text("ClientAudioUnavailable") + " " + AudioDiagnostic.Describe(error)); current.Start(); } catch (Exception error) { Notice = text("ClientAudioUnavailable") + " " + AudioDiagnostic.Describe(error); if (audio != null) { try { await audio.DisposeAsync(); } catch { } audio = null; } } }
     async Task Disconnect() { held = false; var old = connection; connection = null; try { if (audio != null) { await audio.DisposeAsync(); audio = null; } if (old != null) await old.DisposeAsync(); } finally { ConnectionOpen = false; Transmitting = false; txWatch.Reset(); Status = text("Disconnected"); } }
     public async ValueTask DisposeAsync() { if (disposed) return; disposed = true; timer.Dispose(); await Disconnect(); }
 }

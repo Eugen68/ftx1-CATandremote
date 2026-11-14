@@ -29,3 +29,10 @@ Dependențele NuGet au propriile licențe; sunt folosite versiunile declarate î
   https://github.com/naudio/NAudio/blob/v2.2.1/license.txt
 
 Pachetele NuGet și sursele upstream păstrează textele complete ale licențelor componentelor lor.
+
+## Etapa 4 — Android
+
+- ZXing.Net 0.16.10 (Michael Jahn și contribuitori), Apache-2.0, pentru decodarea QR.
+  https://github.com/micjahn/ZXing.Net
+- API-urile native Android Camera2, Keystore, AudioRecord/AudioTrack și serviciile în prim-plan;
+  interfața folosește Avalonia.Android 11.2.3 (MIT), iar codec-ul și protocolul rămân cele din Etapa 3.

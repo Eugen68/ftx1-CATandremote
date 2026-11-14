@@ -39,6 +39,23 @@ Date fixe de la proprietar:
 - Branch `feat/stage3-internet-audio`, bazat pe Etapa 2 testată, până la merge-ul PR-urilor anterioare; `main` rămâne nemodificat.
 - Se implementează WASAPI, Opus 16 kHz/20 ms, tampon adaptiv, simulator cu ecou și oprire PTT la lipsa audio. UDP se amână până există măsurători 4G peste pragul din plan.
 
+## Continuare autorizată — Etapa 4 (14.11.2026)
+
+- Proprietarul cere explicit începerea Etapei 4: aplicație Android și APK la final.
+- Se păstrează serverul și protocolul v2 din Etapa 3 (PR #3), fără merge automat în main.
+- Branch nou `feat/stage4-android`, bazat pe Etapa 3 până la merge-ul etapelor anterioare.
+- Se implementează UI mobil Avalonia, QR cu Camera2/ZXing, token protejat cu Android Keystore,
+  AudioRecord/AudioTrack, serviciu în prim-plan cu WakeLock și notificare, protecțiile de lifecycle.
+- PTT din notificare/căști rămâne opțional și nu se introduce PTT blocat.
+- Se verifică build-ul APK, testele de lifecycle și emulatorul; testarea fizică USB/4G/Bluetooth rămâne la proprietar.
+
+## Probleme raportate de proprietar în timpul Etapei 4
+
+- „Oprește serverul” deconectează stația, apoi închide întregul proces; după repornire porturile sunt gri.
+- Clientul se conectează, dar raportează audio indisponibil.
+- Cerere de corectare integrată în Etapa 4: oprire fără excepții netratate, reactivarea setărilor și pornire din nou;
+  diagnostic audio explicit pe server/client, fără slăbirea protecțiilor PTT.
+
 ## 0. Reguli de lucru
 
 1. **O etapă = un branch + un pull request.** Nu lucra direct pe `main`. CI verde e obligatoriu.

@@ -24,7 +24,10 @@ public sealed class StationFixture : IAsyncDisposable
     public async Task Start() => await Server.Start();
     public async Task<StationConnection> Client(string name = "test")
     {
-        var token = Server.Tokens.Create(name); var client = new StationConnection(new(Server.Address!.ToString(), Server.Certificate.Fingerprint, token.DeviceToken)); await client.Start(); await Wait(() => client.Connected && client.State.GetValueOrDefault("connected") is true && client.State.GetValueOrDefault("radio_id") as string=="0840",10000); await EnableAudio(client); return client;
+        var token = Server.Tokens.Create(name); var client = new StationConnection(new(Server.Address!.ToString(), Server.Certificate.Fingerprint, token.DeviceToken)); var errors = new System.Collections.Concurrent.ConcurrentQueue<string>(); client.Error += errors.Enqueue; await client.Start();
+        try { await Wait(() => client.Connected && client.State.GetValueOrDefault("connected") is true && client.State.GetValueOrDefault("radio_id") as string=="0840",10000); }
+        catch (OperationCanceledException) { throw new TimeoutException("Client startup: connected=" + client.Connected + "; radio=" + client.State.GetValueOrDefault("radio_id") + "; errors=" + string.Join(",", errors)); }
+        await EnableAudio(client); return client;
     }
     public static async Task Wait(Func<bool> condition, int timeout = 5000) { using var cts = new CancellationTokenSource(timeout); while (!condition()) await Task.Delay(10, cts.Token); }
     public async ValueTask DisposeAsync() { foreach (var stream in audio) await stream.DisposeAsync(); await Server.DisposeAsync(); Radio.Dispose(); if (Directory.Exists(Root)) Directory.Delete(Root, true); }
@@ -39,6 +42,15 @@ public class NetworkTests
         await c.Send(new() { T = "set", Key = "af", Value = Wire.Element(77) }); await StationFixture.Wait(() => f.Radio.State["AG0"] == "077" && c.State.GetValueOrDefault("af") is 77);
         f.Radio.Handle("AG0042"); await StationFixture.Wait(() => c.State.GetValueOrDefault("af") is 42);
         var pong = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously); c.Received += m => { if (m.T == "pong" && m.Ts == 123) pong.TrySetResult(); }; await c.Send(new() { T = "ping", Ts = 123 }); await pong.Task.WaitAsync(TimeSpan.FromSeconds(2));
+    }
+    [Fact]
+    public async Task ImmediateStationUpdateWhileConnectingCannotPrecedeAuthentication()
+    {
+        await using var f = new StationFixture(); await f.Start();
+        void Update() => f.Server.Station.SetParam("freq_a", 14075000);
+        f.Server.DevicesChanged += Update;
+        try { await using var client = await f.Client(); Assert.True(client.Connected); await StationFixture.Wait(() => Convert.ToInt64(client.State.GetValueOrDefault("freq_a", 0)) == 14075000); }
+        finally { f.Server.DevicesChanged -= Update; }
     }
     [Theory]
     [InlineData(null)]

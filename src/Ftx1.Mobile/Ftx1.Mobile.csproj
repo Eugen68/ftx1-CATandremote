@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><ItemGroup><ProjectReference Include="../Ftx1.Client/Ftx1.Client.csproj"/><PackageReference Include="Avalonia" Version="11.2.3"/><PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3"/><AvaloniaResource Include="../Ftx1.Desktop/Resources/Strings.ro.axaml" Link="Resources/Strings.ro.axaml"/></ItemGroup></Project>

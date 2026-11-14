@@ -18,19 +18,24 @@ namespace Ftx1.Server;
 public sealed record ServerOptions(string Root, StationConfig Station, int Port = 8443, IPAddress[]? Addresses = null, bool AllowOtherInterfaces = false, double SwrLimit = 3, string? AudioInput = null, string? AudioOutput = null);
 public sealed class StationServer : IAsyncDisposable
 {
-    public const string Version = "0.3.0";
+    public const string Version = "0.4.0";
     readonly StationAudio audio; long audioEpoch;
     readonly ServerOptions options; readonly Rig rig; readonly IDisposable? simulator;
     readonly CancellationTokenSource lifetime = new(); readonly ConcurrentDictionary<string, Session> sessions = new(); readonly AttemptLimiter limiter = new();
-    readonly object auditGate = new(); TxAudit? activeTx; long txStarted, highSwrSince;
+    readonly object sessionGate = new(); readonly object auditGate = new(); TxAudit? activeTx; long txStarted, highSwrSince;
     WebApplication? app; Task? monitor; Task? audioPlayback; bool disposed;
     public DeviceTokens Tokens { get; }
     public PairingCodes Pairing { get; }
     public ServerCertificate Certificate { get; }
+    public IPAddress[]? ListeningAddresses { get; private set; }
     public Uri? Address { get; private set; }
     public int TotMinutes { get; private set; } = -1;
     public Rig Station => rig;
     public event Action? DevicesChanged;
+    public event Action<bool, string>? AudioStatusChanged;
+    public string LastAudioStatus { get; private set; } = "";
+    public void CheckAudio() { try { audio.Start(); AudioStatus(true, audio.Description); } catch (Exception error) { AudioStatus(false, AudioDiagnostic.Describe(error)); throw; } }
+    void AudioStatus(bool ready, string detail) { LastAudioStatus = detail; AudioStatusChanged?.Invoke(ready, detail); }
     public StationServer(ServerOptions options, ITransport? transport = null, Func<IVoiceDevice>? audioFactory = null)
     {
         this.options = options; options.Station.Validate(); Directory.CreateDirectory(options.Root);
@@ -40,7 +45,7 @@ public sealed class StationServer : IAsyncDisposable
         audio = new(audioFactory ?? (() => options.Station.Simulator ? new SimVoiceDevice() : AudioDevices.Create(true, options.AudioInput, options.AudioOutput)));
         audio.Encoded += (bitrate, seq, stamp, payload) => { foreach (var session in sessions.Values) if (session.AudioEnabled && session.Bitrate == bitrate) session.SendAudio(new(ProtocolVersion.Audio, session.ReceiveEpoch, seq, stamp, payload)); };
         rig = new(transport, options.Station.Simulator ? "TX1" : options.Station.PttMethod, line, TimeSpan.FromSeconds(options.Station.MaxTxSeconds));
-        audio.Failed += _ => { rig.Transmit.Stop(StopReason.Failure); Broadcast(new() { T = "error", Error = "AudioUnavailable" }); };
+        audio.Failed += error => { rig.Transmit.Stop(StopReason.Failure); var detail = AudioDiagnostic.Describe(error); AudioStatus(false, detail); Broadcast(new() { T = "error", Error = "ServerAudioUnavailable", Detail = detail }); };
         rig.Changed += diff => Broadcast(new() { T = "state", Diff = Wire.State(diff) });
         rig.Raw += line => Broadcast(new() { T = "catLine", Command = line });
         rig.Transmit.Started += OnTxStarted;
@@ -49,7 +54,7 @@ public sealed class StationServer : IAsyncDisposable
     }
     public async Task Start(CancellationToken token = default)
     {
-        var addresses = options.Addresses ?? ListenPolicy.DefaultAddresses(); ListenPolicy.Validate(addresses, options.AllowOtherInterfaces);
+        var addresses = options.Addresses ?? ListenPolicy.DefaultAddresses(); ListenPolicy.Validate(addresses, options.AllowOtherInterfaces); ListeningAddresses = addresses;
         var builder = WebApplication.CreateSlimBuilder(); builder.Logging.ClearProviders();
         builder.WebHost.ConfigureKestrel(k => { k.Limits.MaxRequestBodySize = 4096; foreach (var ip in addresses) k.Listen(ip, options.Port, l => l.UseHttps(Certificate.Certificate)); });
         app = builder.Build(); app.UseWebSockets(new() { KeepAliveInterval = TimeSpan.FromSeconds(15) });
@@ -111,12 +116,13 @@ public sealed class StationServer : IAsyncDisposable
             // A reconnect starts with a new session and can never inherit PTT.
             foreach (var old in sessions.Values.Where(s => s.Device.Id == device.Id)) { StopOwner(old, StopReason.Disconnected); old.Abort(); }
             var session = new Session(socket, device, lifetime.Token);
-            sessions[session.Id] = session; DevicesChanged?.Invoke();
-            session.Send(new() { T = "helloOk", ProtocolVersion = ProtocolVersion.Current, ServerVersion = Version, State = Wire.State(rig.State), TotMinutes = TotMinutes }); BroadcastPtt();
+            // Queue authentication before publishing the session to broadcasts. Otherwise a CAT diff can arrive before helloOk.
+            lock (sessionGate) { session.Send(new() { T = "helloOk", ProtocolVersion = ProtocolVersion.Current, ServerVersion = Version, State = Wire.State(rig.State), TotMinutes = TotMinutes }); sessions[session.Id] = session; }
+            DevicesChanged?.Invoke(); BroadcastPtt();
             try { await session.Run(message => Dispatch(session, message), packet => Microphone(session, packet), () => StopOwner(session, StopReason.Disconnected)); }
             finally { StopOwner(session, StopReason.Disconnected); sessions.TryRemove(session.Id, out _); session.Abort(); DevicesChanged?.Invoke(); }
         }
-        catch (Exception e) when (e is WebSocketException or OperationCanceledException or JsonException or InvalidDataException) { socket.Abort(); }
+        catch (Exception e) when (e is WebSocketException or OperationCanceledException or JsonException or InvalidDataException or ObjectDisposedException) { socket.Abort(); }
     }
     static async Task Reject(WebSocket socket, string reason)
     {
@@ -135,7 +141,7 @@ public sealed class StationServer : IAsyncDisposable
                 case "audioConfig":
                     if (rig.Transmit.Owner == s.Id) rig.Transmit.Stop(StopReason.Released);
                     s.AudioEnabled = false; s.ResetTransmit();
-                    if (m.On == true) { int bitrate = m.Bitrate ?? 24000; if (bitrate is not (12000 or 24000 or 32000)) throw new ArgumentException("InvalidBitrate"); try { audio.Start(); } catch { s.Send(new() { T = "error", Error = "AudioUnavailable" }); break; } s.Bitrate = bitrate; s.ReceiveEpoch = Interlocked.Increment(ref audioEpoch); s.Send(new() { T = "audioReady", AudioAvailable = true, AudioEpoch = s.ReceiveEpoch, Bitrate = bitrate }); s.AudioEnabled = true; }
+                    if (m.On == true) { int bitrate = m.Bitrate ?? 24000; if (bitrate is not (12000 or 24000 or 32000)) throw new ArgumentException("InvalidBitrate"); try { audio.Start(); AudioStatus(true, audio.Description); } catch (Exception error) { var detail = AudioDiagnostic.Describe(error); AudioStatus(false, detail); s.Send(new() { T = "error", Error = "ServerAudioUnavailable", Detail = detail }); break; } s.Bitrate = bitrate; s.ReceiveEpoch = Interlocked.Increment(ref audioEpoch); s.Send(new() { T = "audioReady", AudioAvailable = true, AudioEpoch = s.ReceiveEpoch, Bitrate = bitrate }); s.AudioEnabled = true; }
                     else s.Send(new() { T = "audioReady", AudioAvailable = false });
                     break;
                 case "pttRequest":
@@ -185,7 +191,7 @@ public sealed class StationServer : IAsyncDisposable
             catch (InvalidDataException) { rig.Transmit.Stop(StopReason.Failure); }
         });
     }
-    void Broadcast(Message m) { foreach (var s in sessions.Values) s.Send(m); }
+    void Broadcast(Message m) { Session[] targets; lock (sessionGate) targets = sessions.Values.ToArray(); foreach (var s in targets) s.Send(m); }
     void BroadcastPtt(string? reason = null) { var owner = rig.Transmit.Owner; foreach (var s in sessions.Values) s.Send(new() { T = "pttState", Owner = owner ?? "", You = owner == s.Id, Reason = reason, AudioEpoch = owner == s.Id ? s.TransmitEpoch : null }); }
     void OnTxStarted(string owner)
     {
@@ -220,7 +226,7 @@ public sealed class StationServer : IAsyncDisposable
     {
         if (disposed) return; disposed = true;
         try { rig.Transmit.Stop(StopReason.Shutdown); lifetime.Cancel(); foreach (var s in sessions.Values) s.Abort(); if (monitor != null) await monitor; if (audioPlayback != null) await audioPlayback; audio.Dispose(); }
-        finally { try { if (app != null) { using var timeout = new CancellationTokenSource(3000); try { await app.StopAsync(timeout.Token); } catch (OperationCanceledException) { } await app.DisposeAsync(); } } finally { await rig.DisposeAsync(); simulator?.Dispose(); Certificate.Certificate.Dispose(); } }
+        finally { try { if (app != null) { using var timeout = new CancellationTokenSource(3000); try { await app.StopAsync(timeout.Token); } catch (OperationCanceledException) { } await app.DisposeAsync(); } } finally { try { await rig.DisposeAsync(); } finally { try { simulator?.Dispose(); } finally { Certificate.Certificate.Dispose(); } } } }
     }
     sealed class Session
     {
@@ -243,7 +249,7 @@ public sealed class StationServer : IAsyncDisposable
         {
             var send = SendLoop();
             try { while (!cancel.IsCancellationRequested) { var frame = await SocketFrames.ReceiveFrame(socket, cancel.Token); if (frame == null) break; if (frame.Binary) binary(AudioPacket.Decode(frame.Bytes)); else await receive(Wire.Decode(frame.Bytes)); } }
-            finally { disconnected(); Abort(); try { await send; } catch (Exception e) when (e is OperationCanceledException or WebSocketException) { } foreach (var task in tasks.Keys) try { await task.WaitAsync(TimeSpan.FromSeconds(2)); } catch (Exception) { } cancel.Dispose(); }
+            finally { disconnected(); Abort(); try { await send; } catch (Exception e) when (e is OperationCanceledException or WebSocketException or ObjectDisposedException) { } foreach (var task in tasks.Keys) try { await task.WaitAsync(TimeSpan.FromSeconds(2)); } catch (Exception) { } cancel.Dispose(); }
         }
         async Task SendLoop()
         {
@@ -257,7 +263,7 @@ public sealed class StationServer : IAsyncDisposable
                     await Task.Delay(3, cancel.Token);
                 }
             }
-            catch (Exception e) when (e is OperationCanceledException or WebSocketException) { Abort(); }
+            catch (Exception e) when (e is OperationCanceledException or WebSocketException or ObjectDisposedException) { Abort(); }
         }
         async Task SendFrame(byte[] bytes, bool binary) { using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel.Token); timeout.CancelAfter(500); await socket.SendAsync(bytes, binary ? WebSocketMessageType.Binary : WebSocketMessageType.Text, true, timeout.Token); }
     }
