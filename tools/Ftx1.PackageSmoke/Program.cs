@@ -14,6 +14,10 @@ try
     await client.Send(new() { T = "set", Key = "af", Value = Wire.Element(88) }); await Wait(() => client.State.GetValueOrDefault("af") is 88);
     var endpoint = new SmokeAudio(); await using var audio = new ClientAudio(client, endpoint); audio.Start(); await Wait(() => audio.Ready && endpoint.Received > 5);
     await client.Ptt(true); await Wait(() => client.State.GetValueOrDefault("tx") is true); await Wait(() => client.OwnsTransmit); await Task.Delay(300); await client.Ptt(false); await Wait(() => client.State.GetValueOrDefault("tx") is false);
+    var workerStart = new ProcessStartInfo(Path.GetFullPath(args[0])); workerStart.ArgumentList.Add("--audio-worker"); workerStart.ArgumentList.Add("--audio-worker-simulate");
+    using var worker = new AudioProcessDevice(workerStart); int captured = 0; worker.Captured += _ => Interlocked.Increment(ref captured); worker.Start(); await Wait(() => Volatile.Read(ref captured) > 5); worker.Play(new short[320]); worker.Clear(); worker.Dispose();
+    if (server.HasExited) throw new InvalidOperationException("Parent server ended after audio worker stop");
+    Console.WriteLine("RESULT OK: packaged audio worker, PCM pipes, bounded shutdown, parent survival");
     Console.WriteLine("RESULT OK: packaged server, TLS pin, device authentication, CAT, Opus RX, microphone TX, PTT on/off");
 }
 finally { if (!server.HasExited) { server.Kill(true); await server.WaitForExitAsync(); } Directory.Delete(root, true); }

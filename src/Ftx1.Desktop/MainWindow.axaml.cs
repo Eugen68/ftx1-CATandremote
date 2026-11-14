@@ -17,7 +17,7 @@ public partial class MainWindow : Window
     {
         AvaloniaXamlLoader.Load(this);
         string Text(string key) => this.TryFindResource(key, out var value) ? value?.ToString() ?? key : key;
-        model = viewModel ?? new MainViewModel(Text, a => Dispatcher.UIThread.Post(a), audioDeviceFactory: (input, output) => AudioDevices.Create(false, input, output), audioDeviceList: AudioDevices.List); DataContext = model;
+        model = viewModel ?? new MainViewModel(Text, a => Dispatcher.UIThread.Post(a), audioDeviceFactory: (input, output) => AudioProcessDevice.CreateSelf(false, input, output, Path.Combine(Path.GetDirectoryName(new Ftx1.Client.ClientSettingsStore().PathName)!, "client-audio-worker.log")), audioDeviceList: AudioDevices.List); DataContext = model;
         AddHandler(KeyDownEvent, KeyPressed, RoutingStrategies.Tunnel);
         AddHandler(KeyUpEvent, KeyReleased, RoutingStrategies.Tunnel);
         Deactivated += (_, _) => model.EndPtt();

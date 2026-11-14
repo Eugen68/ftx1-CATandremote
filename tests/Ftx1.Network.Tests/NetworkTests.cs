@@ -82,8 +82,8 @@ public class NetworkTests
     public async Task PairingIsPinnedOneTimeAndRevocable()
     {
         await using var f = new StationFixture(); await f.Start(); var qr = JsonSerializer.Deserialize(f.Server.CreateQr(), ProtocolJson.Default.PairingQr)!;
-        await Assert.ThrowsAsync<HttpRequestException>(() => StationConnection.Pair(qr with { Fingerprint = new string('A', 64) }, "bad"));
-        var pair = await StationConnection.Pair(qr, "phone"); Assert.NotNull(f.Server.Tokens.Authenticate(pair.DeviceToken)); await Assert.ThrowsAsync<HttpRequestException>(() => StationConnection.Pair(qr, "again"));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => StationConnection.Pair(qr with { Fingerprint = new string('A', 64) }, "bad"));
+        var pair = await StationConnection.Pair(qr, "phone"); Assert.NotNull(f.Server.Tokens.Authenticate(pair.DeviceToken)); await Assert.ThrowsAsync<InvalidOperationException>(() => StationConnection.Pair(qr, "again"));
         await using var c = new StationConnection(new(qr.Address, qr.Fingerprint, pair.DeviceToken));
         var errors=new System.Collections.Concurrent.ConcurrentQueue<string>();c.Error+=errors.Enqueue;
         await c.Start();

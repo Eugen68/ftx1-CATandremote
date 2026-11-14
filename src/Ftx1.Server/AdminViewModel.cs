@@ -21,6 +21,8 @@ public partial class AdminViewModel : ObservableObject, IAsyncDisposable
     public int[] BaudRates { get; } = [4800, 9600, 19200, 38400, 57600, 115200]; public string[] PttMethods { get; } = ["TX1", "TX2", "RTS", "DTR"];
     [ObservableProperty] string catPort = ""; [ObservableProperty] int baud = 38400; [ObservableProperty] string pttMethod = "TX1"; [ObservableProperty] string pttPort = ""; [ObservableProperty] bool simulator = true; [ObservableProperty] int maxTxSeconds = 180;
     [ObservableProperty] bool running; [ObservableProperty] bool autoStart; [ObservableProperty] string status = ""; [ObservableProperty] string pairingData = ""; [ObservableProperty] Bitmap? qrImage; [ObservableProperty] DeviceRecord? selectedDevice;
+    [ObservableProperty] bool allowLan;
+    [ObservableProperty] string lanAddress = "";
     [ObservableProperty] bool busy;
     [ObservableProperty] string audioStatus = "";
     public bool CanConfigure => !Running && !Busy;
@@ -30,6 +32,7 @@ public partial class AdminViewModel : ObservableObject, IAsyncDisposable
     {
         this.text = text; root = dataRoot ?? PrivateFiles.Root; config = new(Path.Combine(root, "station"), Path.Combine(root, "station")); factory = serverFactory ?? (options => new StationServer(options)); AudioStatus = text("AudioNotStarted"); Status = text("ServerStopped"); try { var c = config.Load(); CatPort = c.CatPort; Baud = c.CatBaud; PttMethod = c.PttMethod; PttPort = c.PttPort; Simulator = Program.Arguments.Contains("--sim") || c.Simulator; MaxTxSeconds = c.MaxTxSeconds; AutoStart = WindowsStartup.Enabled; } catch (Exception e) { Status = text("ConfigError") + " " + e.Message; }
         try { var prefs = AudioPreferencesStore.Load(Path.Combine(root, "server-audio.json")); AudioInputs.Add(new("", text("AudioAutoUsb"))); AudioOutputs.Add(new("", text("AudioAutoUsb"))); foreach (var d in AudioDevices.List(true)) AudioInputs.Add(d); foreach (var d in AudioDevices.List(false)) AudioOutputs.Add(d); AudioInput = AudioInputs.FirstOrDefault(d => d.Id == prefs.Input) ?? AudioInputs[0]; AudioOutput = AudioOutputs.FirstOrDefault(d => d.Id == prefs.Output) ?? AudioOutputs[0]; } catch { Status = text("AudioUnavailable"); }
+        try { var network = NetworkSettingsStore.Load(root); AllowLan = network.AllowLan; LanAddress = string.IsNullOrEmpty(network.LanAddress) ? ListenPolicy.FirstPrivateAddress() : network.LanAddress; } catch (Exception error) { Status = text("ConfigError") + " " + error.Message; }
         RefreshPorts();
     }
     partial void OnRunningChanged(bool value) => ConfigurationChanged();
@@ -48,7 +51,8 @@ public partial class AdminViewModel : ObservableObject, IAsyncDisposable
         {
             var cfg = new StationConfig { CatPort = CatPort, CatBaud = Baud, PttMethod = PttMethod, PttPort = PttPort, Simulator = Simulator, MaxTxSeconds = MaxTxSeconds }; config.Save(cfg);
             AudioPreferencesStore.Save(Path.Combine(root, "server-audio.json"), new(Input: AudioInput?.Id ?? "", Output: AudioOutput?.Id ?? ""));
-            var current = factory(new(root, cfg, AudioInput: AudioInput?.Id, AudioOutput: AudioOutput?.Id)); server = current;
+            var network = new NetworkSettings(AllowLan, LanAddress.Trim()); var addresses = NetworkSettingsStore.Addresses(network); NetworkSettingsStore.Save(root, network);
+            var current = factory(new(root, cfg, Addresses: addresses, AllowOtherInterfaces: AllowLan, AudioInput: AudioInput?.Id, AudioOutput: AudioOutput?.Id, PairingAddress: AllowLan ? System.Net.IPAddress.Parse(network.LanAddress) : null)); server = current;
             current.DevicesChanged += () => Dispatcher.UIThread.Post(() => { if (ReferenceEquals(server, current)) RefreshDevices(); });
             current.AudioStatusChanged += (ready, detail) => Dispatcher.UIThread.Post(() => { if (ReferenceEquals(server, current)) AudioChanged(ready, detail); });
             await current.Start(); Running = true; Status = text("ServerRunning") + " " + current.Address + ((current.ListeningAddresses?.Any(ListenPolicy.IsTailscale) == true) ? "" : " · " + text("NoTailscale")); AudioStatus = text("AudioNotStarted"); RefreshDevices(); NewPairing();

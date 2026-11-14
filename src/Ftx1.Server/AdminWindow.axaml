@@ -12,6 +12,7 @@
 <StackPanel IsEnabled="{Binding CanConfigure}" Spacing="6"><TextBlock Text="{DynamicResource AudioStationHelp}" TextWrapping="Wrap"/>
 <TextBlock Text="{DynamicResource AudioInput}"/><ComboBox ItemsSource="{Binding AudioInputs}" SelectedItem="{Binding AudioInput}" MinWidth="400"/>
 <TextBlock Text="{DynamicResource AudioOutput}"/><ComboBox ItemsSource="{Binding AudioOutputs}" SelectedItem="{Binding AudioOutput}" MinWidth="400"/></StackPanel>
+<StackPanel IsEnabled="{Binding CanConfigure}" Spacing="6"><CheckBox Content="{DynamicResource AllowLan}" IsChecked="{Binding AllowLan}"/><TextBox Text="{Binding LanAddress}" Watermark="{DynamicResource LanAddressHint}" IsEnabled="{Binding AllowLan}"/><TextBlock Text="{DynamicResource LanHelp}" TextWrapping="Wrap"/></StackPanel>
 <StackPanel Orientation="Horizontal" Spacing="10"><Button Content="{DynamicResource StartServer}" Command="{Binding StartCommand}"/><Button Content="{DynamicResource StopServer}" Command="{Binding StopCommand}"/><Button Content="{DynamicResource RefreshPorts}" Command="{Binding RefreshPortsCommand}"/></StackPanel>
 <Button Content="{DynamicResource TestAudio}" Command="{Binding TestAudioCommand}"/><TextBlock Text="{Binding AudioStatus}" TextWrapping="Wrap" Foreground="#FFBE77"/>
 <TextBlock Text="{DynamicResource AudioSelectionHelp}" TextWrapping="Wrap"/>

@@ -15,10 +15,10 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 namespace Ftx1.Server;
 
-public sealed record ServerOptions(string Root, StationConfig Station, int Port = 8443, IPAddress[]? Addresses = null, bool AllowOtherInterfaces = false, double SwrLimit = 3, string? AudioInput = null, string? AudioOutput = null);
+public sealed record ServerOptions(string Root, StationConfig Station, int Port = 8443, IPAddress[]? Addresses = null, bool AllowOtherInterfaces = false, double SwrLimit = 3, string? AudioInput = null, string? AudioOutput = null, IPAddress? PairingAddress = null);
 public sealed class StationServer : IAsyncDisposable
 {
-    public const string Version = "0.4.0";
+    public const string Version = "0.4.1";
     readonly StationAudio audio; long audioEpoch;
     readonly ServerOptions options; readonly Rig rig; readonly IDisposable? simulator;
     readonly CancellationTokenSource lifetime = new(); readonly ConcurrentDictionary<string, Session> sessions = new(); readonly AttemptLimiter limiter = new();
@@ -42,7 +42,7 @@ public sealed class StationServer : IAsyncDisposable
         Tokens = new(options.Root); Pairing = new(Tokens); Certificate = new(options.Root);
         IPttLine? line = null;
         if (transport == null) { if (options.Station.Simulator) { var radio = new SimRadio(); simulator = radio; transport = new SimTransport(radio); } else { transport = new SerialTransport(options.Station.CatPort, options.Station.CatBaud); if (options.Station.PttMethod is "RTS" or "DTR") line = new SerialPtt(options.Station.PttPort, options.Station.PttMethod); } }
-        audio = new(audioFactory ?? (() => options.Station.Simulator ? new SimVoiceDevice() : AudioDevices.Create(true, options.AudioInput, options.AudioOutput)));
+        audio = new(audioFactory ?? (() => options.Station.Simulator ? new SimVoiceDevice() : AudioProcessDevice.CreateSelf(true, options.AudioInput, options.AudioOutput, Path.Combine(options.Root, "server-audio-worker.log"))));
         audio.Encoded += (bitrate, seq, stamp, payload) => { foreach (var session in sessions.Values) if (session.AudioEnabled && session.Bitrate == bitrate) session.SendAudio(new(ProtocolVersion.Audio, session.ReceiveEpoch, seq, stamp, payload)); };
         rig = new(transport, options.Station.Simulator ? "TX1" : options.Station.PttMethod, line, TimeSpan.FromSeconds(options.Station.MaxTxSeconds));
         audio.Failed += error => { rig.Transmit.Stop(StopReason.Failure); var detail = AudioDiagnostic.Describe(error); AudioStatus(false, detail); Broadcast(new() { T = "error", Error = "ServerAudioUnavailable", Detail = detail }); };
@@ -91,7 +91,7 @@ public sealed class StationServer : IAsyncDisposable
     public string CreateQr()
     {
         if (Address == null) throw new InvalidOperationException("ServerNotStarted");
-        var ip = (options.Addresses ?? ListenPolicy.DefaultAddresses()).FirstOrDefault(ListenPolicy.IsTailscale) ?? IPAddress.Loopback;
+        var ip = ListenPolicy.Advertise(ListeningAddresses ?? options.Addresses ?? ListenPolicy.DefaultAddresses(), options.PairingAddress);
         var uri = new UriBuilder(Address) { Host = ip.ToString() }.Uri;
         return JsonSerializer.Serialize(new PairingQr(uri.ToString(), Certificate.Fingerprint, Pairing.Issue()), ProtocolJson.Default.PairingQr);
     }
@@ -225,7 +225,7 @@ public sealed class StationServer : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         if (disposed) return; disposed = true;
-        try { rig.Transmit.Stop(StopReason.Shutdown); lifetime.Cancel(); foreach (var s in sessions.Values) s.Abort(); if (monitor != null) await monitor; if (audioPlayback != null) await audioPlayback; audio.Dispose(); }
+        try { rig.Transmit.Stop(StopReason.Shutdown); lifetime.Cancel(); foreach (var s in sessions.Values) s.Abort(); if (monitor != null) await monitor; if (audioPlayback != null) await audioPlayback; await Task.Run(audio.Dispose); }
         finally { try { if (app != null) { using var timeout = new CancellationTokenSource(3000); try { await app.StopAsync(timeout.Token); } catch (OperationCanceledException) { } await app.DisposeAsync(); } } finally { try { await rig.DisposeAsync(); } finally { try { simulator?.Dispose(); } finally { Certificate.Certificate.Dispose(); } } } }
     }
     sealed class Session
