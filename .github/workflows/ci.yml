@@ -61,6 +61,7 @@ jobs:
             licenses/*.txt
 
   android:
+    if: github.event_name != 'push' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -79,10 +80,6 @@ jobs:
           mkdir -p artifacts/android
           cp src/Ftx1.Android/bin/Debug/net8.0-android/*-Signed.apk artifacts/android/FTX1-Remote-Android.apk
           sha256sum artifacts/android/FTX1-Remote-Android.apk > artifacts/android/SHA256.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: FTX1-Remote-Android
-          path: artifacts/android/*
       - name: Build isolated emulator-test APK
         run: dotnet build src/Ftx1.Android -c Debug -p:SmokeTestBuild=true -p:AndroidSdkDirectory="$ANDROID_HOME" -p:JavaSdkDirectory="$JAVA_HOME" -p:EmbedAssembliesIntoApk=true
       - name: Enable KVM
@@ -101,6 +98,10 @@ jobs:
           script: |
             adb install -r src/Ftx1.Android/bin/Debug/net8.0-android/ro.eugen68.ftx1remote-Signed.apk
             python3 tools/android_smoke.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FTX1-Remote-Android
+          path: artifacts/android/*
       - uses: actions/upload-artifact@v4
         if: always()
         with:

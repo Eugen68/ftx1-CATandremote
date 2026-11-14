@@ -12,6 +12,7 @@ public static class AndroidSmoke
 {
     public static async Task Run(MainActivity activity, string encoded)
     {
+        Log.Info("FTX1Smoke", "START emulator integration");
         try
         {
             await Task.Delay(1000); string text = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));

@@ -17,11 +17,13 @@ try:
         adb('shell', 'pm', 'grant', app, 'android.permission.' + permission)
     adb('logcat', '-c')
     config = base64.b64encode((root / 'pairing.json').read_bytes()).decode()
-    adb('shell', 'am', 'start', '-n', app + '/.MainActivity', '--es', 'smokeConfig', config)
+    launch = adb('shell', 'am', 'start', '-W', '-n', app + '/.MainActivity', '--es', 'smokeConfig', config)
+    print(launch)
     deadline = time.monotonic() + 120
     asleep = False
     while time.monotonic() < deadline:
-        text = adb('logcat', '-d', '-s', 'FTX1Smoke:I', 'AndroidRuntime:E')
+        full = adb('logcat', '-d')
+        text = '\n'.join(line for line in full.splitlines() if any(word.lower() in line.lower() for word in ['FTX1Smoke', 'AndroidRuntime', 'monodroid', 'libc', 'Exception', 'Fatal', 'DOTNET', 'ftx1remote', 'Avalonia']))
         pathlib.Path('artifacts/android-emulator.log').write_text(text)
         if 'FAIL:' in text or 'FATAL EXCEPTION' in text:
             raise RuntimeError(text)

@@ -40,7 +40,7 @@ public sealed class ControlService : Service, AudioManager.IOnAudioFocusChangeLi
         bool focused = audio.RequestAudioFocus(focus) == AudioFocusRequest.Granted;
         Active = true; MobileRuntime.Handle(MobileEvent.ServiceStarted); MobileRuntime.Handle(focused ? MobileEvent.FocusGained : MobileEvent.FocusLost);
         SelectHeadset();
-        routeEvents = new(); audio.RegisterAudioDeviceCallback(routeEvents, new Handler(Looper.MainLooper!));
+        routeEvents = new(this); audio.RegisterAudioDeviceCallback(routeEvents, new Handler(Looper.MainLooper!));
         screenEvents = new(); var filter = new IntentFilter(Intent.ActionScreenOff); filter.AddAction(AudioManager.ActionAudioBecomingNoisy);
         if (OperatingSystem.IsAndroidVersionAtLeast(33)) RegisterReceiver(screenEvents, filter, ReceiverFlags.NotExported); else RegisterReceiver(screenEvents, filter);
         connectivity = (ConnectivityManager)GetSystemService(ConnectivityService)!; networkEvents = new(); connectivity.RegisterDefaultNetworkCallback(networkEvents);
@@ -51,8 +51,8 @@ public sealed class ControlService : Service, AudioManager.IOnAudioFocusChangeLi
     {
         var open = PendingIntent.GetActivity(this, 0, new Intent(this, typeof(MainActivity)), PendingIntentFlags.Immutable | PendingIntentFlags.UpdateCurrent)!;
         var stop = PendingIntent.GetService(this, 1, new Intent(this, typeof(ControlService)).SetAction("disconnect"), PendingIntentFlags.Immutable | PendingIntentFlags.UpdateCurrent)!;
-        string detail = string.Format(System.Globalization.CultureInfo.InvariantCulture, MobileApp.Text("MobileNotificationFormat"), MobileRuntime.Model.CurrentFrequency / 1000000d, MobileRuntime.Model.Mode);
-        return new Notification.Builder(this, ChannelId).SetSmallIcon(Resource.Drawable.ic_radio)!.SetContentTitle(MobileApp.Text("MobileNotificationTitle"))!.SetContentText(detail)!.SetContentIntent(open)!.SetOngoing(true)!.SetCategory(global::Android.App.Notification.CategoryService)!.AddAction(new Notification.Action.Builder(null, MobileApp.Text("Disconnect"), stop).Build())!.Build();
+        string detail = string.Format(System.Globalization.CultureInfo.InvariantCulture, MobileApp.Text(MobileRuntime.Model.AudioReady ? "MobileNotificationFormat" : "MobileNotificationPausedFormat"), MobileRuntime.Model.CurrentFrequency / 1000000d, MobileRuntime.Model.Mode);
+        return new Notification.Builder(this, ChannelId).SetSmallIcon(Resource.Drawable.ic_radio)!.SetContentTitle(MobileApp.Text(MobileRuntime.Model.NetworkConnected ? "MobileNotificationTitle" : "MobileNotificationReconnecting"))!.SetContentText(detail)!.SetContentIntent(open)!.SetOngoing(true)!.SetCategory(global::Android.App.Notification.CategoryService)!.AddAction(new Notification.Action.Builder(null, MobileApp.Text("Disconnect"), stop).Build())!.Build();
     }
     void Update() { if (!Active || stopping) return; if (!MobileRuntime.Model.ConnectionOpen) { StopSelf(); return; } using var manager = (NotificationManager)GetSystemService(NotificationService)!; manager.Notify(NotificationId, BuildNotification()); }
     public void OnAudioFocusChange(AudioFocus change) => Dispatcher.UIThread.Post(() => MobileRuntime.Handle(change == AudioFocus.Gain ? MobileEvent.FocusGained : MobileEvent.FocusLost));
@@ -67,7 +67,7 @@ public sealed class ControlService : Service, AudioManager.IOnAudioFocusChangeLi
                 var preferred = devices?.FirstOrDefault(d => d.Type == AudioDeviceType.BluetoothSco) ?? devices?.FirstOrDefault(d => d.Type is AudioDeviceType.WiredHeadset or AudioDeviceType.WiredHeadphones or AudioDeviceType.UsbHeadset);
                 if (preferred != null) audio.SetCommunicationDevice(preferred);
             }
-            else if (audio!.IsBluetoothScoAvailableOffCall) {
+            else if (audio!.IsBluetoothScoAvailableOffCall && (audio.GetDevices(GetDevicesTargets.All)?.Any(d => d.Type == AudioDeviceType.BluetoothSco) == true)) {
 #pragma warning disable CS0618
                 audio.StartBluetoothSco(); audio.BluetoothScoOn = true;
 #pragma warning restore CS0618
@@ -100,8 +100,9 @@ public sealed class ControlService : Service, AudioManager.IOnAudioFocusChangeLi
         public override void OnAvailable(Network network) { bool changed = current != null && !current.Equals(network); current = network; Dispatcher.UIThread.Post(() => { MobileRuntime.Handle(MobileEvent.NetworkAvailable); if (changed) MobileRuntime.Handle(MobileEvent.NetworkChanged); }); }
         public override void OnLost(Network network) { if (current?.Equals(network) != true) return; current = null; Dispatcher.UIThread.Post(() => MobileRuntime.Handle(MobileEvent.NetworkLost)); }
     }
-    sealed class RouteEvents : AudioDeviceCallback
+    sealed class RouteEvents(ControlService owner) : AudioDeviceCallback
     {
+        public override void OnAudioDevicesAdded(AudioDeviceInfo[]? addedDevices) { if (addedDevices?.Any(d => d.Type is AudioDeviceType.BluetoothSco or AudioDeviceType.WiredHeadset or AudioDeviceType.UsbHeadset) == true) Dispatcher.UIThread.Post(() => { MobileRuntime.Release(); owner.SelectHeadset(); }); }
         public override void OnAudioDevicesRemoved(AudioDeviceInfo[]? removedDevices) { if (removedDevices?.Any(d => d.Type is AudioDeviceType.BluetoothSco or AudioDeviceType.BluetoothA2dp or AudioDeviceType.WiredHeadset or AudioDeviceType.UsbHeadset or AudioDeviceType.WiredHeadphones) == true) Dispatcher.UIThread.Post(() => MobileRuntime.Handle(MobileEvent.HeadsetDisconnected)); }
     }
 }

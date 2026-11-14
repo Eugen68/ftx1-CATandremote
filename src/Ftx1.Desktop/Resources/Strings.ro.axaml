@@ -146,4 +146,6 @@
   <sys:String x:Key="MobileDevicesTab">Dispozitiv</sys:String>
   <sys:String x:Key="MobileTuneMinus">−</sys:String>
   <sys:String x:Key="MobileTunePlus">+</sys:String>
+  <sys:String x:Key="MobileNotificationReconnecting">Reconectare la FTX1</sys:String>
+  <sys:String x:Key="MobileNotificationPausedFormat">{0:F3} MHz · {1} · audio întrerupt</sys:String>
 </ResourceDictionary>

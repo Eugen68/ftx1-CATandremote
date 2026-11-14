@@ -1,0 +1,9 @@
+<resources>
+  <style name="Theme.Ftx1" parent="Theme.AppCompat.NoActionBar">
+    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:statusBarColor">#101820</item>
+    <item name="android:navigationBarColor">#101820</item>
+    <item name="android:windowBackground">#101820</item>
+    <item name="colorAccent">#61D7C5</item>
+  </style>
+</resources>

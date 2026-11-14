@@ -8,6 +8,7 @@ namespace Ftx1.Android;
 public static class MobileRuntime
 {
     static readonly SemaphoreSlim audioGate = new(1, 1); static bool busy;
+    public static bool Initialized => Model != null;
     public static MainViewModel Model { get; private set; } = null!;
     public static MobileLifecycle Lifecycle { get; } = new();
     public static AndroidVoiceDevice? Voice { get; private set; }
@@ -42,7 +43,7 @@ public static class MobileRuntime
     }
     public static void Handle(MobileEvent e)
     {
-        var decision = Lifecycle.Handle(e);
+        var decision = Lifecycle.Handle(e); if (!Initialized) return;
         if (decision.ReleasePtt) Model.EndPtt();
         if (decision.AbortConnection) Model.InterruptConnection();
         _ = ApplyAudio(decision);

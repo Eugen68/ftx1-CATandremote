@@ -1,12 +1,40 @@
-# FTX1-CATandRemote · Etapa 3 — audio Opus
+# FTX1-CATandRemote · Etapa 4 — Android și audio în fundal
 
 Control CAT al Yaesu FTX-1 printr-un server Windows și un client desktop Avalonia.
-Etapa 3 din [PLAN.md](PLAN.md): control CAT și audio bidirecțional securizat prin internet.
+Etapa 4 din [PLAN.md](PLAN.md): client Android cu control CAT, audio Opus și recepție cu ecranul stins.
 Comportamentul CAT provine din `Eugen68/ftx1-pult`, commit `d453771` (2.10.2).
 Meniul și fereastra „Setări stație” adăugate de proprietar în Etapa 1 sunt păstrate în client.
 
-Etapele anterioare rămân în PR-urile #1 și #2. Etapa 2 a fost testată și confirmată de proprietar;
+Etapele anterioare rămân în PR-urile #1, #2 și #3. Etapa 2 a fost testată și confirmată de proprietar;
 această etapă continuă pe un branch separat, fără merge automat în `main`.
+
+## Aplicația Android
+
+1. Instalează Tailscale pe telefon și pe PC-ul stației, în aceeași rețea Tailscale.
+2. Instalează **FTX1-Remote-Android.apk** pe telefon (Android 8.0 / API 26 sau mai nou, ARM64;
+   pachetul conține și x86_64 pentru emulator). Este un APK de test semnat debug, autonom, fără .NET separat.
+   Android poate cere activarea instalării din sursa prin care ai descărcat APK-ul.
+3. Pornește serverul Windows din Etapa 3 sau mai nou, inițial în simulator. Generează un QR nou în server.
+4. În aplicația Android, **Setări → Scanează QR**, permite camera și îndreapt-o spre ecranul PC-ului.
+   Asocierea folosește amprenta certificatului și codul de unică folosință. Poți lipi și datele JSON de sub QR.
+5. Apasă **Conectare** și permite microfonul și notificările; permisiunea Bluetooth este necesară pentru SCO.
+   Folosește căști. Așteaptă afișarea indicatorului Opus, apoi ține apăsat PTT pentru emisie.
+6. Ecranul principal are frecvență mare, glisare orizontală pentru tuning, pas selectabil în Hz, − / +,
+   mod, bandă, S-metru / PO-SWR-ALC, AF, putere, MIC, NB/DNR, latență și nivelul tamponului audio.
+   Tab-urile secundare conțin setări, consola CAT și profilul dispozitivului asociat.
+7. **Recepția continuă cu ecranul stins** printr-un serviciu în prim-plan cu notificare și WakeLock parțial.
+   Nu glisa notificarea/nu opri serviciul dacă dorești recepție continuă. Deconectarea este disponibilă din notificare.
+   PTT se eliberează întotdeauna la ieșirea din ecranul aplicației sau la stingerea ecranului.
+8. Apelurile / pierderea focusului audio, căștile deconectate, schimbarea/pierderea rețelei și oprirea serviciului
+   eliberează PTT. Revenirea, recâștigarea focusului și reconectarea **nu pornesc TX**.
+   După deconectarea căștilor folosește **Reia audio** când ai verificat ruta audio.
+9. Tokenul este criptat AES-GCM cu o cheie neexportabilă Android Keystore. Nu este salvat în JSON necriptat;
+   backup-ul aplicației este dezactivat. Lista și revocarea dispozitivelor rămân în administrarea serverului Windows.
+
+Testul automat pe emulator include recepția în fundal. Politicile de economisire a bateriei ale producătorului,
+SCO și apelurile reale trebuie verificate pe telefonul tău. APK-ul de debug nu este o versiune Play Store;
+la schimbarea cheii de debug între build-uri poate fi necesară dezinstalarea și o nouă asociere.
+PTT din notificare sau din butonul căștii nu este implementat (opțional în plan).
 
 ## Pachetul Windows
 
@@ -20,7 +48,7 @@ această etapă continuă pe un branch separat, fără merge automat în `main`.
 5. Pentru un alt PC instalează Tailscale pe ambele calculatoare. Generează un QR nou în server.
    În client, **Stație → Setări stație (F2)**: copiază datele JSON de sub QR în câmpul de asociere,
    alege un nume, apasă **Asociază dispozitivul**, apoi **Conectare**. Codul este valabil cinci minute
-   și este consumat o singură dată. Scanarea cu camera telefonului vine în Etapa 4.
+   și este consumat o singură dată. Scanarea cu camera este disponibilă în clientul Android din Etapa 4.
 6. **Unelte → Consolă CAT (F12)** păstrează jurnalul și butonul **Transmite** / Enter.
    Acesta trimite o comandă CAT, nu activează emisia radio. Comenzile brute de emisie sunt blocate.
 
@@ -71,7 +99,7 @@ Fereastra serverului se ascunde în tray la X. Oprirea completă se face prin **
   Nu este o portare a decodoarelor FT8/CW. Pentru test, serverul rămâne pe Simulator, iar clientul
   folosește microfonul/căștile reale. Astfel se poate verifica fluxul complet fără emisie radio.
 - UDP se adaugă numai după măsurători 4G care depășesc constant pragul de 400 ms din plan.
-  Android și funcționarea cu ecranul stins vin în Etapa 4.
+  Android și funcționarea cu ecranul stins sunt implementate în Etapa 4.
 
 ### Protocol audio v2
 
@@ -110,7 +138,9 @@ accesul fizic la stație și autostart-ul sunt funcții Windows. `global.json` a
 
 - `Ftx1.Core`, `Ftx1.Sim`: nucleul Etapei 1 și vectorii Python; 680 de teste.
 - `Ftx1.Protocol`: JSON cu source generator, protocol v2 și cadre audio binare cu epoch/secvență/timp.
-- `Ftx1.Audio`: Opus/Concentus, WASAPI/NAudio, jitter buffer adaptiv și simulator audio.
+- `Ftx1.Audio`: Opus/Concentus, jitter buffer adaptiv și simulator audio, fără dependențe Windows.
+- `Ftx1.Audio.Windows`: WASAPI/NAudio și conversia PCM pentru server și desktop.
+- `Ftx1.Android`: UI Avalonia, Camera2/ZXing, Keystore, audio nativ și serviciu în prim-plan.
 - `Ftx1.Server`: Kestrel, TLS, asociere, tokenuri hash-uite, limitarea încercărilor pe IP, PTT, TOT, SWR, audit și tray.
 - `Ftx1.Client`: conexiune cu pinning, reconectare, heartbeat, starea și ViewModel-urile comune.
 - `Ftx1.Desktop`: fereastra Avalonia și meniul, fără acces la porturile CAT/PTT.
@@ -124,7 +154,7 @@ cu `publish_windows`. Nu publică executabile doar pentru un push pe `main`.
 
 **De verificat pe stație/telefon:** porturile și toate metodele PTT, citirea/scrierea TOT, pragul SWR,
 Tailscale între două dispozitive reale, eliberarea PTT la pierderea internetului și revenirea după schimbarea rețelei.
-Android urmează în Etapa 4. Audio fizic WASAPI trebuie verificat pe PC-ul stației; testele automate folosesc dispozitive simulate.
+Clientul Android este implementat în Etapa 4. Audio fizic WASAPI trebuie verificat pe PC-ul stației; testele automate folosesc dispozitive simulate.
 
 Proveniența codului este în [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Proprietarul a declarat
 în PLAN.md că aspectul legal este rezolvat; acest repo nu acordă o licență nouă asupra surselor originale.
@@ -137,3 +167,19 @@ Proveniența codului este în [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). 
 - TOT, pragul SWR și limitele PTT din etapele anterioare se păstrează.
 
 Testele automate folosesc dispozitive simulate. Nu înlocuiesc verificarea WASAPI pe placa USB fizică.
+
+## Build și test Android
+
+Soluția `Ftx1.sln` păstrează build/test Windows și Linux fără workload Android. Proiectul mobil se construiește separat:
+
+```sh
+dotnet workload install android --skip-manifest-update
+dotnet build src/Ftx1.Android -c Debug -p:AndroidSdkDirectory=/path/to/android-sdk -p:JavaSdkDirectory=/path/to/jdk17 -p:EmbedAssembliesIntoApk=true
+```
+
+Necesită SDK Android 34 / build-tools 34 și JDK 17. APK-ul autonom semnat este în
+`src/Ftx1.Android/bin/Debug/net8.0-android/*-Signed.apk`.
+CI construiește întâi APK-ul distribuit. Un al doilea build, cu `SmokeTestBuild=true`, include exclusiv pentru
+emulator un test automat cu simulatorul: QR generat/decodat, asociere, Keystore, TLS CAT, audio nativ RX/TX,
+focus pierdut, reconectare, PTT eliberat la stingerea ecranului și audio menținut de serviciu/WakeLock.
+Intrarea de test nu este compilată în APK-ul distribuit. Camera fizică și Bluetooth se verifică separat pe telefon.
