@@ -37,10 +37,12 @@ public sealed class StationConnection : IAsyncDisposable
             {
                 using var connect = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token); connect.CancelAfter(5000); await ws.ConnectAsync(new(settings.Address), connect.Token);
                 await Send(new() { T = "hello", ProtocolVersion = ProtocolVersion.Current, DeviceToken = settings.DeviceToken }, connect.Token);
+                connect.CancelAfter(Timeout.InfiniteTimeSpan);
                 using var auth = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token); auth.CancelAfter(5000);
                 var initial = await SocketFrames.Receive(ws, auth.Token); if (initial == null) throw new IOException("Disconnected"); var hello = Wire.Decode(initial);
-                if (hello.T != "helloOk") { Error?.Invoke(hello.Error ?? "AuthenticationFailed"); return; }
-                if (hello.ProtocolVersion != ProtocolVersion.Current) { Error?.Invoke("ProtocolMismatch"); return; }
+                if (hello.T != "helloOk") { Error?.Invoke(hello.Error ?? "AuthenticationFailed"); lifetime.Cancel(); return; }
+                if (hello.ProtocolVersion != ProtocolVersion.Current) { Error?.Invoke("ProtocolMismatch"); lifetime.Cancel(); return; }
+                auth.CancelAfter(Timeout.InfiniteTimeSpan);
                 pressed = owns = false; connected = true; delay = 1; TotMinutes = hello.TotMinutes ?? -1; lastReply = Stopwatch.GetTimestamp(); Apply(hello.State ?? [], true); Received?.Invoke(hello);
                 while (!lifetime.IsCancellationRequested)
                 {

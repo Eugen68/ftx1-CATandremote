@@ -59,6 +59,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
         if (ConnectionOpen) { await Disconnect(); return; }
         try
         {
+            if(connection!=null){var stale=connection;connection=null;await stale.DisposeAsync();}
             var cfg = new ClientSettings(ServerAddress, Fingerprint, DeviceToken); store.Save(cfg); var current = new StationConnection(cfg); connection = current;
             current.Changed += diff => post(() => { if (!disposed && ReferenceEquals(connection, current)) Apply(); });
             current.Error += code => post(() => { if (ReferenceEquals(connection, current)) { Notice = text(code); if (code is "AuthenticationFailed" or "ProtocolMismatch") ConnectionOpen = false; } });
@@ -81,7 +82,7 @@ public partial class MainViewModel : ObservableObject, IAsyncDisposable
     }
     void Apply()
     {
-        if (connection == null) return; var s = connection.State;
+        if (connection == null) return; if(!connection.Connected){held=false;Transmitting=false;txWatch.Reset();} var s = connection.State;
         double N(string k, double fallback = 0) => s.TryGetValue(k, out var v) ? Convert.ToDouble(v, CultureInfo.InvariantCulture) : fallback;
         bool On(string k) => s.TryGetValue(k, out var v) && (v is bool b ? b : Convert.ToInt32(v, CultureInfo.InvariantCulture) != 0);
         applying = true; try

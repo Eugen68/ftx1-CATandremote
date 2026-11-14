@@ -21,7 +21,7 @@ public sealed class StationFixture : IAsyncDisposable
     public async Task Start() => await Server.Start();
     public async Task<StationConnection> Client(string name = "test")
     {
-        var token = Server.Tokens.Create(name); var client = new StationConnection(new(Server.Address!.ToString(), Server.Certificate.Fingerprint, token.DeviceToken)); await client.Start(); await Wait(() => client.Connected); return client;
+        var token = Server.Tokens.Create(name); var client = new StationConnection(new(Server.Address!.ToString(), Server.Certificate.Fingerprint, token.DeviceToken)); await client.Start(); await Wait(() => client.Connected && client.State.GetValueOrDefault("connected") is true && client.State.GetValueOrDefault("radio_id") as string=="0840",10000); return client;
     }
     public static async Task Wait(Func<bool> condition, int timeout = 5000) { using var cts = new CancellationTokenSource(timeout); while (!condition()) await Task.Delay(10, cts.Token); }
     public async ValueTask DisposeAsync() { await Server.DisposeAsync(); Radio.Dispose(); if (Directory.Exists(Root)) Directory.Delete(Root, true); }
@@ -69,7 +69,15 @@ public class NetworkTests
         await using var f = new StationFixture(); await f.Start(); var qr = JsonSerializer.Deserialize(f.Server.CreateQr(), ProtocolJson.Default.PairingQr)!;
         await Assert.ThrowsAsync<HttpRequestException>(() => StationConnection.Pair(qr with { Fingerprint = new string('A', 64) }, "bad"));
         var pair = await StationConnection.Pair(qr, "phone"); Assert.NotNull(f.Server.Tokens.Authenticate(pair.DeviceToken)); await Assert.ThrowsAsync<HttpRequestException>(() => StationConnection.Pair(qr, "again"));
-        await using var c = new StationConnection(new(qr.Address, qr.Fingerprint, pair.DeviceToken)); await c.Start(); await StationFixture.Wait(() => c.Connected); await c.Ptt(true); await StationFixture.Wait(() => f.Radio.State["TX"] == "1"); f.Server.Tokens.Revoke(pair.DeviceId); await StationFixture.Wait(() => f.Radio.State["TX"] == "0", 1000); Assert.Null(f.Server.Tokens.Authenticate(pair.DeviceToken));
+        await using var c = new StationConnection(new(qr.Address, qr.Fingerprint, pair.DeviceToken));
+        var errors=new System.Collections.Concurrent.ConcurrentQueue<string>();c.Error+=errors.Enqueue;
+        await c.Start();
+        try{await StationFixture.Wait(() => c.Connected && c.State.GetValueOrDefault("connected") is true && c.State.GetValueOrDefault("radio_id") as string=="0840",10000);}catch(OperationCanceledException){throw new TimeoutException("Paired client could not connect: "+string.Join(",",errors));}
+        await c.Ptt(true);
+        try{await StationFixture.Wait(() => f.Radio.State["TX"] == "1");}catch(OperationCanceledException){throw new TimeoutException("Paired client could not acquire PTT: "+string.Join(",",errors)+"; connected="+f.Server.Station.State.GetValueOrDefault("connected"));}
+        f.Server.Tokens.Revoke(pair.DeviceId);
+        await StationFixture.Wait(() => f.Radio.State["TX"] == "0", 1000);
+        Assert.Null(f.Server.Tokens.Authenticate(pair.DeviceToken));
     }
     [Fact]
     public async Task ServerShutdownStopsTransmitterAndWritesAudit()
