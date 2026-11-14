@@ -52,4 +52,27 @@ public class WindowTests
         }
         finally { await model.DisposeAsync(); if (Directory.Exists(root)) Directory.Delete(root, true); }
     }
+    [AvaloniaFact]
+    public async Task MenuOpensSettingsAndConsoleSendsCommands()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "ftx1-settings-" + Guid.NewGuid().ToString("N"));
+        using var radio = new SimRadio(); var model = Model(root, radio); var window = new MainWindow(model);
+        try
+        {
+            window.Show();
+            var settings = window.ShowSettings(SettingsWindow.ConsoleTab);
+            Assert.Same(settings, window.ShowSettings(SettingsWindow.ConnectionTab));     // a single instance
+            Assert.Same(model, settings.DataContext);
+            await model.ConnectCommand.ExecuteAsync(null); await Until(() => model.Status.Contains("0840", StringComparison.Ordinal));
+            Assert.False(model.CanConfigure);                                               // settings locked while connected
+            model.RawCommand = "AG0033;"; model.SendRawCommand.Execute(null);
+            await Until(() => radio.State["AG0"] == "033");
+            await Until(() => model.CatLog.Any(l => l.StartsWith(">AG0033", StringComparison.Ordinal)));
+            model.RawCommand = "TX1;"; model.SendRawCommand.Execute(null);                   // raw transmit stays blocked
+            await Task.Delay(200); Assert.Equal("0", radio.State["TX"]);
+            window.Close(); await Until(() => !model.ConnectionOpen);
+            Assert.False(settings.IsVisible);
+        }
+        finally { await model.DisposeAsync(); window.Close(); if (Directory.Exists(root)) Directory.Delete(root, true); }
+    }
 }

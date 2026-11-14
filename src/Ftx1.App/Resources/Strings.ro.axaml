@@ -38,8 +38,20 @@
   <sys:String x:Key="Tuner">Tuner</sys:String>
   <sys:String x:Key="Ptt">PTT · ține apăsat / Space</sys:String>
   <sys:String x:Key="Stop">STOP · Esc</sys:String>
-  <sys:String x:Key="Console">Consolă CAT</sys:String>
-  <sys:String x:Key="Send">Trimite</sys:String>
+  <sys:String x:Key="MenuStation">_Stație</sys:String>
+  <sys:String x:Key="MenuSettings">_Setări stație…</sys:String>
+  <sys:String x:Key="MenuExit">_Ieșire</sys:String>
+  <sys:String x:Key="MenuTools">_Unelte</sys:String>
+  <sys:String x:Key="MenuConsole">_Consolă CAT…</sys:String>
+  <sys:String x:Key="OpenSettings">Setări…</sys:String>
+  <sys:String x:Key="SettingsTitle">Setări stație</sys:String>
+  <sys:String x:Key="TabConnection">Conexiune</sys:String>
+  <sys:String x:Key="TabConsole">Consolă CAT</sys:String>
+  <sys:String x:Key="SettingsLockedHint">Setările de conexiune se pot schimba doar după deconectare.</sys:String>
+  <sys:String x:Key="ConsoleHint">„&gt;” = comandă trimisă către stație · „&lt;” = răspunsul stației. Exemple: FA; (citește frecvența VFO-A) · MD0; (citește modul) · AG0128; (volum AF). Comenzile care pot porni emisia (TX, KY…) sunt blocate aici: folosește PTT.</sys:String>
+  <sys:String x:Key="CommandWatermark">Comandă CAT, de ex. FA;</sys:String>
+  <sys:String x:Key="SendRaw">Transmite</sys:String>
+  <sys:String x:Key="SendRawTip">Trimite comanda CAT către stație (Enter). Nu pornește emisia radio.</sys:String>
   <sys:String x:Key="Clear">Șterge jurnalul</sys:String>
   <sys:String x:Key="NoAudio">Etapa 1: control CAT și simulator. Audio și waterfall urmează în Etapa 2.</sys:String>
   <sys:String x:Key="ConfigError">Configurarea nu a putut fi citită.</sys:String>

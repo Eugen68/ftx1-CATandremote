@@ -19,6 +19,11 @@ La prima pornire este selectat **Simulator**. Apasă **Conectare** pentru a înc
 modurile, sliderele, contoarele și consola CAT. Rotița mouse-ului pe o cifră schimbă cifra respectivă.
 Introducerea frecvenței respectă aplicația originală: `7.074` = MHz, `14200` = kHz, `145500000` = Hz.
 
+Meniul **Stație → Setări stație…** (F2) deschide fereastra de setări: portul CAT, viteza, metoda PTT,
+limita de emisie și simulatorul (modificabile doar când ești deconectat). Tab-ul **Consolă CAT**
+(meniul **Unelte → Consolă CAT…**, F12) afișează comenzile trimise (`>`) și răspunsurile stației (`<`);
+scrie o comandă (de ex. `FA;`) și apasă **Transmite** sau Enter. Comenzile care ar porni emisia sunt blocate.
+
 Pentru stație: debifează Simulator, alege portul **Enhanced** pentru CAT, viteza identică meniului
 stației (implicit 38400) și metoda PTT. RTS/DTR necesită portul **Standard**, separat de CAT.
 Configurarea se salvează atomic în `config.json` lângă aplicație, cu rezervă în

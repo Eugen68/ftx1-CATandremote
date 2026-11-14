@@ -6,19 +6,22 @@
     <Style Selector="Button.digit"><Setter Property="FontSize" Value="42"/><Setter Property="FontFamily" Value="monospace"/><Setter Property="Padding" Value="3,0"/><Setter Property="Background" Value="Transparent"/></Style>
     <Style Selector="TextBox"><Setter Property="MinWidth" Value="95"/></Style>
   </Window.Styles>
+  <DockPanel>
+  <Menu DockPanel.Dock="Top" Background="#101820">
+    <MenuItem Header="{DynamicResource MenuStation}">
+      <MenuItem Header="{Binding ConnectionLabel}" Command="{Binding ConnectCommand}"/>
+      <MenuItem Header="{DynamicResource MenuSettings}" InputGesture="F2" Click="OpenSettings"/>
+      <Separator/>
+      <MenuItem Header="{DynamicResource MenuExit}" Click="ExitClicked"/>
+    </MenuItem>
+    <MenuItem Header="{DynamicResource MenuTools}">
+      <MenuItem Header="{DynamicResource MenuConsole}" InputGesture="F12" Click="OpenConsole"/>
+    </MenuItem>
+  </Menu>
   <ScrollViewer><StackPanel Margin="20" Spacing="4">
     <TextBlock Text="{DynamicResource Title}" FontSize="25" FontWeight="Bold" Margin="0,0,0,16"/>
     <Border Classes="card"><StackPanel Spacing="10">
-      <TextBlock Text="{DynamicResource Connection}" Classes="heading"/>
-      <WrapPanel IsEnabled="{Binding CanConfigure}" Orientation="Horizontal">
-        <StackPanel Margin="0,0,14,8"><TextBlock Text="{DynamicResource CatPort}"/><ComboBox Width="150" ItemsSource="{Binding Ports}" SelectedItem="{Binding CatPort}"/></StackPanel>
-        <StackPanel Margin="0,0,14,8"><TextBlock Text="{DynamicResource Baud}"/><ComboBox Width="110" ItemsSource="{Binding BaudRates}" SelectedItem="{Binding Baud}"/></StackPanel>
-        <StackPanel Margin="0,0,14,8"><TextBlock Text="{DynamicResource PttMethod}"/><ComboBox Width="105" ItemsSource="{Binding PttMethods}" SelectedItem="{Binding PttMethod}"/></StackPanel>
-        <StackPanel Margin="0,0,14,8"><TextBlock Text="{DynamicResource PttPort}"/><ComboBox Width="150" ItemsSource="{Binding Ports}" SelectedItem="{Binding PttPort}"/></StackPanel>
-        <StackPanel Margin="0,0,14,8"><TextBlock Text="{DynamicResource TxLimit}"/><NumericUpDown Width="150" Minimum="10" Maximum="600" Value="{Binding MaxTxSeconds}" FormatString="0"/></StackPanel>
-        <CheckBox Content="{DynamicResource Simulator}" IsChecked="{Binding Simulator}" Margin="0,12,0,0"/>
-      </WrapPanel>
-      <StackPanel Orientation="Horizontal" Spacing="12"><Button Content="{Binding ConnectionLabel}" Command="{Binding ConnectCommand}"/><Button Content="{DynamicResource RefreshPorts}" Command="{Binding RefreshPortsCommand}"/><TextBlock Text="{Binding Status}" VerticalAlignment="Center"/></StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="12"><Button Content="{Binding ConnectionLabel}" Command="{Binding ConnectCommand}"/><Button Content="{DynamicResource OpenSettings}" Click="OpenSettings"/><TextBlock Text="{Binding Status}" VerticalAlignment="Center"/></StackPanel>
       <TextBlock Text="{Binding Notice}" Foreground="#FFBD75" TextWrapping="Wrap"/>
     </StackPanel></Border>
     <Border Classes="card"><StackPanel Spacing="12" IsEnabled="{Binding ConnectionOpen}">
@@ -54,10 +57,7 @@
       </WrapPanel>
       <StackPanel Orientation="Horizontal" Spacing="12"><Button Content="{DynamicResource Ptt}" Background="#266256" MinWidth="250" PointerPressed="PttPressed" PointerReleased="PttReleased" PointerCaptureLost="PttCaptureLost"/><Button Content="{DynamicResource Stop}" Command="{Binding StopCommand}" Background="#803B41"/><TextBlock Text="{Binding TxTime}" FontSize="22" VerticalAlignment="Center"/></StackPanel>
     </StackPanel></Border>
-    <Border Classes="card"><StackPanel Spacing="10"><TextBlock Text="{DynamicResource Console}" Classes="heading"/>
-      <Grid ColumnDefinitions="*,Auto,Auto"><TextBox Text="{Binding RawCommand}" KeyDown="ConsoleKey"/><Button Grid.Column="1" Content="{DynamicResource Send}" Command="{Binding SendRawCommand}"/><Button Grid.Column="2" Content="{DynamicResource Clear}" Command="{Binding ClearLogCommand}"/></Grid>
-      <ListBox ItemsSource="{Binding CatLog}" Height="160" FontFamily="monospace" FontSize="12"/>
-    </StackPanel></Border>
     <TextBlock Text="{DynamicResource NoAudio}" Opacity="0.65" TextWrapping="Wrap"/>
   </StackPanel></ScrollViewer>
+  </DockPanel>
 </Window>
