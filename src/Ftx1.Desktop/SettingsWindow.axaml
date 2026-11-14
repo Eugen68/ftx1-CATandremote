@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Ftx1.Desktop.SettingsWindow"
+        Title="{DynamicResource SettingsTitle}" Width="760" Height="560" MinWidth="560" MinHeight="420">
+  <TabControl x:Name="Tabs" Margin="12">
+    <TabItem Header="{DynamicResource TabConnection}">
+      <StackPanel Spacing="12" Margin="4,12">
+        <TextBlock Text="{DynamicResource SettingsLockedHint}" Opacity="0.65" TextWrapping="Wrap" IsVisible="{Binding ConnectionOpen}"/>
+        <StackPanel IsEnabled="{Binding CanConfigure}" Spacing="8">
+          <TextBlock Text="{DynamicResource ServerAddress}"/><TextBox Text="{Binding ServerAddress}"/>
+          <TextBlock Text="{DynamicResource Fingerprint}"/><TextBox Text="{Binding Fingerprint}"/>
+          <TextBlock Text="{DynamicResource DeviceToken}"/><TextBox Text="{Binding DeviceToken}" PasswordChar="●"/>
+          <TextBlock Text="{DynamicResource PairingData}"/><TextBox Text="{Binding PairingText}"/>
+          <TextBox Text="{Binding DeviceName}"/>
+          <Button Content="{DynamicResource PairDevice}" Command="{Binding PairCommand}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="12"><Button Content="{Binding ConnectionLabel}" Command="{Binding ConnectCommand}"/><TextBlock Text="{Binding Latency}"/></StackPanel>
+        <TextBlock Text="{Binding Notice}" Foreground="#FFBD75" TextWrapping="Wrap"/>
+      </StackPanel>
+    </TabItem>
+    <TabItem Header="{DynamicResource TabConsole}">
+      <DockPanel Margin="4,12">
+        <TextBlock DockPanel.Dock="Top" Text="{DynamicResource ConsoleHint}" Opacity="0.65" TextWrapping="Wrap" Margin="0,0,0,8"/>
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto,Auto" Margin="0,8,0,0">
+          <TextBox x:Name="CommandBox" Text="{Binding RawCommand}" Watermark="{DynamicResource CommandWatermark}" FontFamily="monospace" KeyDown="CommandKey"/>
+          <Button Grid.Column="1" Content="{DynamicResource SendRaw}" ToolTip.Tip="{DynamicResource SendRawTip}" Command="{Binding SendRawCommand}" Margin="8,0,0,0"/>
+          <Button Grid.Column="2" Content="{DynamicResource Clear}" Command="{Binding ClearLogCommand}" Margin="8,0,0,0"/>
+        </Grid>
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding Notice}" Foreground="#FFBD75" TextWrapping="Wrap"/>
+        <ListBox x:Name="Log" ItemsSource="{Binding CatLog}" FontFamily="monospace" FontSize="12"/>
+      </DockPanel>
+    </TabItem>
+  </TabControl>
+</Window>

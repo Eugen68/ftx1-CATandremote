@@ -10,9 +10,9 @@ Autorul original este identificat în proiect ca R6AAF. Au fost consultate și p
 - `web/app.js`: benzi, moduri, introducerea frecvențelor și calibrarea contoarelor.
 
 Referința exactă este păstrată în `tests/data/source.json`.
-Nu a fost identificată o licență a proiectului original care să acorde dreptul de redistribuire.
-PLAN.md cere acordul autorului original înaintea publicării/distribuirii; această portare nu înlocuiește
-acel acord și nu aplică o licență MIT/Apache codului derivat.
+Proprietarul a declarat în PLAN.md v2 că aspectul legal este rezolvat. Atribuirea surselor se păstrează;
+această portare nu acordă o licență nouă asupra codului derivat. Pictograma serverului provine din
+`ftx1-pult/web/icon-192.png`.
 
 Dependențele NuGet au propriile licențe; sunt folosite versiunile declarate în fișierele `.csproj`.
 `ft8_lib` nu este inclus în Etapa 1. Când va fi introdus, trebuie păstrată licența sa MIT.

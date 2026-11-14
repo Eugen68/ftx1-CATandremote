@@ -1,4 +1,4 @@
-name: Stage 1 validation
+name: CAT and network validation
 on:
   push:
     branches: ['**']
@@ -31,7 +31,7 @@ jobs:
           name: test-results-${{ matrix.os }}
           path: '**/TestResults/*.trx'
   publish:
-    if: github.event_name == 'workflow_dispatch' && inputs.publish_windows
+    if: (github.event_name == 'workflow_dispatch' && inputs.publish_windows) || (github.event_name == 'pull_request' && !github.event.pull_request.draft && startsWith(github.head_ref, 'feat/stage'))
     needs: validate
     runs-on: windows-latest
     steps:
@@ -39,14 +39,21 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.408'
-      - run: dotnet publish src/Ftx1.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o artifacts/windows
+      - run: dotnet publish src/Ftx1.Desktop -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o artifacts/desktop
+      - run: dotnet publish src/Ftx1.Server -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o artifacts/server
+      - name: Verify packaged server on Windows
+        run: dotnet run --project tools/Ftx1.PackageSmoke -c Release -- artifacts/server/FTX1-Server.exe
       - shell: pwsh
-        run: (Get-FileHash artifacts/windows/FTX1-CATandRemote.exe -Algorithm SHA256).Hash + '  FTX1-CATandRemote.exe' | Out-File artifacts/windows/SHA256.txt
+        run: |
+          (Get-FileHash artifacts/desktop/FTX1-CATandRemote.exe -Algorithm SHA256).Hash + '  FTX1-CATandRemote.exe' | Out-File artifacts/desktop/SHA256.txt
+          (Get-FileHash artifacts/server/FTX1-Server.exe -Algorithm SHA256).Hash + '  FTX1-Server.exe' | Out-File artifacts/server/SHA256.txt
       - uses: actions/upload-artifact@v4
         with:
           name: FTX1-CATandRemote-win-x64
           path: |
-            artifacts/windows/FTX1-CATandRemote.exe
-            artifacts/windows/SHA256.txt
+            artifacts/desktop/FTX1-CATandRemote.exe
+            artifacts/desktop/SHA256.txt
+            artifacts/server/FTX1-Server.exe
+            artifacts/server/SHA256.txt
             README.md
             THIRD_PARTY_NOTICES.md

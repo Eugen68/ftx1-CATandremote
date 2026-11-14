@@ -3,8 +3,8 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
-using Ftx1.App.ViewModels;
-namespace Ftx1.App;
+using Ftx1.Client.ViewModels;
+namespace Ftx1.Desktop;
 
 // View-only input adaptation. CAT, ownership and lifecycle logic stay in the VM/Core.
 public partial class MainWindow : Window

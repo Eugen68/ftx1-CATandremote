@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Ftx1.App.MainWindow"
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="Ftx1.Desktop.MainWindow"
         Title="{DynamicResource Title}" Width="1200" Height="850" MinWidth="820" MinHeight="600">
   <Window.Styles>
     <Style Selector="Border.card"><Setter Property="Background" Value="#17212D"/><Setter Property="CornerRadius" Value="10"/><Setter Property="Padding" Value="18"/><Setter Property="Margin" Value="0,0,0,12"/></Style>
@@ -22,6 +22,7 @@
     <TextBlock Text="{DynamicResource Title}" FontSize="25" FontWeight="Bold" Margin="0,0,0,16"/>
     <Border Classes="card"><StackPanel Spacing="10">
       <StackPanel Orientation="Horizontal" Spacing="12"><Button Content="{Binding ConnectionLabel}" Command="{Binding ConnectCommand}"/><Button Content="{DynamicResource OpenSettings}" Click="OpenSettings"/><TextBlock Text="{Binding Status}" VerticalAlignment="Center"/></StackPanel>
+      <TextBlock Text="{Binding Latency}"/><StackPanel IsVisible="{Binding TotWarning}" Orientation="Horizontal" Spacing="10"><TextBlock Text="{DynamicResource TotWarning}"/><Button Content="{DynamicResource SetTot}" Command="{Binding SetTotCommand}"/></StackPanel>
       <TextBlock Text="{Binding Notice}" Foreground="#FFBD75" TextWrapping="Wrap"/>
     </StackPanel></Border>
     <Border Classes="card"><StackPanel Spacing="12" IsEnabled="{Binding ConnectionOpen}">
