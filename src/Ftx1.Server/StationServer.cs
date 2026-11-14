@@ -121,7 +121,7 @@ public sealed class StationServer : IAsyncDisposable
             try { await session.Run(message => Dispatch(session, message), packet => Microphone(session, packet), () => StopOwner(session, StopReason.Disconnected)); }
             finally { StopOwner(session, StopReason.Disconnected); sessions.TryRemove(session.Id, out _); session.Abort(); DevicesChanged?.Invoke(); }
         }
-        catch (Exception e) when (e is WebSocketException or OperationCanceledException or JsonException or InvalidDataException) { socket.Abort(); }
+        catch (Exception e) when (e is WebSocketException or OperationCanceledException or JsonException or InvalidDataException or ObjectDisposedException) { socket.Abort(); }
     }
     static async Task Reject(WebSocket socket, string reason)
     {
@@ -248,7 +248,7 @@ public sealed class StationServer : IAsyncDisposable
         {
             var send = SendLoop();
             try { while (!cancel.IsCancellationRequested) { var frame = await SocketFrames.ReceiveFrame(socket, cancel.Token); if (frame == null) break; if (frame.Binary) binary(AudioPacket.Decode(frame.Bytes)); else await receive(Wire.Decode(frame.Bytes)); } }
-            finally { disconnected(); Abort(); try { await send; } catch (Exception e) when (e is OperationCanceledException or WebSocketException) { } foreach (var task in tasks.Keys) try { await task.WaitAsync(TimeSpan.FromSeconds(2)); } catch (Exception) { } cancel.Dispose(); }
+            finally { disconnected(); Abort(); try { await send; } catch (Exception e) when (e is OperationCanceledException or WebSocketException or ObjectDisposedException) { } foreach (var task in tasks.Keys) try { await task.WaitAsync(TimeSpan.FromSeconds(2)); } catch (Exception) { } cancel.Dispose(); }
         }
         async Task SendLoop()
         {
@@ -262,7 +262,7 @@ public sealed class StationServer : IAsyncDisposable
                     await Task.Delay(3, cancel.Token);
                 }
             }
-            catch (Exception e) when (e is OperationCanceledException or WebSocketException) { Abort(); }
+            catch (Exception e) when (e is OperationCanceledException or WebSocketException or ObjectDisposedException) { Abort(); }
         }
         async Task SendFrame(byte[] bytes, bool binary) { using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancel.Token); timeout.CancelAfter(500); await socket.SendAsync(bytes, binary ? WebSocketMessageType.Binary : WebSocketMessageType.Text, true, timeout.Token); }
     }

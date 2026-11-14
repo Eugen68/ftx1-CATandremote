@@ -24,7 +24,10 @@ public sealed class StationFixture : IAsyncDisposable
     public async Task Start() => await Server.Start();
     public async Task<StationConnection> Client(string name = "test")
     {
-        var token = Server.Tokens.Create(name); var client = new StationConnection(new(Server.Address!.ToString(), Server.Certificate.Fingerprint, token.DeviceToken)); await client.Start(); await Wait(() => client.Connected && client.State.GetValueOrDefault("connected") is true && client.State.GetValueOrDefault("radio_id") as string=="0840",10000); await EnableAudio(client); return client;
+        var token = Server.Tokens.Create(name); var client = new StationConnection(new(Server.Address!.ToString(), Server.Certificate.Fingerprint, token.DeviceToken)); var errors = new System.Collections.Concurrent.ConcurrentQueue<string>(); client.Error += errors.Enqueue; await client.Start();
+        try { await Wait(() => client.Connected && client.State.GetValueOrDefault("connected") is true && client.State.GetValueOrDefault("radio_id") as string=="0840",10000); }
+        catch (OperationCanceledException) { throw new TimeoutException("Client startup: connected=" + client.Connected + "; radio=" + client.State.GetValueOrDefault("radio_id") + "; errors=" + string.Join(",", errors)); }
+        await EnableAudio(client); return client;
     }
     public static async Task Wait(Func<bool> condition, int timeout = 5000) { using var cts = new CancellationTokenSource(timeout); while (!condition()) await Task.Delay(10, cts.Token); }
     public async ValueTask DisposeAsync() { foreach (var stream in audio) await stream.DisposeAsync(); await Server.DisposeAsync(); Radio.Dispose(); if (Directory.Exists(Root)) Directory.Delete(Root, true); }
