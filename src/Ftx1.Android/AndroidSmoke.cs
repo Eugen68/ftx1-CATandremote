@@ -16,11 +16,19 @@ public static class AndroidSmoke
         try
         {
             await Task.Delay(1000); string text = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                activity.RunOnUiThread(() => activity.StartActivityForResult(new global::Android.Content.Intent(activity, typeof(QrActivity)), 102));
+                await Wait(() => QrActivity.TestCurrent?.TestFrames >= 10, 20000);
+                activity.RunOnUiThread(() => QrActivity.TestCurrent?.Finish()); await Wait(() => QrActivity.TestCurrent == null);
+            }
+            Log.Info("FTX1Smoke", "PASS_CAMERA: scanner opened/closed three times, ten camera frames each without freezing");
             var matrix = new MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, 512, 512); var pixels = new byte[matrix.Width * matrix.Height];
             for (int y = 0; y < matrix.Height; y++) for (int x = 0; x < matrix.Width; x++) pixels[y * matrix.Width + x] = matrix[x, y] ? (byte)0 : (byte)255;
             var decoder = new BarcodeReaderGeneric { AutoRotate = true, Options = new DecodingOptions { TryHarder = true } };
             var decoded = decoder.Decode(pixels, matrix.Width, matrix.Height, RGBLuminanceSource.BitmapFormat.Gray8) ?? throw new Exception("QR decode failed");
-            var model = MobileRuntime.Model; model.PairingText = decoded.Text; await model.PairCommand.ExecuteAsync(null);
+            var scan = new PairingScan(); scan.Observe(decoded.Text,1000); Check(!scan.Ready,"First QR frame cannot confirm"); scan.Observe(decoded.Text,1200); scan.Observe(decoded.Text,1500); Check(scan.Ready && scan.Text==text,"Stable QR validation");
+            var model = MobileRuntime.Model; model.PairingText = scan.Text!; await model.PairCommand.ExecuteAsync(null);
             var saved = new AndroidSettingsStore(MobileRuntime.Root).Load(); Check(saved != null && saved.DeviceToken == model.DeviceToken && model.DeviceToken.Length > 20, "Keystore roundtrip");
             Check(!File.Exists(new ClientSettingsStore(MobileRuntime.Root).PathName), "No plaintext token file");
             await MobileRuntime.ToggleConnection(); await Wait(() => model.NetworkConnected && model.AudioReady && MobileRuntime.Voice?.PlayedFrames > 5, 20000);

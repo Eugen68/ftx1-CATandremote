@@ -11,4 +11,5 @@ assert 'ro.eugen68.ftx1remote.ControlService' in services, services
 assert any(name.endswith('.QrActivity') for name in activities), activities
 assembly = pathlib.Path('src/Ftx1.Android/bin/Debug/net8.0-android/Ftx1.Android.dll').read_bytes()
 assert 'smokeConfig'.encode('utf-16-le') not in assembly, 'Test entry must not be compiled into distributed APK'
+assert b'TestCurrent' not in assembly, 'Camera probe must not be compiled into distributed APK'
 print('Android package: launcher, service, camera activity, no test entry - OK')

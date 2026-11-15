@@ -71,6 +71,16 @@ Date fixe de la proprietar:
 - Se adaugă teste care injectează anularea în bucla reală de citire, plus oprire/restart. Jurnalul global înregistrează excepțiile netratate fără a continua un proces compromis.
 - Build Windows după CI; verificarea portului USB real rămâne la proprietar. LAN și audio nu sunt cauza demonstrată de acest eveniment.
 
+## Corecție scanner QR Android (15.11.2026)
+
+- Proprietarul raportează închiderea/instantaneul nepotrivit imediat ce camera vede QR-ul.
+- Scannerul păstrează previzualizarea live, validează citiri repetate ale aceluiași cod și cere confirmare explicită înainte de a reveni la asociere.
+- Se configurează focalizare continuă dacă dispozitivul o suportă, rezoluție YUV suportată de cameră și previzualizare fără deformarea proporțiilor.
+- Fiecare Image este închis explicit după copierea planului Y, înainte de ZXing; și cadrele omise sunt eliberate pentru a nu bloca ImageReader.
+- Se testează validarea/stabilizarea și conversia planului YUV, plus APK și emulator: trei deschideri/închideri ale scannerului, fiecare cu cel puțin zece cadre din camera virtuală.
+- Proprietarul confirmă că după mai multe încercări aplicația se închidea; citirea ImageReader este acum protejată și la închiderea camerei. Focalizarea și încadrarea pe telefonul fizic rămân de verificat la proprietar.
+- APK nou 0.4.3, compatibil cu serverul Windows 0.4.2; fără modificări CAT/PTT sau resetarea asocierilor.
+
 ## 0. Reguli de lucru
 
 1. **O etapă = un branch + un pull request.** Nu lucra direct pe `main`. CI verde e obligatoriu.
