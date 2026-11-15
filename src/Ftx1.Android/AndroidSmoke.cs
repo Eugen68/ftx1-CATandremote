@@ -76,7 +76,7 @@ public static class AndroidSmoke
             Log.Info("FTX1Smoke", "PASS_SCREEN_OFF"); await MobileRuntime.Disconnect(); await Wait(() => !ControlService.Active);
             Log.Info("FTX1Smoke", "PASS: QR pairing, Keystore, TLS CAT, native audio RX/TX, focus loss, reconnect, screen-off PTT release, foreground service and WakeLock");
         }
-        catch (Exception error) { Log.Error("FTX1Smoke", "FAIL: " + error); try { await MobileRuntime.Disconnect(); } catch { } }
+        catch (Exception error) { Log.Error("FTX1Smoke", "FAIL: " + error + " notice=" + MobileRuntime.Model.Notice + $" foreground={MobileRuntime.Lifecycle.Foreground} focus={MobileRuntime.Lifecycle.HasFocus} audio={MobileRuntime.Model.AudioReady}"); try { await MobileRuntime.Disconnect(); } catch { } }
     }
     static void Check(bool condition, string message) { if (!condition) throw new Exception(message); }
     static async Task Wait(Func<bool> check, int timeout = 8000) { using var token = new CancellationTokenSource(timeout); while (!check()) await Task.Delay(30, token.Token); }

@@ -63,6 +63,7 @@ public static class MobileRuntime
     public static async Task ResumeAudio() { await audioGate.WaitAsync(); try { if (Lifecycle.HasFocus && Lifecycle.ServiceRunning) await Model.ResumeAudio(); } finally { audioGate.Release(); } }
     public static void Press()
     {
+        global::Android.Util.Log.Info("FTX1Ptt", $"Press foreground={Lifecycle.Foreground} service={Lifecycle.ServiceRunning} focus={Lifecycle.HasFocus} network={Lifecycle.HasNetwork} audio={Model.AudioReady}");
         if (!Lifecycle.CanPtt || !Model.AudioReady) { Model.Notice = MobileApp.Text("MobilePttUnavailable"); return; }
         Model.BeginPtt(); Haptic(25);
     }

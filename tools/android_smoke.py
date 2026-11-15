@@ -25,13 +25,15 @@ try:
     touch = None
     while time.monotonic() < deadline:
         full = adb('logcat', '-d')
-        text = '\n'.join(line for line in full.splitlines() if any(word.lower() in line.lower() for word in ['FTX1Smoke', 'AndroidRuntime', 'monodroid', 'libc', 'Exception', 'Fatal', 'DOTNET', 'ftx1remote', 'Avalonia']))
+        text = '\n'.join(line for line in full.splitlines() if any(word.lower() in line.lower() for word in ['FTX1Smoke', 'FTX1Ptt', 'AndroidRuntime', 'monodroid', 'libc', 'Exception', 'Fatal', 'DOTNET', 'ftx1remote', 'Avalonia']))
         pathlib.Path('artifacts/android-emulator.log').write_text(text)
         if 'FAIL:' in text or 'FATAL EXCEPTION' in text:
             raise RuntimeError(text)
         match = re.search(r'READY_TOUCH (\d+) (\d+)', text)
         if match and touch is None:
             x,y=match.groups()
+            print('Injecting held touch at',x,y,flush=True)
+            pathlib.Path('artifacts/android-touch.png').write_bytes(subprocess.check_output(['adb','exec-out','screencap','-p']))
             touch=subprocess.Popen(['adb','shell','input','swipe',x,y,x,y,'1800'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         if touch is not None and touch.poll() is not None and touch.returncode != 0:
             raise RuntimeError('Touch injection failed: '+str(touch.communicate()))
