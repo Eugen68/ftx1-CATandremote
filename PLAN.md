@@ -81,6 +81,14 @@ Date fixe de la proprietar:
 - Proprietarul confirmă că după mai multe încercări aplicația se închidea; citirea ImageReader este acum protejată și la închiderea camerei. Focalizarea și încadrarea pe telefonul fizic rămân de verificat la proprietar.
 - APK nou 0.4.3, compatibil cu serverul Windows 0.4.2; fără modificări CAT/PTT sau resetarea asocierilor.
 
+## Android: difuzor, volum și PTT tactil (15.11.2026)
+
+- Proprietarul confirmă asociere și RX audio, dar sunet slab și PTT care nu funcționează din buton. Cere buton pentru difuzorul telefonului.
+- Se introduce alegere explicită difuzor/automat, afișarea rutei reale și volum telefon pe fluxul VoiceCall folosit de AudioTrack, inclusiv tastele fizice. Nu modificăm automat nivelul AF al stației sau volumul sistemului la maxim.
+- PTT folosește evenimente pointer în faza tunnel, cu captură și eliberare la ridicare/pierderea capturii/detașare; se testează atingerea efectivă a controlului, nu numai metoda Press.
+- Schimbarea rutei eliberează PTT; nu există reluare automată a emisiei. Politica de focus/rețea/serviciu rămâne obligatorie.
+- APK 0.4.4 după teste UI, Windows/Linux și emulator cu atingere ADB, rută difuzor și volum. Hardware-ul stației și nivelul acustic real rămân de verificat la proprietar.
+
 ## 0. Reguli de lucru
 
 1. **O etapă = un branch + un pull request.** Nu lucra direct pe `main`. CI verde e obligatoriu.

@@ -214,3 +214,8 @@ Evenimentul Windows a identificat o `OperationCanceledException` netratată în 
 ### Android 0.4.3: scanner QR cu confirmare
 
 Camera rămâne live după recunoaștere. Cadrele sunt eliberate explicit înainte de decodare, inclusiv cele omise, pentru a evita epuizarea cozii camerei. Încadrați întregul QR, așteptați mesajul cu adresa serverului, apoi apăsați **Folosește codul**. Un singur cadru nu declanșează asocierea. Scannerul folosește focalizare continuă dacă este suportată, o rezoluție comună suportată de preview/YUV și previzualizare cu proporții păstrate. Codurile nevalide sau din alt protocol nu sunt acceptate. APK-ul este compatibil cu serverul Windows 0.4.2. Testele verifică cadre YUV sintetice, stabilizarea și emulatorul; camera fizică necesită verificare pe telefon.
+
+
+### Android 0.4.4: difuzor, volum telefon și PTT tactil
+
+În pagina Radio, **Folosește difuzorul telefonului** comută între difuzor și alegerea automată (căști/Bluetooth/casca pentru convorbiri). Sub buton se afișează ruta audio efectivă. **Volum telefon** și tastele fizice reglează fluxul Android de comunicații folosit de aplicație, independent de AF-ul stației. La conectare nu se forțează volumul la maxim. PTT folosește atingerea în faza tunnel; emisia este menținută doar cât timp controlul este apăsat și se oprește la ridicare, pierderea capturii sau detașarea interfeței. Comutarea ieșirii eliberează PTT. Testele includ interacțiune cu controlul, nu doar apelarea metodei de emisie. Server Windows compatibil: 0.4.2. Nivelul acustic și emisia pe USB real se verifică pe telefon/stație.

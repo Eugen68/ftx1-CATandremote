@@ -4,6 +4,10 @@ using System.Text.Json;
 using global::Android.Util;
 using Ftx1.Client;
 using Ftx1.Protocol;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.VisualTree;
+using Avalonia.Controls.ApplicationLifetimes;
 using ZXing;
 using ZXing.Common;
 namespace Ftx1.Android;
@@ -32,6 +36,32 @@ public static class AndroidSmoke
             var saved = new AndroidSettingsStore(MobileRuntime.Root).Load(); Check(saved != null && saved.DeviceToken == model.DeviceToken && model.DeviceToken.Length > 20, "Keystore roundtrip");
             Check(!File.Exists(new ClientSettingsStore(MobileRuntime.Root).PathName), "No plaintext token file");
             await MobileRuntime.ToggleConnection(); await Wait(() => model.NetworkConnected && model.AudioReady && MobileRuntime.Voice?.PlayedFrames > 5, 20000);
+            Check(activity.VolumeControlStream == global::Android.Media.Stream.VoiceCall,"Hardware volume keys select voice-call audio");
+            if (!Ftx1.Mobile.MobilePlatform.Audio.SpeakerSelected) await ControlService.ToggleSpeaker();
+            var manager = (global::Android.Media.AudioManager)activity.GetSystemService(global::Android.Content.Context.AudioService)!;
+            await Wait(() => manager.CommunicationDevice?.Type == global::Android.Media.AudioDeviceType.BuiltinSpeaker);
+            ControlService.SetPhoneVolume(70); int maximum=manager.GetStreamMaxVolume(global::Android.Media.Stream.VoiceCall);
+            Check(manager.GetStreamVolume(global::Android.Media.Stream.VoiceCall)==(int)Math.Round(maximum*.7),"Phone volume changes actual playback stream");
+            await Wait(() => Ftx1.Mobile.MobilePlatform.Audio.SpeakerSelected);
+            activity.RunOnUiThread(() =>
+            {
+                var lifetime=(ISingleViewApplicationLifetime)Avalonia.Application.Current!.ApplicationLifetime!;
+                var view=(Ftx1.Mobile.MobileView)lifetime.MainView!; var button=view.FindControl<Button>("Ptt")!; button.BringIntoView();
+            });
+            await Task.Delay(400);
+            activity.RunOnUiThread(() =>
+            {
+                var lifetime=(ISingleViewApplicationLifetime)Avalonia.Application.Current!.ApplicationLifetime!;
+                var button=((Ftx1.Mobile.MobileView)lifetime.MainView!).FindControl<Button>("Ptt")!; var top=TopLevel.GetTopLevel(button)!;
+                var point=button.TranslatePoint(new Point(button.Bounds.Width/2,button.Bounds.Height/2),top)!.Value;
+                int[] origin=new int[2]; activity.FindViewById(global::Android.Resource.Id.Content)!.GetLocationOnScreen(origin);
+                Log.Info("FTX1Smoke",$"READY_TOUCH {origin[0]+(int)(point.X*top.RenderScaling)} {origin[1]+(int)(point.Y*top.RenderScaling)}");
+            });
+            await Wait(() => model.Transmitting,10000); await Task.Delay(600); Check(model.Transmitting,"Physical touch holds TX"); await Wait(() => !model.Transmitting,10000);
+            Log.Info("FTX1Smoke","PASS_TOUCH: native touch down/up activated and released PTT");
+            MobileRuntime.Press(); await Wait(() => model.Transmitting); await ControlService.ToggleSpeaker(); await Wait(() => !model.Transmitting);
+            await Wait(() => !Ftx1.Mobile.MobilePlatform.Audio.SpeakerSelected);
+            Log.Info("FTX1Smoke","PASS_ROUTE: speaker routing, phone volume and PTT release on route switch");
             model.RawCommand = "AG0077"; model.SendRawCommand.Execute(null); await Task.Delay(250); model.RawCommand = "AG0"; model.SendRawCommand.Execute(null); await Wait(() => model.CatLog.Any(s => s.Contains("AG0077", StringComparison.Ordinal)), 10000);
             MobileRuntime.Press(); await Wait(() => model.Transmitting); await Task.Delay(1300); Check(model.Transmitting, "Microphone stream keeps TX alive"); MobileRuntime.Release(); await Wait(() => !model.Transmitting);
             MobileRuntime.Press(); await Wait(() => model.Transmitting); MobileRuntime.Handle(MobileEvent.FocusLost); await Wait(() => !model.Transmitting); MobileRuntime.Handle(MobileEvent.FocusGained); await Wait(() => model.AudioReady);

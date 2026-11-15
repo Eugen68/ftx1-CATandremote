@@ -12,7 +12,7 @@ namespace Ftx1.Android;
 public class ControlService : Service, AudioManager.IOnAudioFocusChangeListener
 {
     const string ChannelId = "ftx1.connection"; const int NotificationId = 41;
-    static ControlService? instance;
+    static ControlService? instance; static bool speakerSelected;
     public static bool HasWakeLock => instance?.wake?.IsHeld == true;
     public static bool Active { get; private set; }
     static TaskCompletionSource<bool>? ready;
@@ -40,7 +40,7 @@ public class ControlService : Service, AudioManager.IOnAudioFocusChangeListener
         focus = new AudioFocusRequestClass.Builder(AudioFocus.Gain).SetAudioAttributes(attrs)!.SetWillPauseWhenDucked(true)!.SetOnAudioFocusChangeListener(this, new Handler(Looper.MainLooper!))!.Build()!;
         bool focused = audio.RequestAudioFocus(focus) == AudioFocusRequest.Granted;
         Active = true; MobileRuntime.Handle(MobileEvent.ServiceStarted); MobileRuntime.Handle(focused ? MobileEvent.FocusGained : MobileEvent.FocusLost);
-        SelectHeadset();
+        ApplyAudioRoute();
         routeEvents = new(this); audio.RegisterAudioDeviceCallback(routeEvents, new Handler(Looper.MainLooper!));
         screenEvents = new(); var filter = new IntentFilter(Intent.ActionScreenOff); filter.AddAction(AudioManager.ActionAudioBecomingNoisy);
         if (OperatingSystem.IsAndroidVersionAtLeast(33)) RegisterReceiver(screenEvents, filter, ReceiverFlags.NotExported); else RegisterReceiver(screenEvents, filter);
@@ -55,26 +55,81 @@ public class ControlService : Service, AudioManager.IOnAudioFocusChangeListener
         string detail = string.Format(System.Globalization.CultureInfo.InvariantCulture, MobileApp.Text(MobileRuntime.Model.AudioReady ? "MobileNotificationFormat" : "MobileNotificationPausedFormat"), MobileRuntime.Model.CurrentFrequency / 1000000d, MobileRuntime.Model.Mode);
         return new Notification.Builder(this, ChannelId).SetSmallIcon(Resource.Drawable.ic_radio)!.SetContentTitle(MobileApp.Text(MobileRuntime.Model.NetworkConnected ? "MobileNotificationTitle" : "MobileNotificationReconnecting"))!.SetContentText(detail)!.SetContentIntent(open)!.SetOngoing(true)!.SetCategory(global::Android.App.Notification.CategoryService)!.AddAction(new Notification.Action.Builder(null, MobileApp.Text("Disconnect"), stop).Build())!.Build();
     }
-    void Update() { if (!Active || stopping) return; if (!MobileRuntime.Model.ConnectionOpen) { StopSelf(); return; } using var manager = (NotificationManager)GetSystemService(NotificationService)!; manager.Notify(NotificationId, BuildNotification()); }
+    void Update() { if (!Active || stopping) return; if (!MobileRuntime.Model.ConnectionOpen) { StopSelf(); return; } using var manager = (NotificationManager)GetSystemService(NotificationService)!; manager.Notify(NotificationId, BuildNotification()); SyncPhoneAudio(); }
     public void OnAudioFocusChange(AudioFocus change) => Dispatcher.UIThread.Post(() => MobileRuntime.Handle(change == AudioFocus.Gain ? MobileEvent.FocusGained : MobileEvent.FocusLost));
-    void SelectHeadset()
+    static AudioManager PhoneManager => instance?.audio ?? (AudioManager)global::Android.App.Application.Context.GetSystemService(AudioService)!;
+    public static void ConfigurePhoneAudio()
+    {
+        speakerSelected = global::Android.App.Application.Context.GetSharedPreferences("phone-audio", FileCreationMode.Private)!.GetBoolean("speaker", false);
+        MobilePlatform.Audio.VolumeRequested = SetPhoneVolume; SyncPhoneAudio();
+    }
+    public static Task ToggleSpeaker()
+    {
+        MobileRuntime.Release(); bool previous = speakerSelected; speakerSelected = !speakerSelected;
+        if (instance != null && !instance.ApplyAudioRoute()) speakerSelected = previous;
+        global::Android.App.Application.Context.GetSharedPreferences("phone-audio", FileCreationMode.Private)!.Edit()!.PutBoolean("speaker", speakerSelected)!.Apply();
+        SyncPhoneAudio(); return Task.CompletedTask;
+    }
+    public static void SetPhoneVolume(double percent)
+    {
+        try
+        {
+            var manager = PhoneManager; int maximum = manager.GetStreamMaxVolume(global::Android.Media.Stream.VoiceCall);
+            manager.SetStreamVolume(global::Android.Media.Stream.VoiceCall, (int)Math.Round(maximum * Math.Clamp(percent, 0, 100) / 100), (VolumeNotificationFlags)0);
+            SyncPhoneAudio();
+        }
+        catch (Exception) { MobileRuntime.Model.Notice = MobileApp.Text("MobileRouteFailed"); }
+    }
+    public static void SyncPhoneAudio()
+    {
+        try
+        {
+            var manager = PhoneManager; int maximum = manager.GetStreamMaxVolume(global::Android.Media.Stream.VoiceCall);
+            double volume = maximum > 0 ? manager.GetStreamVolume(global::Android.Media.Stream.VoiceCall) * 100d / maximum : 0;
+            string route = "MobileRouteDisconnected";
+            if (Active)
+            {
+                if (OperatingSystem.IsAndroidVersionAtLeast(31)) route = manager.CommunicationDevice?.Type switch
+                {
+                    AudioDeviceType.BuiltinSpeaker => "MobileRouteSpeaker", AudioDeviceType.BuiltinEarpiece => "MobileRouteEarpiece",
+                    AudioDeviceType.BluetoothSco => "MobileRouteBluetooth",
+                    AudioDeviceType.WiredHeadset or AudioDeviceType.WiredHeadphones or AudioDeviceType.UsbHeadset => "MobileRouteHeadset", _ => "MobileRouteAutomatic"
+                };
+                else route = manager.SpeakerphoneOn ? "MobileRouteSpeaker" : "MobileRouteAutomatic";
+            }
+            bool selected = speakerSelected; Dispatcher.UIThread.Post(() => MobilePlatform.Audio.Sync(selected, MobileApp.Text(route), volume));
+        }
+        catch (Exception) { }
+    }
+    bool ApplyAudioRoute()
     {
         try
         {
             if (OperatingSystem.IsAndroidVersionAtLeast(31))
             {
-                if (CheckSelfPermission(global::Android.Manifest.Permission.BluetoothConnect) != Permission.Granted) return;
                 var devices = audio!.AvailableCommunicationDevices;
-                var preferred = devices?.FirstOrDefault(d => d.Type == AudioDeviceType.BluetoothSco) ?? devices?.FirstOrDefault(d => d.Type is AudioDeviceType.WiredHeadset or AudioDeviceType.WiredHeadphones or AudioDeviceType.UsbHeadset);
-                if (preferred != null) audio.SetCommunicationDevice(preferred);
+                bool bluetoothAllowed = CheckSelfPermission(global::Android.Manifest.Permission.BluetoothConnect) == Permission.Granted;
+                var preferred = speakerSelected ? devices?.FirstOrDefault(d => d.Type == AudioDeviceType.BuiltinSpeaker) :
+                    (bluetoothAllowed ? devices?.FirstOrDefault(d => d.Type == AudioDeviceType.BluetoothSco) : null)
+                    ?? devices?.FirstOrDefault(d => d.Type is AudioDeviceType.WiredHeadset or AudioDeviceType.WiredHeadphones or AudioDeviceType.UsbHeadset)
+                    ?? devices?.FirstOrDefault(d => d.Type == AudioDeviceType.BuiltinEarpiece)
+                    ?? devices?.FirstOrDefault(d => d.Type == AudioDeviceType.BuiltinSpeaker);
+                if (preferred == null || !audio.SetCommunicationDevice(preferred)) { MobileRuntime.Model.Notice = MobileApp.Text("MobileRouteFailed"); return false; }
             }
-            else if (audio!.IsBluetoothScoAvailableOffCall && (audio.GetDevices(GetDevicesTargets.All)?.Any(d => d.Type == AudioDeviceType.BluetoothSco) == true)) {
+            else
+            {
 #pragma warning disable CS0618
-                audio.StartBluetoothSco(); audio.BluetoothScoOn = true;
+                if (speakerSelected) { audio!.StopBluetoothSco(); audio.BluetoothScoOn = false; audio.SpeakerphoneOn = true; }
+                else
+                {
+                    audio!.SpeakerphoneOn = false;
+                    if (audio.IsBluetoothScoAvailableOffCall && audio.GetDevices(GetDevicesTargets.All)?.Any(d => d.Type == AudioDeviceType.BluetoothSco) == true) { audio.StartBluetoothSco(); audio.BluetoothScoOn = true; }
+                }
 #pragma warning restore CS0618
             }
+            SyncPhoneAudio(); return true;
         }
-        catch (Java.Lang.SecurityException) { }
+        catch (Exception) { MobileRuntime.Model.Notice = MobileApp.Text("MobileRouteFailed"); return false; }
     }
     public override void OnTaskRemoved(Intent? rootIntent) { _ = MobileRuntime.Disconnect(); StopSelf(); base.OnTaskRemoved(rootIntent); }
     public override void OnDestroy()
@@ -88,7 +143,7 @@ public class ControlService : Service, AudioManager.IOnAudioFocusChangeListener
             audio?.StopBluetoothSco(); if (audio != null) audio.BluetoothScoOn = false;
 #pragma warning restore CS0618
         }
-        if (audio != null) audio.Mode = Mode.Normal; if (wake?.IsHeld == true) wake.Release(); wake?.Dispose(); StopForeground(StopForegroundFlags.Remove); base.OnDestroy();
+        if (audio != null) { audio.SpeakerphoneOn = false; audio.Mode = Mode.Normal; } SyncPhoneAudio(); if (wake?.IsHeld == true) wake.Release(); wake?.Dispose(); StopForeground(StopForegroundFlags.Remove); base.OnDestroy();
     }
     class ScreenEvents : BroadcastReceiver
     {
@@ -103,7 +158,7 @@ public class ControlService : Service, AudioManager.IOnAudioFocusChangeListener
     }
     class RouteEvents(ControlService owner) : AudioDeviceCallback
     {
-        public override void OnAudioDevicesAdded(AudioDeviceInfo[]? addedDevices) { if (addedDevices?.Any(d => d.Type is AudioDeviceType.BluetoothSco or AudioDeviceType.WiredHeadset or AudioDeviceType.UsbHeadset) == true) Dispatcher.UIThread.Post(() => { MobileRuntime.Release(); owner.SelectHeadset(); }); }
+        public override void OnAudioDevicesAdded(AudioDeviceInfo[]? addedDevices) { if (addedDevices?.Any(d => d.Type is AudioDeviceType.BluetoothSco or AudioDeviceType.WiredHeadset or AudioDeviceType.UsbHeadset) == true) Dispatcher.UIThread.Post(() => { MobileRuntime.Release(); owner.ApplyAudioRoute(); }); }
         public override void OnAudioDevicesRemoved(AudioDeviceInfo[]? removedDevices) { if (removedDevices?.Any(d => d.Type is AudioDeviceType.BluetoothSco or AudioDeviceType.BluetoothA2dp or AudioDeviceType.WiredHeadset or AudioDeviceType.UsbHeadset or AudioDeviceType.WiredHeadphones) == true) Dispatcher.UIThread.Post(() => MobileRuntime.Handle(MobileEvent.HeadsetDisconnected)); }
     }
 }

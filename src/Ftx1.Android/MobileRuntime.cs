@@ -20,6 +20,7 @@ public static class MobileRuntime
         Model = new(MobileApp.Text, a => Dispatcher.UIThread.Post(a), new AndroidSettingsStore(Root), () => Voice = new AndroidVoiceDevice());
         MobilePlatform.Model = Model; MobilePlatform.ToggleConnection = ToggleConnection; MobilePlatform.Disconnect = Disconnect; MobilePlatform.ResumeAudio = ResumeAudio;
         MobilePlatform.ScanQr = () => MainActivity.Current?.ScanQr() ?? Task.CompletedTask; MobilePlatform.Press = Press; MobilePlatform.Release = Release;
+        MobilePlatform.ToggleSpeaker = ControlService.ToggleSpeaker; ControlService.ConfigurePhoneAudio();
         Model.DeviceName = global::Android.OS.Build.Model ?? "Android";
     }
     public static async Task ToggleConnection()

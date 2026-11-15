@@ -14,7 +14,7 @@ public class MainActivity : AvaloniaMainActivity
     public static MainActivity? Current { get; private set; }
     TaskCompletionSource<bool>? permissions;
     protected override AppBuilder CreateAppBuilder() { MobilePlatform.Initialize = MobileRuntime.Initialize; return AppBuilder.Configure<MobileApp>().UseAndroid(); }
-    protected override void OnCreate(Bundle? state) { Current = this; global::Android.Util.Log.Info("FTX1Smoke", "Activity starting"); base.OnCreate(state); global::Android.Util.Log.Info("FTX1Smoke", "Activity ready");
+    protected override void OnCreate(Bundle? state) { Current = this; global::Android.Util.Log.Info("FTX1Smoke", "Activity starting"); base.OnCreate(state); VolumeControlStream = global::Android.Media.Stream.VoiceCall; global::Android.Util.Log.Info("FTX1Smoke", "Activity ready");
 #if ANDROID_SMOKE
         if (Intent?.GetStringExtra("smokeConfig") is { } config) _ = AndroidSmoke.Run(this, config);
 #endif

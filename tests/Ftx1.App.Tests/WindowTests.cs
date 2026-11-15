@@ -1,5 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.VisualTree;
+using Avalonia.Input;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
@@ -64,6 +66,36 @@ public class WindowTests
     {
         await using var model = new MainViewModel(k => k, a => Dispatcher.UIThread.Post(a), new ClientSettingsStore(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"))));
         Ftx1.Mobile.MobilePlatform.Model = model; var view = new Ftx1.Mobile.MobileView(); Assert.Same(model, view.DataContext); Assert.Equal(4, view.FindControl<TabControl>("Pages")!.ItemCount); Assert.NotNull(view.FindControl<Button>("Ptt"));
+    }
+
+    [AvaloniaFact]
+    public async Task MobilePttUsesRealPointerPressReleaseAndDetach()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "ftx1-touch-" + Guid.NewGuid().ToString("N"));
+        using var radio = new SimRadio(); await using var server = new StationServer(new(root, new StationConfig(), 0, [IPAddress.Loopback]), new SimTransport(radio)); await server.Start();
+        var token = server.Tokens.Create("touch"); var store = new ClientSettingsStore(root); store.Save(new(server.Address!.ToString(),server.Certificate.Fingerprint,token.DeviceToken));
+        await using var model = new MainViewModel(k => k,a => Dispatcher.UIThread.Post(a),store,() => new SimVoiceDevice());
+        var oldPress = Ftx1.Mobile.MobilePlatform.Press; var oldRelease = Ftx1.Mobile.MobilePlatform.Release;
+        Ftx1.Mobile.MobilePlatform.Model=model; Ftx1.Mobile.MobilePlatform.Press=model.BeginPtt; Ftx1.Mobile.MobilePlatform.Release=model.EndPtt;
+        var view = new Ftx1.Mobile.MobileView(); var window = new Window { Width=480, Height=900, Content=view };
+        try
+        {
+            window.Show(); await model.ConnectCommand.ExecuteAsync(null); await Wait(() => model.NetworkConnected && model.AudioReady);
+            var button=view.FindControl<Button>("Ptt")!; button.BringIntoView(); window.UpdateLayout();
+            var point=button.TranslatePoint(new Point(button.Bounds.Width/2,button.Bounds.Height/2),window)!.Value;
+            window.MouseDown(point,MouseButton.Left); await Wait(() => radio.State["TX"]=="1");
+            window.MouseUp(new Point(2,2),MouseButton.Left); await Wait(() => radio.State["TX"]=="0");
+            window.MouseDown(point,MouseButton.Left); await Wait(() => radio.State["TX"]=="1");
+            window.Content=null; await Wait(() => radio.State["TX"]=="0"); window.MouseUp(point,MouseButton.Left);
+        }
+        finally { window.Close(); await model.DisposeAsync(); Ftx1.Mobile.MobilePlatform.Press=oldPress; Ftx1.Mobile.MobilePlatform.Release=oldRelease; }
+    }
+    [Fact]
+    public void SyncingPhoneVolumeDoesNotChangeSystemVolumeAgain()
+    {
+        var audio=new Ftx1.Mobile.MobileAudioState(); int changes=0; double wanted=-1; audio.VolumeRequested=value=>{changes++;wanted=value;};
+        audio.Sync(true,"speaker",60); Assert.Equal(0,changes); audio.PhoneVolume=80; Assert.Equal(1,changes); Assert.Equal(80,wanted);
+        audio.Sync(false,"earpiece",40); Assert.Equal(1,changes); Assert.False(audio.SpeakerSelected);
     }
 
 }

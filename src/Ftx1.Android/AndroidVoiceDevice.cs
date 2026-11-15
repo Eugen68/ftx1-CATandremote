@@ -20,7 +20,7 @@ public sealed class AndroidVoiceDevice : IVoiceDevice
         if (recorder.State != State.Initialized || player.State != AudioTrackState.Initialized) { recorder.Dispose(); player.Dispose(); throw new IOException("AudioUnavailable"); }
         if (AcousticEchoCanceler.IsAvailable) { echo = AcousticEchoCanceler.Create(recorder.AudioSessionId); echo?.SetEnabled(true); }
     }
-    public void Start() { recorder.StartRecording(); player.Play(); capture = Task.Run(CaptureLoop); playback = Task.Run(PlayLoop); }
+    public void Start() { recorder.StartRecording(); player.SetVolume(1f); player.Play(); capture = Task.Run(CaptureLoop); playback = Task.Run(PlayLoop); }
     void CaptureLoop()
     {
         try
