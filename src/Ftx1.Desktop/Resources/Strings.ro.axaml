@@ -130,7 +130,7 @@
   <sys:String x:Key="DeviceName">Numele dispozitivului</sys:String>
   <sys:String x:Key="MobilePairHelp">Asociază telefonul cu QR-ul din serverul Windows. Tailscale trebuie să fie conectat pe ambele dispozitive. Poți lipi și datele JSON de sub QR.</sys:String>
   <sys:String x:Key="MobileScanQr">Scanează QR</sys:String>
-  <sys:String x:Key="MobileQrHint">Îndreaptă camera spre codul QR afișat de server.</sys:String>
+  <sys:String x:Key="MobileQrHint">Încadrează întregul cod QR și ține telefonul nemișcat. După recunoaștere, apasă Folosește codul.</sys:String>
   <sys:String x:Key="MobilePermissionsDenied">Permisiunile microfonului și notificărilor sunt necesare pentru audio. Activează-le în setările Android ale aplicației.</sys:String>
   <sys:String x:Key="MobileCameraDenied">Camera nu este disponibilă sau permisiunea a fost refuzată. Poți lipi datele de asociere în Setări.</sys:String>
   <sys:String x:Key="MobileFocusUnavailable">Audio este folosit de altă aplicație sau există un apel. Revino și conectează din nou.</sys:String>
@@ -165,4 +165,7 @@
   <sys:String x:Key="PairingCertificateMismatch">Certificatul nu corespunde datelor QR. Generează un QR nou în serverul corect și copiază întregul JSON.</sys:String>
   <sys:String x:Key="PairingCodeExpired">Codul de asociere a expirat sau a fost folosit. Generează un QR nou în server.</sys:String>
   <sys:String x:Key="PairingRateLimited">Prea multe încercări de asociere. Așteaptă câteva minute înainte de o nouă încercare.</sys:String>
+  <sys:String x:Key="MobileQrUse">Folosește codul</sys:String>
+  <sys:String x:Key="MobileQrRecognized">Cod recunoscut pentru {0}. Apasă Folosește codul.</sys:String>
+  <sys:String x:Key="MobileCameraUnavailable">Camera nu poate fi pornită. Închide alte aplicații care o folosesc și reîncearcă.</sys:String>
 </ResourceDictionary>

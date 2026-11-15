@@ -209,3 +209,8 @@ Audio WASAPI rulează într-un proces separat. La oprire, serverul dezactivează
 ### Corecție 0.4.2: crash la citirea portului CAT
 
 Evenimentul Windows a identificat o `OperationCanceledException` netratată în firul de citire CAT. Anularea citirii la închiderea portului este acum normală; dacă apare în timpul funcționării, este raportată ca deconectare către Rig, cu protecțiile PTT existente. Sunt testate anularea la oprire, erorile din driver și reluarea buclei de citire. Excepțiile globale netratate sunt înregistrate în `server-errors.log`. Nu este necesară resetarea asocierilor sau a certificatului. Driverul USB real rămâne de verificat pe stație.
+
+
+### Android 0.4.3: scanner QR cu confirmare
+
+Camera rămâne live după recunoaștere. Încadrați întregul QR, așteptați mesajul cu adresa serverului, apoi apăsați **Folosește codul**. Un singur cadru nu declanșează asocierea. Scannerul folosește focalizare continuă dacă este suportată, o rezoluție comună suportată de preview/YUV și previzualizare cu proporții păstrate. Codurile nevalide sau din alt protocol nu sunt acceptate. APK-ul este compatibil cu serverul Windows 0.4.2. Testele verifică cadre YUV sintetice, stabilizarea și emulatorul; camera fizică necesită verificare pe telefon.
