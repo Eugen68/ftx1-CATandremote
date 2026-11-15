@@ -87,7 +87,7 @@ public class QrActivity : Activity, TextureView.ISurfaceTextureListener
         try
         {
             using var image = source.AcquireLatestImage(); if (image == null || completed || closed || frame.Generation != generation) return;
-            long now = Environment.TickCount64; if (now - frame.LastDecode < 150) return; frame.LastDecode = now;
+            long now = System.Environment.TickCount64; if (now - frame.LastDecode < 150) return; frame.LastDecode = now;
             var plane = image.GetPlanes()![0]; var input = plane.Buffer!; var bytes = new byte[input.Remaining()]; input.Get(bytes);
             var gray = CameraFrame.Gray(bytes, image.Width, image.Height, plane.RowStride, plane.PixelStride);
             var result = frame.Decoder.Decode(gray, image.Width, image.Height, RGBLuminanceSource.BitmapFormat.Gray8);
