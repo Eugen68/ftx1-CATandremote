@@ -68,6 +68,17 @@ public sealed class AttemptLimiter
 }
 public static class ListenPolicy
 {
+    public static bool IsPrivateLan(IPAddress ip) { var b = ip.GetAddressBytes(); return b.Length == 4 && (b[0] == 10 || b[0] == 172 && b[1] >= 16 && b[1] <= 31 || b[0] == 192 && b[1] == 168); }
+    public static string FirstPrivateAddress()
+    {
+        try { return System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces().SelectMany(n => n.GetIPProperties().UnicastAddresses).Select(a => a.Address).FirstOrDefault(IsPrivateLan)?.ToString() ?? ""; }
+        catch (System.Net.NetworkInformation.NetworkInformationException) { return ""; }
+    }
+    public static IPAddress Advertise(IEnumerable<IPAddress> listening, IPAddress? preferred = null)
+    {
+        var addresses = listening.ToArray(); if (preferred != null && addresses.Contains(preferred)) return preferred;
+        return addresses.FirstOrDefault(IsTailscale) ?? addresses.FirstOrDefault(IPAddress.IsLoopback) ?? throw new InvalidOperationException("NoPairingAddress");
+    }
     public static bool IsTailscale(IPAddress ip) { var b = ip.GetAddressBytes(); return b.Length == 4 && b[0] == 100 && b[1] >= 64 && b[1] <= 127; }
     public static IPAddress[] DefaultAddresses()
     {

@@ -56,6 +56,21 @@ Date fixe de la proprietar:
 - Cerere de corectare integrată în Etapa 4: oprire fără excepții netratate, reactivarea setărilor și pornire din nou;
   diagnostic audio explicit pe server/client, fără slăbirea protecțiilor PTT.
 
+## Corecții după testarea versiunii 0.4.0
+
+- Proprietarul raportează în continuare crash la Oprește serverul pe hardware real și timeout la asociere folosind 192.168.55.167:8443.
+- Adăugăm acces LAN explicit, dezactivat implicit, limitat la o adresă IPv4 privată selectată; QR-ul folosește adresa pe care serverul ascultă efectiv.
+- Asocierea folosește conexiune directă (fără proxy), diagnostic clar de rețea/certificat/cod expirat; TLS pinning rămâne obligatoriu.
+- WASAPI rulează într-un proces audio separat, cu oprire limitată în timp: un driver care cade sau se blochează nu trebuie să închidă administrarea/CAT. PTT este oprit înainte de închiderea procesului audio.
+- Build Windows nou după teste. Verificarea USB real și firewall rămâne la proprietar.
+
+## Diagnostic confirmat din Windows (15.11.2026)
+
+- Evenimentul .NET Runtime 1026 arată `System.OperationCanceledException` din `SerialStream.EndRead` → `SerialPort.Read` → `SerialTransport.Read`.
+- Firul CAT nu tratează anularea citirii; excepția netratată închide procesul. Corecția 0.4.2 tratează anularea la închidere și raportează o eroare de transport când apare în timpul funcționării.
+- Se adaugă teste care injectează anularea în bucla reală de citire, plus oprire/restart. Jurnalul global înregistrează excepțiile netratate fără a continua un proces compromis.
+- Build Windows după CI; verificarea portului USB real rămâne la proprietar. LAN și audio nu sunt cauza demonstrată de acest eveniment.
+
 ## 0. Reguli de lucru
 
 1. **O etapă = un branch + un pull request.** Nu lucra direct pe `main`. CI verde e obligatoriu.

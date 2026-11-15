@@ -195,3 +195,17 @@ Deschiderea manuală a executabilului nu mai pornește automat serverul, ca să 
 În server, **Verifică audio** testează deschiderea endpoint-urilor și afișează dispozitivele sau cauza exactă.
 Erorile din client precizează dacă problema este pe SERVER (USB-ul stației) sau CLIENT (microfon/căști).
 Verifică selecțiile, dispozitivele active și permisiunea Windows de acces la microfon pentru aplicații desktop.
+
+
+### Actualizare 0.4.1: oprire și asociere în LAN
+
+Pe calculatorul server, cu serverul oprit, activați **Permite conexiuni din rețeaua locală (LAN)** și selectați/adaptați adresa IPv4 privată a acelui calculator (de exemplu `192.168.55.167`). Porniți serverul și generați date de asociere noi. Copiați întregul JSON în client și apăsați Asociere; nu combinați manual adresa sau amprenta din două coduri diferite. Codul de asociere este temporar și de unică folosință. Dacă Windows cere acces în firewall, permiteți aplicația în rețeaua privată; pentru conexiuni LAN este necesar TCP 8443. Nu este necesară redirecționarea porturilor în router.
+
+Implicit rămân active numai localhost și Tailscale. LAN necesită activare explicită și este limitat la adresa privată configurată. Asocierea locală nu folosește proxy HTTP; validarea amprentei certificatului rămâne obligatorie. Mesajele disting certificatul diferit, codul expirat și serverul inaccesibil.
+
+Audio WASAPI rulează într-un proces separat. La oprire, serverul dezactivează mai întâi emisia; procesul audio primește comanda de oprire și este terminat dacă driverul se blochează. Erorile audio sunt în `server-audio-worker.log` / `client-audio-worker.log`, în directorul de date al aplicației. Aceste modificări sunt verificate automat cu audio simulat, inclusiv cădere și blocare a procesului; testarea driverului USB real necesită transceiverul utilizatorului.
+
+
+### Corecție 0.4.2: crash la citirea portului CAT
+
+Evenimentul Windows a identificat o `OperationCanceledException` netratată în firul de citire CAT. Anularea citirii la închiderea portului este acum normală; dacă apare în timpul funcționării, este raportată ca deconectare către Rig, cu protecțiile PTT existente. Sunt testate anularea la oprire, erorile din driver și reluarea buclei de citire. Excepțiile globale netratate sunt înregistrate în `server-errors.log`. Nu este necesară resetarea asocierilor sau a certificatului. Driverul USB real rămâne de verificat pe stație.

@@ -56,6 +56,6 @@ public sealed class ClientAudio : IAsyncDisposable
         if (disposed) return; disposed = true; Ready = false;
         connection.Received -= Message; connection.AudioReceived -= Receive; connection.ConnectionChanged -= Connected; device.Captured -= Capture; device.Failed -= DeviceFailed;
         if (connection.Connected) try { await connection.Ptt(false); await connection.Send(new() { T = "audioConfig", On = false }); } catch (Exception) { connection.Abort(); }
-        cancel.Cancel(); if (playback != null) await playback; device.Dispose();
+        cancel.Cancel(); if (playback != null) await playback; await Task.Run(device.Dispose);
     }
 }

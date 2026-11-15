@@ -157,4 +157,12 @@
   <sys:String x:Key="TestAudio">Verifică audio</sys:String>
   <sys:String x:Key="AudioSelectionHelp">Pentru modificarea porturilor sau a plăcii audio, apasă Oprește serverul. Pe server alege intrarea și ieșirea USB ale stației; în client alege microfonul și căștile PC-ului. Eroarea exactă este afișată mai sus.</sys:String>
   <sys:String x:Key="QrImageFailed">Imaginea QR nu a putut fi afișată; datele JSON de asociere sunt disponibile.</sys:String>
+  <sys:String x:Key="AllowLan">Permite acces din rețeaua locală (LAN)</sys:String>
+  <sys:String x:Key="LanAddressHint">Adresa IPv4 a acestui PC, de exemplu 192.168.55.167</sys:String>
+  <sys:String x:Key="LanHelp">LAN este dezactivat implicit. Pentru un alt PC din aceeași rețea, bifează opțiunea și introdu adresa acestui PC. Permite aplicația în Windows Firewall doar pentru rețeaua privată. Generează apoi un QR nou; nu modifica manual adresa sau certificatul din JSON.</sys:String>
+  <sys:String x:Key="InvalidLanAddress">Introdu o adresă LAN privată validă a acestui PC: 192.168.x.x, 10.x.x.x sau 172.16–31.x.x.</sys:String>
+  <sys:String x:Key="PairingServerUnreachable">Serverul de asociere nu răspunde. Verifică dacă este pornit și dacă adresa/portul din QR sunt accesibile. Pentru 192.168.x.x activează LAN în server și verifică firewall-ul; pentru internet folosește adresa Tailscale.</sys:String>
+  <sys:String x:Key="PairingCertificateMismatch">Certificatul nu corespunde datelor QR. Generează un QR nou în serverul corect și copiază întregul JSON.</sys:String>
+  <sys:String x:Key="PairingCodeExpired">Codul de asociere a expirat sau a fost folosit. Generează un QR nou în server.</sys:String>
+  <sys:String x:Key="PairingRateLimited">Prea multe încercări de asociere. Așteaptă câteva minute înainte de o nouă încercare.</sys:String>
 </ResourceDictionary>

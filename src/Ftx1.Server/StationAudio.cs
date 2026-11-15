@@ -6,7 +6,7 @@ public sealed class StationAudio : IDisposable
 {
     readonly object gate = new(), startGate = new(); readonly Func<IVoiceDevice> factory; IVoiceDevice? device; volatile bool ready;
     readonly Dictionary<int, VoiceCodec> encoders = new() { [12000] = new(12000), [24000] = new(24000), [32000] = new(32000) }; uint sequence;
-    public string Description => OperatingSystem.IsWindows() && device is WasapiVoiceDevice wasapi ? wasapi.Description : device?.GetType().Name ?? "";
+    public string Description => device is AudioProcessDevice process ? process.Description : OperatingSystem.IsWindows() && device is WasapiVoiceDevice wasapi ? wasapi.Description : device?.GetType().Name ?? "";
     public bool Ready => ready;
     public event Action<int, uint, long, byte[]>? Encoded;
     public event Action<Exception>? Failed;

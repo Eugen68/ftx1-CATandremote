@@ -122,9 +122,20 @@ public sealed class StationConnection : IAsyncDisposable
     public static async Task<PairResponse> Pair(PairingQr qr, string name, CancellationToken token = default)
     {
         if (!ValidPin(qr.Fingerprint) || !Uri.TryCreate(qr.Address, UriKind.Absolute, out var uri) || uri.Scheme != "wss" || qr.ProtocolVersion != ProtocolVersion.Current) throw new ArgumentException("InvalidPairing");
-        using var handler = new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, cert, _, _) => Pinned(cert, qr.Fingerprint) }; using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(5) };
+        bool certificateSeen = false, pinMatched = false;
+        using var handler = new HttpClientHandler { UseProxy = false, ServerCertificateCustomValidationCallback = (_, cert, _, _) => { certificateSeen = cert != null; pinMatched = Pinned(cert, qr.Fingerprint); return pinMatched; } };
+        using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(15) };
         var address = new UriBuilder(uri) { Scheme = "https", Path = "/pair" }.Uri;
-        using var response = await client.PostAsJsonAsync(address, new PairRequest(qr.Code, name), ProtocolJson.Default.PairRequest, token); response.EnsureSuccessStatusCode(); return await response.Content.ReadFromJsonAsync(ProtocolJson.Default.PairResponse, token) ?? throw new JsonException();
+        try
+        {
+            using var response = await client.PostAsJsonAsync(address, new PairRequest(qr.Code, name), ProtocolJson.Default.PairRequest, token);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized) throw new InvalidOperationException("PairingCodeExpired");
+            if ((int)response.StatusCode == 429) throw new InvalidOperationException("PairingRateLimited");
+            response.EnsureSuccessStatusCode(); return await response.Content.ReadFromJsonAsync(ProtocolJson.Default.PairResponse, token) ?? throw new JsonException();
+        }
+        catch (HttpRequestException error) { throw new InvalidOperationException(certificateSeen && !pinMatched ? "PairingCertificateMismatch" : "PairingServerUnreachable", error); }
+        catch (TaskCanceledException error) when (!token.IsCancellationRequested) { throw new InvalidOperationException("PairingServerUnreachable", error); }
+
     }
     public async ValueTask DisposeAsync()
     {
