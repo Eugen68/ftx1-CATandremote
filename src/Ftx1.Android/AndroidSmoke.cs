@@ -39,7 +39,7 @@ public static class AndroidSmoke
             Check(activity.VolumeControlStream == global::Android.Media.Stream.VoiceCall,"Hardware volume keys select voice-call audio");
             if (!Ftx1.Mobile.MobilePlatform.Audio.SpeakerSelected) await ControlService.ToggleSpeaker();
             var manager = (global::Android.Media.AudioManager)activity.GetSystemService(global::Android.Content.Context.AudioService)!;
-            await Wait(() => manager.CommunicationDevice?.Type == global::Android.Media.AudioDeviceType.BuiltinSpeaker);
+            await Wait(() => OperatingSystem.IsAndroidVersionAtLeast(31) ? manager.CommunicationDevice?.Type == global::Android.Media.AudioDeviceType.BuiltinSpeaker : manager.SpeakerphoneOn);
             ControlService.SetPhoneVolume(70); int maximum=manager.GetStreamMaxVolume(global::Android.Media.Stream.VoiceCall);
             Check(manager.GetStreamVolume(global::Android.Media.Stream.VoiceCall)==(int)Math.Round(maximum*.7),"Phone volume changes actual playback stream");
             await Wait(() => Ftx1.Mobile.MobilePlatform.Audio.SpeakerSelected);
