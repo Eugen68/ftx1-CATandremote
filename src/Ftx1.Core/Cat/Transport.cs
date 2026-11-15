@@ -23,17 +23,9 @@ public sealed class SerialTransport(string port, int baud = 38400) : ITransport
         stopping = false; failed = false;
         reader = new Thread(() => Read(next)) { IsBackground = true, Name = "FTX1 CAT RX" }; reader.Start();
     }
-    void Read(SerialPort current)
-    {
-        var buffer = new byte[256];
-        while (!stopping)
-        {
-            try { var n = current.Read(buffer, 0, buffer.Length); if (n > 0) callback?.Invoke(buffer[..n]); }
-            catch (TimeoutException) { }
-            catch (Exception e) when (e is IOException or InvalidOperationException or UnauthorizedAccessException)
-            { if (!stopping) { failed = true; callback?.Invoke(null); } return; }
-        }
-    }
+    void Read(SerialPort current) => SerialReceiveLoop.Run(
+        buffer => current.Read(buffer, 0, buffer.Length), () => stopping,
+        bytes => callback?.Invoke(bytes), () => failed = true);
     public void Write(byte[] bytes) { lock (gate) { try { (serial ?? throw new IOException("CAT closed")).Write(bytes, 0, bytes.Length); } catch { failed = true; throw; } } }
     public void Close()
     {
@@ -57,4 +49,25 @@ public sealed class SerialPtt : IPttLine
     }
     public void Set(bool on) { lock (gate) { if (dtr) serial.DtrEnable = on; else serial.RtsEnable = on; } }
     public void Dispose() { try { Set(false); } finally { serial.Dispose(); } }
+}
+
+// Shared by the real CAT thread and injected-driver regression tests.
+internal static class SerialReceiveLoop
+{
+    internal static void Run(Func<byte[], int> read, Func<bool> stopping, Action<byte[]?> receive, Action failed)
+    {
+        var buffer = new byte[256];
+        while (!stopping())
+        {
+            try { int count = read(buffer); if (count > 0 && !stopping()) receive(buffer[..count]); }
+            catch (TimeoutException) { continue; }
+            // Windows SerialStream.EndRead can throw OperationCanceledException when Close
+            // cancels a pending read. It must never escape this background thread.
+            catch (Exception error) when (error is IOException or InvalidOperationException or UnauthorizedAccessException or OperationCanceledException)
+            {
+                if (!stopping()) { failed(); receive(null); }
+                return;
+            }
+        }
+    }
 }

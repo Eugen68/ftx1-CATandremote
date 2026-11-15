@@ -9,6 +9,10 @@ public static class Program
     public static void Main(string[] args)
     {
         if (AudioWorkerHost.TryRun(args)) return;
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            try { Directory.CreateDirectory(PrivateFiles.Root); File.AppendAllText(Path.Combine(PrivateFiles.Root, "server-errors.log"), DateTimeOffset.Now.ToString("O") + " Unhandled: " + e.ExceptionObject + Environment.NewLine); } catch { }
+        };
         Arguments = args;
         if (args.Contains("--headless")) { RunHeadless(args).GetAwaiter().GetResult(); return; }
         AppBuilder.Configure<ServerApp>().UsePlatformDetect().LogToTrace().StartWithClassicDesktopLifetime(args);
