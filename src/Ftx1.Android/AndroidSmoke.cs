@@ -16,6 +16,13 @@ public static class AndroidSmoke
         try
         {
             await Task.Delay(1000); string text = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                activity.RunOnUiThread(() => activity.StartActivityForResult(new global::Android.Content.Intent(activity, typeof(QrActivity)), 102));
+                await Wait(() => QrActivity.TestCurrent?.TestFrames >= 10, 20000);
+                activity.RunOnUiThread(() => QrActivity.TestCurrent?.Finish()); await Wait(() => QrActivity.TestCurrent == null);
+            }
+            Log.Info("FTX1Smoke", "PASS_CAMERA: scanner opened/closed three times, ten camera frames each without freezing");
             var matrix = new MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, 512, 512); var pixels = new byte[matrix.Width * matrix.Height];
             for (int y = 0; y < matrix.Height; y++) for (int x = 0; x < matrix.Width; x++) pixels[y * matrix.Width + x] = matrix[x, y] ? (byte)0 : (byte)255;
             var decoder = new BarcodeReaderGeneric { AutoRotate = true, Options = new DecodingOptions { TryHarder = true } };

@@ -76,7 +76,9 @@ Date fixe de la proprietar:
 - Proprietarul raportează închiderea/instantaneul nepotrivit imediat ce camera vede QR-ul.
 - Scannerul păstrează previzualizarea live, validează citiri repetate ale aceluiași cod și cere confirmare explicită înainte de a reveni la asociere.
 - Se configurează focalizare continuă dacă dispozitivul o suportă, rezoluție YUV suportată de cameră și previzualizare fără deformarea proporțiilor.
-- Se testează validarea/stabilizarea și conversia planului YUV, plus APK și emulator. Focalizarea și încadrarea pe telefonul fizic rămân de verificat la proprietar.
+- Fiecare Image este închis explicit după copierea planului Y, înainte de ZXing; și cadrele omise sunt eliberate pentru a nu bloca ImageReader.
+- Se testează validarea/stabilizarea și conversia planului YUV, plus APK și emulator: trei deschideri/închideri ale scannerului, fiecare cu cel puțin zece cadre din camera virtuală.
+- Proprietarul confirmă că după mai multe încercări aplicația se închidea; citirea ImageReader este acum protejată și la închiderea camerei. Focalizarea și încadrarea pe telefonul fizic rămân de verificat la proprietar.
 - APK nou 0.4.3, compatibil cu serverul Windows 0.4.2; fără modificări CAT/PTT sau resetarea asocierilor.
 
 ## 0. Reguli de lucru

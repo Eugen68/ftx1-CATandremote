@@ -18,11 +18,19 @@ public class QrActivity : Activity, TextureView.ISurfaceTextureListener
 {
     TextureView? preview; TextView? status; Button? confirm; string? readyText;
     CameraDevice? camera; CameraCaptureSession? session; ImageReader? reader; HandlerThread? thread; Handler? handler; Surface? surface;
-    volatile bool closed, completed; int generation, sensor, width = 640, height = 480; bool continuousFocus;
+    volatile bool closed, completed, resumed; int generation, sensor, width = 640, height = 480; bool continuousFocus;
     static BarcodeReaderGeneric NewDecoder() => new() { AutoRotate = true, Options = new DecodingOptions { TryHarder = true, PossibleFormats = new[] { BarcodeFormat.QR_CODE } } };
+#if ANDROID_SMOKE
+    public static QrActivity? TestCurrent { get; private set; }
+    int testFrames; public int TestFrames => System.Threading.Volatile.Read(ref testFrames);
+#endif
     protected override void OnCreate(Bundle? state)
     {
-        base.OnCreate(state); Title = MobileApp.Text("MobileScanQr");
+        base.OnCreate(state);
+#if ANDROID_SMOKE
+        TestCurrent = this;
+#endif
+        Title = MobileApp.Text("MobileScanQr");
         var layout = new LinearLayout(this) { Orientation = global::Android.Widget.Orientation.Vertical };
         status = new TextView(this) { Text = MobileApp.Text("MobileQrHint"), TextSize = 18 }; layout.AddView(status);
         preview = new TextureView(this) { SurfaceTextureListener = this }; layout.AddView(preview, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MatchParent, 0, 1));
@@ -34,8 +42,8 @@ public class QrActivity : Activity, TextureView.ISurfaceTextureListener
         };
         layout.AddView(confirm); SetContentView(layout);
     }
-    protected override void OnResume() { base.OnResume(); closed = false; if (preview?.IsAvailable == true) Open(preview.SurfaceTexture!); }
-    public void OnSurfaceTextureAvailable(SurfaceTexture texture, int viewWidth, int viewHeight) => Open(texture);
+    protected override void OnResume() { base.OnResume(); resumed = true; closed = false; if (preview?.IsAvailable == true) Open(preview.SurfaceTexture!); }
+    public void OnSurfaceTextureAvailable(SurfaceTexture texture, int viewWidth, int viewHeight) { if (resumed) { closed = false; Open(texture); } }
     void Open(SurfaceTexture texture)
     {
         if (closed || completed || thread != null) return;
@@ -86,11 +94,13 @@ public class QrActivity : Activity, TextureView.ISurfaceTextureListener
     {
         try
         {
-            using var image = source.AcquireLatestImage(); if (image == null || completed || closed || frame.Generation != generation) return;
-            long now = System.Environment.TickCount64; if (now - frame.LastDecode < 150) return; frame.LastDecode = now;
-            var plane = image.GetPlanes()![0]; var input = plane.Buffer!; var bytes = new byte[input.Remaining()]; input.Get(bytes);
-            var gray = CameraFrame.Gray(bytes, image.Width, image.Height, plane.RowStride, plane.PixelStride);
-            var result = frame.Decoder.Decode(gray, image.Width, image.Height, RGBLuminanceSource.BitmapFormat.Gray8);
+            long now = System.Environment.TickCount64;
+            bool process = !completed && !closed && frame.Generation == generation && now - frame.LastDecode >= 150;
+            var pixels = CopyLatest(source, process); if (pixels == null) return; frame.LastDecode = now;
+#if ANDROID_SMOKE
+            System.Threading.Interlocked.Increment(ref testFrames);
+#endif
+            var result = frame.Decoder.Decode(pixels.Bytes, pixels.Width, pixels.Height, RGBLuminanceSource.BitmapFormat.Gray8);
             frame.Scan.Observe(result?.Text, now); var text = frame.Scan.Text; var address = frame.Scan.Address;
             RunOnUiThread(() =>
             {
@@ -100,6 +110,21 @@ public class QrActivity : Activity, TextureView.ISurfaceTextureListener
         }
         catch (Exception) { /* A closing ImageReader or blurred/non-pairing frame never ends the scan. */ }
     }
+    sealed record Pixels(byte[] Bytes, int Width, int Height);
+    static Pixels? CopyLatest(ImageReader source, bool copy)
+    {
+        using var image = source.AcquireLatestImage(); if (image == null) return null;
+        try
+        {
+            if (!copy) return null;
+            var plane = image.GetPlanes()![0]; var input = plane.Buffer!; var bytes = new byte[input.Remaining()]; input.Get(bytes);
+            return new(CameraFrame.Gray(bytes, image.Width, image.Height, plane.RowStride, plane.PixelStride), image.Width, image.Height);
+        }
+        finally { image.Close(); } // Dispose the JNI wrapper only after explicitly returning this camera buffer.
+    }
+#if ANDROID_SMOKE
+    protected override void OnDestroy() { if (ReferenceEquals(TestCurrent, this)) TestCurrent = null; base.OnDestroy(); }
+#endif
     void ReportCameraError(string key) => RunOnUiThread(() => { if (closed || completed) return; MobileRuntime.Model.Notice = MobileApp.Text(key); Finish(); });
     void CloseCamera()
     {
@@ -109,7 +134,7 @@ public class QrActivity : Activity, TextureView.ISurfaceTextureListener
         Close(() => reader?.Close()); reader = null; Close(() => surface?.Dispose()); surface = null;
         Close(() => thread?.QuitSafely()); thread = null; handler = null;
     }
-    protected override void OnPause() { CloseCamera(); base.OnPause(); }
+    protected override void OnPause() { resumed = false; CloseCamera(); base.OnPause(); }
     public bool OnSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) { CloseCamera(); return true; }
     public void OnSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int viewWidth, int viewHeight) => Transform();
     public void OnSurfaceTextureUpdated(SurfaceTexture surfaceTexture) { }
