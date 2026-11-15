@@ -18,6 +18,7 @@ try:
     # The cold-boot emulator launcher can ANR and cover the app with a system dialog.
     # Stop only that unrelated launcher; never suppress ANRs or failures of our app.
     adb('shell', 'am', 'force-stop', 'com.google.android.apps.nexuslauncher')
+    adb('shell', 'am', 'force-stop', 'com.android.launcher3')
     adb('logcat', '-c')
     config = base64.b64encode((root / 'pairing.json').read_bytes()).decode()
     launch = adb('shell', 'am', 'start', '-W', '-n', app + '/.MainActivity', '--es', 'smokeConfig', config)
@@ -36,6 +37,7 @@ try:
         if match and touch is None:
             x,y=match.groups()
             adb('shell', 'am', 'force-stop', 'com.google.android.apps.nexuslauncher')
+            adb('shell', 'am', 'force-stop', 'com.android.launcher3')
             print('Injecting held touch at',x,y,flush=True)
             pathlib.Path('artifacts/android-touch.png').write_bytes(subprocess.check_output(['adb','exec-out','screencap','-p']))
             touch=subprocess.Popen(['adb','shell','input','swipe',x,y,x,y,'1800'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
