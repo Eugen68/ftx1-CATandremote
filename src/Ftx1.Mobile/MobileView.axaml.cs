@@ -27,7 +27,7 @@ public sealed partial class MobileView : UserControl
         pttPointer = e.Pointer; e.Pointer.Capture(sender as IInputElement); MobilePlatform.Press(); e.Handled = true;
     }
     void PttUp(object? sender, PointerReleasedEventArgs e) { if (ReferenceEquals(e.Pointer, pttPointer)) ReleasePtt(); e.Handled = true; }
-    void PttLost(object? sender, PointerCaptureLostEventArgs e) { if (ReferenceEquals(e.Pointer, pttPointer)) ReleasePtt(); }
+    void PttLost(object? sender, PointerCaptureLostEventArgs e) { if (ReferenceEquals(e.Pointer, pttPointer)) { pttPointer = null; MobilePlatform.Release(); } }
     void ReleasePtt() { var pointer = pttPointer; pttPointer = null; MobilePlatform.Release(); pointer?.Capture(null); }
     long SelectedStep => this.FindControl<ComboBox>("Step")?.SelectedItem is long step ? step : 100;
     void TuneDown(object? sender, RoutedEventArgs e) => MobilePlatform.Model.TuneByStep(SelectedStep, -1);

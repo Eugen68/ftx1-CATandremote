@@ -46,13 +46,13 @@ public static class AndroidSmoke
             activity.RunOnUiThread(() =>
             {
                 var lifetime=(ISingleViewApplicationLifetime)Avalonia.Application.Current!.ApplicationLifetime!;
-                var view=(Ftx1.Mobile.MobileView)lifetime.MainView!; var button=view.FindControl<Button>("Ptt")!; button.BringIntoView();
+                var view=(Ftx1.Mobile.MobileView)lifetime.MainView!; var button=view.FindControl<Avalonia.Controls.Button>("Ptt")!; button.BringIntoView();
             });
             await Task.Delay(400);
             activity.RunOnUiThread(() =>
             {
                 var lifetime=(ISingleViewApplicationLifetime)Avalonia.Application.Current!.ApplicationLifetime!;
-                var button=((Ftx1.Mobile.MobileView)lifetime.MainView!).FindControl<Button>("Ptt")!; var top=TopLevel.GetTopLevel(button)!;
+                var button=((Ftx1.Mobile.MobileView)lifetime.MainView!).FindControl<Avalonia.Controls.Button>("Ptt")!; var top=TopLevel.GetTopLevel(button)!;
                 var point=button.TranslatePoint(new Point(button.Bounds.Width/2,button.Bounds.Height/2),top)!.Value;
                 int[] origin=new int[2]; activity.FindViewById(global::Android.Resource.Id.Content)!.GetLocationOnScreen(origin);
                 Log.Info("FTX1Smoke",$"READY_TOUCH {origin[0]+(int)(point.X*top.RenderScaling)} {origin[1]+(int)(point.Y*top.RenderScaling)}");
