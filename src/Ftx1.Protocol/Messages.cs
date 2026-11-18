@@ -32,6 +32,10 @@ public sealed record Message
     public string? Result { get; init; }
     public string? Command { get; init; }
     public int? TotMinutes { get; init; }
+    /// <summary>audioReady: optional UDP audio channel (absent = WebSocket only; older peers ignore it).</summary>
+    public int? UdpPort { get; init; }
+    public string? UdpKey { get; init; }
+    public long? UdpId { get; init; }
 }
 public sealed record PairRequest(string Code, string DeviceName, int ProtocolVersion = ProtocolVersion.Current);
 public sealed record PairResponse(string DeviceToken, string DeviceId, int ProtocolVersion = ProtocolVersion.Current);

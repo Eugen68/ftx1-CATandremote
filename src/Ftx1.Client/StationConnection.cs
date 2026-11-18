@@ -22,6 +22,12 @@ public sealed class StationConnection : IAsyncDisposable
     public int LatencyMs { get; private set; }
     public int TotMinutes { get; private set; } = -1;
     public bool OwnsTransmit => owns;
+    /// <summary>Use the UDP audio channel when the server offers one (falls back to the WebSocket automatically).</summary>
+    public bool UdpEnabled { get; set; } = true;
+    UdpAudioClient? udp;
+    /// <summary>"UDP" while the UDP channel works in both directions, otherwise "TCP" (audio on the WebSocket).</summary>
+    public string AudioTransport => udp?.Alive == true ? "UDP" : "TCP";
+    public UdpAudioClient? Udp => udp;
     public bool HeartbeatsEnabled { get; set; } = true;
     public event Action<IReadOnlyDictionary<string, object>>? Changed;
     public event Action<Message>? Received;
@@ -58,6 +64,7 @@ public sealed class StationConnection : IAsyncDisposable
                         case "pttState": owns = message.You == true; TransmitEpoch = owns ? message.AudioEpoch ?? 0 : 0; if (!owns) pressed = false; break;
                         case "pong": if (message.Ts is { } ts) LatencyMs = (int)Math.Max(0, Environment.TickCount64 - ts); break;
                         case "tot": TotMinutes = message.TotMinutes ?? -1; break;
+                        case "audioReady": await StartUdp(message); break;
                         case "error": Error?.Invoke(message.Error ?? "OperationFailed"); break;
                     }
                     if (message.RequestId is { } id && requests.TryRemove(id, out var waiter)) waiter.TrySetResult(message);
@@ -65,10 +72,21 @@ public sealed class StationConnection : IAsyncDisposable
                 }
             }
             catch (Exception e) when (e is WebSocketException or IOException or OperationCanceledException or JsonException or InvalidDataException or ObjectDisposedException) { if (!lifetime.IsCancellationRequested) Error?.Invoke("Disconnected"); }
-            finally { connected = pressed = owns = false; TransmitEpoch = 0; ConnectionChanged?.Invoke(false); Apply(new() { { "connected", Wire.Element(false) }, { "tx", Wire.Element(false) } }, false); foreach (var (id, tcs) in requests) if (requests.TryRemove(id, out _)) tcs.TrySetException(new IOException("Disconnected")); if (ReferenceEquals(socket, ws)) socket = null; }
+            finally { StopUdp(); connected = pressed = owns = false; TransmitEpoch = 0; ConnectionChanged?.Invoke(false); Apply(new() { { "connected", Wire.Element(false) }, { "tx", Wire.Element(false) } }, false); foreach (var (id, tcs) in requests) if (requests.TryRemove(id, out _)) tcs.TrySetException(new IOException("Disconnected")); if (ReferenceEquals(socket, ws)) socket = null; }
             try { await Task.Delay(TimeSpan.FromSeconds(delay), lifetime.Token); delay = Math.Min(10, delay * 2); } catch (OperationCanceledException) { break; }
         }
     }
+    async Task StartUdp(Message message)
+    {
+        StopUdp();
+        if (!UdpEnabled || message.AudioAvailable != true || message.UdpPort is not > 0 || message.UdpId is not { } id || id == 0 || message.UdpKey == null || !UdpCipher.Supported) return;
+        byte[] key; try { key = Convert.FromBase64String(message.UdpKey); } catch (FormatException) { return; }
+        if (key.Length != UdpCipher.KeyBytes) return;
+        var server = await UdpAudioClient.Resolve(new Uri(settings.Address).Host, message.UdpPort.Value, lifetime.Token); if (server == null) return;
+        try { udp = new(server, key, id, packet => AudioReceived?.Invoke(packet)); }
+        catch (Exception e) when (e is System.Net.Sockets.SocketException or ArgumentException) { udp = null; }
+    }
+    void StopUdp() => Interlocked.Exchange(ref udp, null)?.Dispose();
     void Apply(Dictionary<string, JsonElement> update, bool full)
     {
         Dictionary<string, object> diff = []; lock (gate) { if (full) state.Clear(); foreach (var (k, v) in update) { var item = Wire.Object(v); if (!state.TryGetValue(k, out var old) || !Equals(old, item)) { state[k] = item; diff[k] = item; } } }
@@ -79,7 +97,12 @@ public sealed class StationConnection : IAsyncDisposable
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token, lifetime.Token); timeout.CancelAfter(1500);
         await sendGate.WaitAsync(timeout.Token); try { var ws = socket; if (ws?.State != WebSocketState.Open) throw new IOException("Disconnected"); await ws.SendAsync(Wire.Encode(message), WebSocketMessageType.Text, true, timeout.Token); } finally { sendGate.Release(); }
     }
-    public void QueueMicrophone(AudioPacket packet) { if (owns && packet.Epoch == TransmitEpoch) audioQueue.Writer.TryWrite(packet); }
+    public void QueueMicrophone(AudioPacket packet)
+    {
+        if (!owns || packet.Epoch != TransmitEpoch) return;
+        if (udp is { Alive: true } channel && channel.Send(packet)) return;
+        audioQueue.Writer.TryWrite(packet);
+    }
     async Task SendAudioLoop()
     {
         try

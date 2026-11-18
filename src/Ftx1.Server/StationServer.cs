@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 namespace Ftx1.Server;
 
-public sealed record ServerOptions(string Root, StationConfig Station, int Port = 8443, IPAddress[]? Addresses = null, bool AllowOtherInterfaces = false, double SwrLimit = 3, string? AudioInput = null, string? AudioOutput = null, IPAddress? PairingAddress = null);
+public sealed record ServerOptions(string Root, StationConfig Station, int Port = 8443, IPAddress[]? Addresses = null, bool AllowOtherInterfaces = false, double SwrLimit = 3, string? AudioInput = null, string? AudioOutput = null, IPAddress? PairingAddress = null, bool EnableUdp = true, int UdpPort = 0);
 public sealed class StationServer : IAsyncDisposable
 {
     public const string Version = "0.5.0";
@@ -23,7 +23,11 @@ public sealed class StationServer : IAsyncDisposable
     readonly ServerOptions options; readonly Rig rig; readonly IDisposable? simulator;
     readonly CancellationTokenSource lifetime = new(); readonly ConcurrentDictionary<string, Session> sessions = new(); readonly AttemptLimiter limiter = new();
     readonly object sessionGate = new(); readonly object auditGate = new(); TxAudit? activeTx; long txStarted, highSwrSince;
-    WebApplication? app; Task? monitor; Task? audioPlayback; bool disposed;
+    WebApplication? app; Task? monitor; Task? audioPlayback; bool disposed; UdpAudioServer? udp;
+    /// <summary>UDP audio port actually bound (0 = UDP unavailable, WebSocket only).</summary>
+    public int UdpPort => udp?.Port ?? 0;
+    public long UdpAccepted => udp?.Accepted ?? 0;
+    public long UdpRejected => udp?.Rejected ?? 0;
     public DeviceTokens Tokens { get; }
     public PairingCodes Pairing { get; }
     public ServerCertificate Certificate { get; }
@@ -78,9 +82,17 @@ public sealed class StationServer : IAsyncDisposable
             await rig.Start(); await app.StartAsync(token);
             var urls = app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses;
             var first = urls.First(u => u.Contains("127.0.0.1", StringComparison.Ordinal)); Address = new Uri(first.Replace("https:", "wss:", StringComparison.Ordinal) + "/ws");
-            await ReadTot(); EnsureLocalDesktopToken(); monitor = Task.Run(Monitor); audioPlayback = Task.Run(PlayMicrophone);
+            StartUdp(addresses); await ReadTot(); EnsureLocalDesktopToken(); monitor = Task.Run(Monitor); audioPlayback = Task.Run(PlayMicrophone);
         }
         catch { await DisposeAsync(); throw; }
+    }
+    void StartUdp(IPAddress[] addresses)
+    {
+        if (!options.EnableUdp || !UdpCipher.Supported) return;
+        int port = options.UdpPort != 0 ? options.UdpPort : options.Port != 0 ? options.Port + 1 : 0;
+        // UDP is an optimisation: if the port is taken, audio simply stays on the WebSocket.
+        try { udp = new(addresses, port, (peer, packet) => { if (sessions.TryGetValue(peer.SessionId, out var s) && ReferenceEquals(s.Udp, peer)) Microphone(s, packet); }); }
+        catch (System.Net.Sockets.SocketException) { udp = null; }
     }
     void EnsureLocalDesktopToken()
     {
@@ -120,7 +132,7 @@ public sealed class StationServer : IAsyncDisposable
             lock (sessionGate) { session.Send(new() { T = "helloOk", ProtocolVersion = ProtocolVersion.Current, ServerVersion = Version, State = Wire.State(rig.State), TotMinutes = TotMinutes }); sessions[session.Id] = session; }
             DevicesChanged?.Invoke(); BroadcastPtt();
             try { await session.Run(message => Dispatch(session, message), packet => Microphone(session, packet), () => StopOwner(session, StopReason.Disconnected)); }
-            finally { StopOwner(session, StopReason.Disconnected); sessions.TryRemove(session.Id, out _); session.Abort(); DevicesChanged?.Invoke(); }
+            finally { StopOwner(session, StopReason.Disconnected); sessions.TryRemove(session.Id, out _); udp?.Remove(Interlocked.Exchange(ref session.Udp, null)); session.Abort(); DevicesChanged?.Invoke(); }
         }
         catch (Exception e) when (e is WebSocketException or OperationCanceledException or JsonException or InvalidDataException or ObjectDisposedException) { socket.Abort(); }
     }
@@ -140,8 +152,8 @@ public sealed class StationServer : IAsyncDisposable
                 case "pttHeartbeat": rig.Transmit.Heartbeat(s.Id); break;
                 case "audioConfig":
                     if (rig.Transmit.Owner == s.Id) rig.Transmit.Stop(StopReason.Released);
-                    s.AudioEnabled = false; s.ResetTransmit();
-                    if (m.On == true) { int bitrate = m.Bitrate ?? 24000; if (bitrate is not (12000 or 24000 or 32000)) throw new ArgumentException("InvalidBitrate"); try { audio.Start(); AudioStatus(true, audio.Description); } catch (Exception error) { var detail = AudioDiagnostic.Describe(error); AudioStatus(false, detail); s.Send(new() { T = "error", Error = "ServerAudioUnavailable", Detail = detail }); break; } s.Bitrate = bitrate; s.ReceiveEpoch = Interlocked.Increment(ref audioEpoch); s.Send(new() { T = "audioReady", AudioAvailable = true, AudioEpoch = s.ReceiveEpoch, Bitrate = bitrate }); s.AudioEnabled = true; }
+                    s.AudioEnabled = false; s.ResetTransmit(); udp?.Remove(Interlocked.Exchange(ref s.Udp, null));
+                    if (m.On == true) { int bitrate = m.Bitrate ?? 24000; if (bitrate is not (12000 or 24000 or 32000)) throw new ArgumentException("InvalidBitrate"); try { audio.Start(); AudioStatus(true, audio.Description); } catch (Exception error) { var detail = AudioDiagnostic.Describe(error); AudioStatus(false, detail); s.Send(new() { T = "error", Error = "ServerAudioUnavailable", Detail = detail }); break; } s.Bitrate = bitrate; s.ReceiveEpoch = Interlocked.Increment(ref audioEpoch); var peer = udp?.Register(s.Id); udp?.Remove(Interlocked.Exchange(ref s.Udp, peer)); s.Send(new() { T = "audioReady", AudioAvailable = true, AudioEpoch = s.ReceiveEpoch, Bitrate = bitrate, UdpPort = peer != null ? udp!.Port : null, UdpKey = peer != null ? Convert.ToBase64String(peer.Key) : null, UdpId = peer?.Id }); s.AudioEnabled = true; }
                     else s.Send(new() { T = "audioReady", AudioAvailable = false });
                     break;
                 case "pttRequest":
@@ -225,7 +237,7 @@ public sealed class StationServer : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         if (disposed) return; disposed = true;
-        try { rig.Transmit.Stop(StopReason.Shutdown); lifetime.Cancel(); foreach (var s in sessions.Values) s.Abort(); if (monitor != null) await monitor; if (audioPlayback != null) await audioPlayback; await Task.Run(audio.Dispose); }
+        try { rig.Transmit.Stop(StopReason.Shutdown); lifetime.Cancel(); foreach (var s in sessions.Values) s.Abort(); if (monitor != null) await monitor; if (audioPlayback != null) await audioPlayback; udp?.Dispose(); await Task.Run(audio.Dispose); }
         finally { try { if (app != null) { using var timeout = new CancellationTokenSource(3000); try { await app.StopAsync(timeout.Token); } catch (OperationCanceledException) { } await app.DisposeAsync(); } } finally { try { await rig.DisposeAsync(); } finally { try { simulator?.Dispose(); } finally { Certificate.Certificate.Dispose(); } } } }
     }
     public const int MicrophoneMaxMs = 240;
@@ -241,7 +253,8 @@ public sealed class StationServer : IAsyncDisposable
         public uint? LastMicSequence; public long LastMicTimestamp;
         readonly Channel<byte[]> audioQueue = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(3) { FullMode = BoundedChannelFullMode.DropOldest });
         public void ResetTransmit() { TransmitEpoch = 0; LastMicSequence = null; LastMicTimestamp = 0; Microphone.Clear(); Decoder.Reset(); }
-        public void SendAudio(AudioPacket packet) { audioQueue.Writer.TryWrite(packet.Encode()); }
+        public UdpPeer? Udp;
+        public void SendAudio(AudioPacket packet) { if (Udp is { Active: true } peer && peer.Send(packet)) return; audioQueue.Writer.TryWrite(packet.Encode()); }
 
         public Session(WebSocket socket, DeviceRecord device, CancellationToken token) { this.socket = socket; Device = device; cancel = CancellationTokenSource.CreateLinkedTokenSource(token); }
         public void Send(Message m) { if (!queue.Writer.TryWrite(m)) Abort(); }

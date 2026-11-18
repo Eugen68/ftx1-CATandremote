@@ -114,7 +114,7 @@
   <sys:String x:Key="AudioDefault">Dispozitiv implicit de comunicații Windows</sys:String>
   <sys:String x:Key="AudioAutoUsb">Detectează automat USB Audio CODEC</sys:String>
   <sys:String x:Key="AudioBitrate">Debit Opus (biți/s): 12000 / 24000 / 32000</sys:String>
-  <sys:String x:Key="AudioQualityFormat">Opus · tampon {0}/{1} ms · cadre lipsă {2} (refăcute FEC {4}) · întârziate {3} · rafale {5} · recuperări {6}</sys:String>
+  <sys:String x:Key="AudioQualityFormat">Opus/{7} · tampon {0}/{1} ms · cadre lipsă {2} (refăcute FEC {4}) · întârziate {3} · rafale {5} · recuperări {6}</sys:String>
   <sys:String x:Key="AudioInactive">Audio inactiv</sys:String>
   <sys:String x:Key="AudioUnavailable">Audio indisponibil. Verifică dispozitivele, permisiunea microfonului și setările audio.</sys:String>
   <sys:String x:Key="AudioRequired">Activează audio și așteaptă conectarea înainte de PTT.</sys:String>
