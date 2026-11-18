@@ -129,12 +129,18 @@ public sealed class StationConnection : IAsyncDisposable
             while (!lifetime.IsCancellationRequested)
             {
                 await Task.Delay(250, lifetime.Token); if (!connected) continue;
-                try { if ((owns || pressed) && HeartbeatsEnabled) await Send(new() { T = "pttHeartbeat" }); if (Environment.TickCount64 - lastPing >= 1000) { lastPing = Environment.TickCount64; await Send(new() { T = "ping", Ts = lastPing }); } if (Stopwatch.GetElapsedTime(lastReply).TotalSeconds > 5) socket?.Abort(); }
+                try { if ((owns || pressed) && HeartbeatsEnabled) await Send(new() { T = "pttHeartbeat" }); if (Environment.TickCount64 - lastPing >= 1000) { lastPing = Environment.TickCount64; await Send(new() { T = "ping", Ts = lastPing }); } if (Silent(Stopwatch.GetElapsedTime(lastReply).TotalSeconds, udp?.Alive == true)) socket?.Abort(); }
                 catch (Exception e) when (e is IOException or WebSocketException or OperationCanceledException or ObjectDisposedException) { socket?.Abort(); }
             }
         }
         catch (OperationCanceledException) { }
     }
+    /// <summary>Since audio moved to UDP the WebSocket carries little more than a ping per second, and on a mobile
+    /// link an almost idle TCP recovers a lost segment only by retransmission timeout (seconds). While authenticated
+    /// UDP keeps arriving the server is demonstrably alive, so allow the WebSocket a longer pause before reconnecting.
+    /// PTT safety does not depend on this: the server cuts TX on missing microphone audio or heartbeats.</summary>
+    public const int SilentSeconds = 5, SilentWithUdpSeconds = 20;
+    public static bool Silent(double webSocketQuietSeconds, bool udpAlive) => webSocketQuietSeconds > (udpAlive ? SilentWithUdpSeconds : SilentSeconds);
     public async Task Ptt(bool on) { if (on && !connected) throw new IOException("Disconnected"); pressed = on; try { await Send(new() { T = "pttRequest", On = on }); } catch { pressed = false; socket?.Abort(); throw; } }
     public void Abort() => socket?.Abort();
     public async Task<Message> Request(Message m)

@@ -98,4 +98,10 @@ public class UdpTests
         await Task.Delay(1500); Assert.True(c.OwnsTransmit); Assert.Equal("1", f.Radio.State["TX"]);
         await c.Ptt(false); await StationFixture.Wait(() => f.Radio.State["TX"] == "0");
     }
+    [Fact]
+    public void AQuietWebSocketIsToleratedLongerWhileUdpProvesTheServerAlive()
+    {
+        Assert.False(StationConnection.Silent(4, false)); Assert.True(StationConnection.Silent(6, false));
+        Assert.False(StationConnection.Silent(6, true)); Assert.False(StationConnection.Silent(19, true)); Assert.True(StationConnection.Silent(21, true));
+    }
 }
