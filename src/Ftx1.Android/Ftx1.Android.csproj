@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0-android</TargetFramework><SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType><ApplicationId>ro.eugen68.ftx1remote</ApplicationId><ApplicationTitle>FTX1 Remote</ApplicationTitle>
-    <ApplicationVersion>7</ApplicationVersion><ApplicationDisplayVersion>0.4.4</ApplicationDisplayVersion>
+    <ApplicationVersion>9</ApplicationVersion><ApplicationDisplayVersion>0.5.1</ApplicationDisplayVersion>
     <AndroidPackageFormats>apk</AndroidPackageFormats><AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <AndroidLinkMode>None</AndroidLinkMode><PublishTrimmed>false</PublishTrimmed><RunAOTCompilation>false</RunAOTCompilation>
     <RuntimeIdentifiers>android-arm64;android-x64</RuntimeIdentifiers><AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>

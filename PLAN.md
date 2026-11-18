@@ -133,6 +133,33 @@ Date fixe de la proprietar:
    - UDP: HMAC invalid, epocă veche și replay ignorate; trecerea UDP ⇄ WS fără blocarea PTT.
 6. **De verificat pe telefon:** 4G+ cu IPsec, comparând numerele de calitate cu măsurătoarea de mai sus, pe UDP și pe TCP.
 
+**Stare (18.11.2026): pașii 1, 2 și 3 făcuți** pe `feat/audio-resilience` (0.5.0, PR #8).
+
+**Pasul 3, implementat. Abateri de la textul de mai sus, cu motiv:**
+- **Criptare.** S-a folosit AES-256-GCM (`UdpCipher`) în loc de doar HMAC: autentifică **și** criptează. Accesul LAN pe Wi-Fi nu are tunel care să cripteze sunetul.
+  - Nonce = direcție + contor, deci o cheie comună pentru ambele sensuri, fără reutilizare.
+  - Fereastră anti-replay de 64 de pachete.
+  - Antetul (versiune, id, contor) e autentificat.
+- **Timpi mai scurți decât în plan.** Keepalive și hello la 250 ms. Clientul consideră UDP viu dacă a primit ceva în ultimele 700 ms; serverul trimite RX pe UDP doar dacă clientul a confirmat recepția în ultima secundă.
+  - Motiv: un drum UDP mort trebuie detectat **înainte** de limita de 1 s a regulii 3 (`LostAudio`), ca microfonul să treacă pe WebSocket fără să cadă emisia. Testul `LosingUdpMidTransmission…` verifică exact asta.
+- **Port.** Implicit portul HTTPS + 1 (8444). Dacă portul e ocupat sau AES-GCM lipsește, serverul rămâne doar pe WebSocket, fără eroare.
+- **Compatibilitate.** Câmpurile noi `audioReady.udpPort/udpKey/udpId` sunt opționale, deci `protocolVersion` rămâne 2. Clienții vechi ignoră UDP.
+- Pachetele neautentificate nu primesc niciodată răspuns: fără amplificare și fără sondare. Adresa clientului se învață doar din pachete valide, așa că trecerea Wi-Fi → 4G merge.
+- **De verificat pe stație:** Windows Firewall trebuie să permită **UDP 8444** pentru `FTX1-Server` (și subrețeaua VPN, de exemplu `10.8.0.0/24` la OpenVPN). Altfel aplicația rămâne pe TCP; indicatorul arată „Opus/TCP”.
+- `JitterBuffer`:
+  - ținta urmărește jitter-ul și blocajele din ultimele 10 s (60–400 ms);
+  - la golire fără cadre noi (blocaj) se face PLC **fără a consuma secvența**, deci rafala se redă în loc să fie „întârziată”;
+  - un cadru lipsă cu cadre mai noi deja sosite se reface din FEC.
+- `AudioPlayout` (nou, folosit de client și de server): decodare, FEC, PLC, recuperare prin sărirea cadrelor liniștite sau redare cu ~5% mai rapidă.
+- Emisie: plafonul tamponului de microfon pe server este **240 ms**, nu 400. Sunetul rămas în tampon la eliberarea PTT se taie, deci un plafon mic limitează sfârșitul de cuvânt pierdut. Regula 3 rămâne pe sosirea pachetelor.
+- **Criteriul de la punctul 5, ajustat după măsurare.** Profilul de test are blocaje de 200–500 ms la ~3 s, adică mai lungi decât plafonul de 400 ms. Rezultate față de comportamentul 0.4.4 (plafon 120 ms):
+  - cadre întârziate sau aruncate: 258 → 55 (−79%), dintre care întârziate: 0;
+  - goluri audibile: 159 → 38;
+  - total întreruperi audibile: −78%;
+  - întârziere medie: ~370 ms.
+  
+  Criteriul din test este ≥ 75%. Pe acest profil, 80% nu se poate atinge fără plafon mai mare de 400 ms (deci mai multă întârziere). O încercare de a crește tamponul prin încetinire nu a adus câștig net și a fost abandonată.
+
 **Rețea (fără cod), ASUS GT-AC2900:**
 - MSS clamping pentru traficul din tunelul IPsec. Firmware-ul stock nu are opțiune în interfață. Cu Asuswrt-Merlin: script `firewall-start` cu `iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1350`.
 - Alternativă: Tailscale (§1), care folosește MTU 1280 și evită problema.
