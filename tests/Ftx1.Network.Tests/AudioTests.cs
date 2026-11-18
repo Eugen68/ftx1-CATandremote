@@ -52,14 +52,14 @@ public class AudioTests
     [Fact]
     public void JitterWaitsThenPlaysInOrderAndDiscardsLateFrames()
     {
-        long now = 1; var buffer = new JitterBuffer(() => now); buffer.Push(new(0, 0, [10])); now = 21; buffer.Push(new(1, 20, [11])); now = 41; buffer.Push(new(2, 40, [12])); Assert.Null(buffer.Pull()); now = 61; Assert.Equal(new byte[] { 10 }, buffer.Pull()); Assert.Equal(new byte[] { 11 }, buffer.Pull()); buffer.Push(new(0, 0, [99])); Assert.Equal(1, buffer.Quality.Late); Assert.Equal(new byte[] { 12 }, buffer.Pull()); Assert.Empty(buffer.Pull()!); Assert.Equal(1, buffer.Quality.Lost);
+        long now = 1; var buffer = new JitterBuffer(() => now); buffer.Push(new(0, 0, [10])); now = 21; buffer.Push(new(1, 20, [11])); now = 41; buffer.Push(new(2, 40, [12])); Assert.Null(buffer.Pull()); now = 61; Assert.Equal(new byte[] { 10 }, buffer.Pull()!.Value.Payload); Assert.Equal(new byte[] { 11 }, buffer.Pull()!.Value.Payload); buffer.Push(new(0, 0, [99])); Assert.Equal(1, buffer.Quality.Late); Assert.Equal(new byte[] { 12 }, buffer.Pull()!.Value.Payload); Assert.True(buffer.Pull()!.Value.Missing); Assert.Equal(1, buffer.Quality.Lost);
     }
     [Fact]
-    public void JitterHandlesLossAndBurstWithoutGrowingLatency()
+    public void JitterHandlesLossAndBurstWithoutGrowingLatencyPastTheCeiling()
     {
         long now = 1; var buffer = new JitterBuffer(() => now);
-        for (uint i = 0; i < 100; i++) { now += i % 5 == 0 ? 80 : 1; if (i % 7 != 0) buffer.Push(new(i, i * 20, [(byte)i])); Assert.InRange(buffer.Quality.BufferedMs, 0, 120); Assert.InRange(buffer.Quality.TargetMs, 60, 120); }
-        Assert.True(buffer.Quality.Late > 0); now += 200; var packet = buffer.Pull(); Assert.NotNull(packet); Assert.True(packet![0] >= 94); buffer.Clear(); Assert.Null(buffer.Pull());
+        for (uint i = 0; i < 100; i++) { now += i % 5 == 0 ? 80 : 1; if (i % 7 != 0) buffer.Push(new(i, i * 20, [(byte)i])); Assert.InRange(buffer.Quality.BufferedMs, 0, JitterBuffer.DefaultMaxMs); Assert.InRange(buffer.Quality.TargetMs, JitterBuffer.MinMs, JitterBuffer.DefaultMaxMs); }
+        Assert.True(buffer.Quality.Dropped > 0); now += 500; var packet = buffer.Pull(); Assert.NotNull(packet); Assert.True(packet!.Value.Payload[0] >= 80); buffer.Clear(); Assert.Null(buffer.Pull());
     }
     [Fact]
     public void AudioDeadlineDoesNotDependOnControlHeartbeatOrInvalidSender()

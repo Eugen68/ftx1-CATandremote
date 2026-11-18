@@ -1,15 +1,38 @@
 namespace Ftx1.Audio;
 
 public sealed record BufferedAudio(uint Sequence, long Timestamp, byte[] Payload);
-public sealed record AudioQuality(int TargetMs, int BufferedMs, long Lost, long Late, double JitterMs);
-/// <summary>Bounded, monotonic 20 ms playout. Late frames never extend the queue.</summary>
+/// <summary>Next frame to decode. Empty payload = lost (conceal); <see cref="Fec"/> = payload is the FOLLOWING packet, decode its FEC.</summary>
+public readonly record struct PlayoutFrame(byte[] Payload, bool Fec) { public bool Missing => Payload.Length == 0; }
+public sealed record AudioQuality(int TargetMs, int BufferedMs, long Lost, long Late, double JitterMs, long Recovered = 0, long Bursts = 0, long Dropped = 0, long Skipped = 0);
+
+/// <summary>Adaptive 20 ms playout. The target follows jitter AND recent stalls (TCP head-of-line on mobile links:
+/// nothing for 200–500 ms, then a burst). A burst is kept up to <c>maxMs</c> instead of being thrown away;
+/// the caller catches up gently using <see cref="ExcessMs"/>.</summary>
 public sealed class JitterBuffer
 {
-    readonly object gate = new(); readonly SortedDictionary<uint, BufferedAudio> frames = []; readonly Func<long> now;
-    uint next; bool playing, initialized; long firstArrival, previousArrival, previousTimestamp, lost, late; double jitter;
-    public JitterBuffer(Func<long>? clock = null) => now = clock ?? (() => Environment.TickCount64);
-    int Target => Math.Clamp((int)Math.Ceiling((60 + 4 * jitter) / 20) * 20, 60, 120);
-    public AudioQuality Quality { get { lock (gate) return new(Target, frames.Count * 20, lost, late, jitter); } }
+    public const int FrameMs = 20, MinMs = 60, DefaultMaxMs = 400, StallMs = 60, MemoryMs = 10_000;
+    readonly object gate = new(); readonly SortedDictionary<uint, BufferedAudio> frames = []; readonly Func<long> now; readonly int maxMs;
+    readonly Queue<(long At, int Ms)> stalls = new();
+    uint next; bool playing, initialized; long firstArrival, previousArrival, previousTimestamp, lost, late, recovered, bursts, dropped; double jitter;
+    public JitterBuffer(Func<long>? clock = null, int maxMs = DefaultMaxMs)
+    {
+        if (maxMs < MinMs) throw new ArgumentOutOfRangeException(nameof(maxMs));
+        now = clock ?? (() => Environment.TickCount64); this.maxMs = maxMs;
+    }
+    public int MaxMs => maxMs;
+    int Target
+    {
+        get
+        {
+            long t = now(); while (stalls.Count > 0 && t - stalls.Peek().At > MemoryMs) stalls.Dequeue();
+            int stall = 0; foreach (var s in stalls) stall = Math.Max(stall, s.Ms);
+            double wanted = Math.Max(MinMs + 4 * jitter, stall + FrameMs);
+            return Math.Clamp((int)Math.Ceiling(wanted / FrameMs) * FrameMs, MinMs, maxMs);
+        }
+    }
+    public AudioQuality Quality { get { lock (gate) return new(Target, frames.Count * FrameMs, lost, late, jitter, recovered, bursts, dropped); } }
+    /// <summary>How far the buffer runs ahead of its target, in ms (≤ 0 when not playing).</summary>
+    public int ExcessMs { get { lock (gate) return playing ? frames.Count * FrameMs - Target : 0; } }
     public void Push(BufferedAudio frame)
     {
         lock (gate)
@@ -18,24 +41,44 @@ public sealed class JitterBuffer
             if (initialized && frame.Sequence < next) { late++; return; }
             if (frames.ContainsKey(frame.Sequence)) return;
             if (!initialized) { initialized = true; next = frame.Sequence; firstArrival = arrival; }
-            if (previousArrival != 0) jitter += (Math.Abs((arrival - previousArrival) - (frame.Timestamp - previousTimestamp)) - jitter) / 16;
+            if (previousArrival != 0)
+            {
+                long expected = frame.Timestamp - previousTimestamp, actual = arrival - previousArrival;
+                if (expected > 0 && actual - expected > StallMs) { stalls.Enqueue((arrival, (int)Math.Min(actual - expected, maxMs))); bursts++; }
+                jitter += (Math.Abs(actual - expected) - jitter) / 16;
+            }
             previousArrival = arrival; previousTimestamp = frame.Timestamp;
             frames[frame.Sequence] = frame;
-            // TCP head-of-line recovery can deliver an old burst: keep at most 120 ms, skip the backlog.
-            while (frames.Count > 6 || (frames.Count > 1 && frames.Keys.Last() - frames.Keys.First() >= 6)) { frames.Remove(frames.Keys.First()); late++; next = frames.Keys.First(); }
+            // Bounded latency: never hold more than maxMs; the oldest frames go first.
+            uint last = frames.Keys.Last(), window = (uint)(maxMs / FrameMs);
+            if (last - next >= window)
+            {
+                uint first = last - window + 1;
+                foreach (var key in frames.Keys.Where(k => k < first).ToList()) { frames.Remove(key); dropped++; }
+                next = first;
+            }
         }
     }
-    public byte[]? Pull()
+    public PlayoutFrame? Pull()
     {
         lock (gate)
         {
             if (!initialized) return null;
             if (!playing) { if (now() - firstArrival < Target) return null; playing = true; }
-            if (frames.Remove(next++, out var frame)) return frame.Payload;
+            if (frames.Remove(next, out var frame)) { next++; return new(frame.Payload, false); }
             lost++;
-            if (frames.Count == 0 && now() - previousArrival > 240) { initialized = playing = false; }
-            return [];
+            if (frames.Count == 0)
+            {
+                // Underrun with nothing newer known: a stall, not a loss (TCP delivers it later, in a burst).
+                // Conceal WITHOUT consuming the sequence, so the burst is played instead of arriving "late";
+                // the extra delay is removed afterwards by AudioPlayout's catch-up.
+                if (now() - previousArrival > Math.Max(240, maxMs)) initialized = playing = false;
+                return new([], false);
+            }
+            next++; // a newer frame exists: this one is really lost
+            if (frames.TryGetValue(next, out var following)) { recovered++; return new(following.Payload, true); }
+            return new([], false);
         }
     }
-    public void Clear() { lock (gate) { frames.Clear(); initialized = playing = false; previousArrival = previousTimestamp = 0; jitter = 0; } }
+    public void Clear() { lock (gate) { frames.Clear(); stalls.Clear(); initialized = playing = false; previousArrival = previousTimestamp = 0; jitter = 0; } }
 }

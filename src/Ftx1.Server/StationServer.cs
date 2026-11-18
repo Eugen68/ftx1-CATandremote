@@ -18,7 +18,7 @@ namespace Ftx1.Server;
 public sealed record ServerOptions(string Root, StationConfig Station, int Port = 8443, IPAddress[]? Addresses = null, bool AllowOtherInterfaces = false, double SwrLimit = 3, string? AudioInput = null, string? AudioOutput = null, IPAddress? PairingAddress = null);
 public sealed class StationServer : IAsyncDisposable
 {
-    public const string Version = "0.4.2";
+    public const string Version = "0.5.0";
     readonly StationAudio audio; long audioEpoch;
     readonly ServerOptions options; readonly Rig rig; readonly IDisposable? simulator;
     readonly CancellationTokenSource lifetime = new(); readonly ConcurrentDictionary<string, Session> sessions = new(); readonly AttemptLimiter limiter = new();
@@ -206,7 +206,7 @@ public sealed class StationServer : IAsyncDisposable
     async Task PlayMicrophone()
     {
         using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(20));
-        try { while (await timer.WaitForNextTickAsync(lifetime.Token)) { var owner = rig.Transmit.Owner; if (owner != null && sessions.TryGetValue(owner, out var s)) rig.Transmit.WithOwner(owner, () => { if (s.Microphone.Pull() is { } payload) { try { audio.Play(s.Playout.Decode(payload)); } catch { rig.Transmit.Stop(StopReason.Failure); } } }); } }
+        try { while (await timer.WaitForNextTickAsync(lifetime.Token)) { var owner = rig.Transmit.Owner; if (owner != null && sessions.TryGetValue(owner, out var s)) rig.Transmit.WithOwner(owner, () => { try { if (s.Microphone.Next() is { } pcm) audio.Play(pcm); } catch { rig.Transmit.Stop(StopReason.Failure); } }); } }
         catch (OperationCanceledException) { }
     }
     async Task Monitor()
@@ -228,16 +228,19 @@ public sealed class StationServer : IAsyncDisposable
         try { rig.Transmit.Stop(StopReason.Shutdown); lifetime.Cancel(); foreach (var s in sessions.Values) s.Abort(); if (monitor != null) await monitor; if (audioPlayback != null) await audioPlayback; await Task.Run(audio.Dispose); }
         finally { try { if (app != null) { using var timeout = new CancellationTokenSource(3000); try { await app.StopAsync(timeout.Token); } catch (OperationCanceledException) { } await app.DisposeAsync(); } } finally { try { await rig.DisposeAsync(); } finally { try { simulator?.Dispose(); } finally { Certificate.Certificate.Dispose(); } } } }
     }
+    public const int MicrophoneMaxMs = 240;
     sealed class Session
     {
         readonly WebSocket socket; readonly CancellationTokenSource cancel; readonly Channel<Message> queue = Channel.CreateBounded<Message>(256); readonly ConcurrentDictionary<Task, byte> tasks = []; int aborted;
         public string Id { get; } = Guid.NewGuid().ToString("N"); public DeviceRecord Device { get; }
         public IDisposable? Lease;
         public volatile bool AudioEnabled; public int Bitrate = 24000; public long ReceiveEpoch, TransmitEpoch;
-        public readonly VoiceCodec Decoder = new(), Playout = new(); public readonly JitterBuffer Microphone = new();
+        public readonly VoiceCodec Decoder = new();
+        // Transmit side keeps a smaller ceiling: audio still buffered at PTT release is cut, never sent after TX0.
+        public readonly AudioPlayout Microphone = new(new JitterBuffer(maxMs: MicrophoneMaxMs), new VoiceCodec());
         public uint? LastMicSequence; public long LastMicTimestamp;
         readonly Channel<byte[]> audioQueue = Channel.CreateBounded<byte[]>(new BoundedChannelOptions(3) { FullMode = BoundedChannelFullMode.DropOldest });
-        public void ResetTransmit() { TransmitEpoch = 0; LastMicSequence = null; LastMicTimestamp = 0; Microphone.Clear(); Decoder.Reset(); Playout.Reset(); }
+        public void ResetTransmit() { TransmitEpoch = 0; LastMicSequence = null; LastMicTimestamp = 0; Microphone.Clear(); Decoder.Reset(); }
         public void SendAudio(AudioPacket packet) { audioQueue.Writer.TryWrite(packet.Encode()); }
 
         public Session(WebSocket socket, DeviceRecord device, CancellationToken token) { this.socket = socket; Device = device; cancel = CancellationTokenSource.CreateLinkedTokenSource(token); }

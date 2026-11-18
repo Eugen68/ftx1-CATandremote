@@ -6,9 +6,9 @@ namespace Ftx1.Client;
 public sealed class ClientAudio : IAsyncDisposable
 {
     readonly object gate = new(); readonly StationConnection connection; readonly IVoiceDevice device;
-    readonly VoiceCodec encoder, decoder = new(); readonly JitterBuffer jitter = new(); readonly CancellationTokenSource cancel = new();
+    readonly VoiceCodec encoder; readonly AudioPlayout playout = new(new JitterBuffer(), new VoiceCodec()); readonly CancellationTokenSource cancel = new();
     Task? playback; uint sequence; long receiveEpoch, transmitEpoch; bool disposed; readonly int bitrate;
-    public AudioQuality Quality => jitter.Quality;
+    public AudioQuality Quality => playout.Quality;
     public bool Ready { get; private set; }
     public event Action<string>? Error;
     public event Action<Exception>? Failed;
@@ -19,15 +19,15 @@ public sealed class ClientAudio : IAsyncDisposable
         device.Captured += Capture; device.Failed += DeviceFailed;
     }
     public void Start() { device.Start(); playback = Task.Run(Play); if (connection.Connected) Connected(true); }
-    void Connected(bool connected) { lock (gate) { Ready = false; receiveEpoch = transmitEpoch = 0; jitter.Clear(); decoder.Reset(); encoder.Reset(); device.Clear(); } if (connected) _ = Configure(); }
+    void Connected(bool connected) { lock (gate) { Ready = false; receiveEpoch = transmitEpoch = 0; playout.Clear(); encoder.Reset(); device.Clear(); } if (connected) _ = Configure(); }
     async Task Configure() { try { await connection.Send(new() { T = "audioConfig", On = true, Bitrate = bitrate }); } catch (Exception) { Error?.Invoke("AudioUnavailable"); } }
     void Message(Message message)
     {
         lock (gate)
         {
             if (disposed) return;
-            if (message.T == "audioReady") { receiveEpoch = message.AudioEpoch ?? 0; Ready = message.AudioAvailable == true; jitter.Clear(); decoder.Reset(); }
-            if (message.T == "pttState") { long epoch = message.You == true ? message.AudioEpoch ?? 0 : 0; if (epoch != transmitEpoch) { transmitEpoch = epoch; encoder.Reset(); sequence = 0; jitter.Clear(); device.Clear(); } }
+            if (message.T == "audioReady") { receiveEpoch = message.AudioEpoch ?? 0; Ready = message.AudioAvailable == true; playout.Clear(); }
+            if (message.T == "pttState") { long epoch = message.You == true ? message.AudioEpoch ?? 0 : 0; if (epoch != transmitEpoch) { transmitEpoch = epoch; encoder.Reset(); sequence = 0; playout.Clear(); device.Clear(); } }
         }
     }
     void Capture(short[] pcm)
@@ -41,12 +41,12 @@ public sealed class ClientAudio : IAsyncDisposable
     }
     void Receive(AudioPacket packet)
     {
-        lock (gate) { if (!disposed && Ready && packet.Type == ProtocolVersion.Audio && packet.Epoch == receiveEpoch) jitter.Push(new(packet.Sequence, packet.Timestamp, packet.Payload)); }
+        lock (gate) { if (!disposed && Ready && packet.Type == ProtocolVersion.Audio && packet.Epoch == receiveEpoch) playout.Push(new(packet.Sequence, packet.Timestamp, packet.Payload)); }
     }
     async Task Play()
     {
         using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(20));
-        try { while (await timer.WaitForNextTickAsync(cancel.Token)) { lock (gate) { if (disposed || !Ready) continue; var packet = jitter.Pull(); if (packet != null) device.Play(decoder.Decode(packet)); } } }
+        try { while (await timer.WaitForNextTickAsync(cancel.Token)) { lock (gate) { if (disposed || !Ready) continue; if (playout.Next() is { } pcm) device.Play(pcm); } } }
         catch (OperationCanceledException) { }
         catch (Exception e) { DeviceFailed(e); }
     }
