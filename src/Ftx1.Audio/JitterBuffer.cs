@@ -7,10 +7,11 @@ public sealed record AudioQuality(int TargetMs, int BufferedMs, long Lost, long 
 
 /// <summary>Adaptive 20 ms playout. The target follows jitter AND recent stalls (TCP head-of-line on mobile links:
 /// nothing for 200–500 ms, then a burst). A burst is kept up to <c>maxMs</c> instead of being thrown away;
-/// the caller catches up gently using <see cref="ExcessMs"/>.</summary>
+/// the caller catches up gently using <see cref="ExcessMs"/>. Stalls are remembered for a minute: on 4G they recur
+/// every ~30 s, and a shorter memory let the target fall back between them, so each new stall became an audible gap.</summary>
 public sealed class JitterBuffer
 {
-    public const int FrameMs = 20, MinMs = 60, DefaultMaxMs = 400, StallMs = 60, MemoryMs = 10_000;
+    public const int FrameMs = 20, MinMs = 60, DefaultMaxMs = 400, StallMs = 60, MemoryMs = 60_000;
     readonly object gate = new(); readonly SortedDictionary<uint, BufferedAudio> frames = []; readonly Func<long> now; readonly int maxMs;
     readonly Queue<(long At, int Ms)> stalls = new();
     uint next; bool playing, initialized; long firstArrival, previousArrival, previousTimestamp, lost, late, recovered, bursts, dropped; double jitter;

@@ -18,7 +18,7 @@ namespace Ftx1.Server;
 public sealed record ServerOptions(string Root, StationConfig Station, int Port = 8443, IPAddress[]? Addresses = null, bool AllowOtherInterfaces = false, double SwrLimit = 3, string? AudioInput = null, string? AudioOutput = null, IPAddress? PairingAddress = null, bool EnableUdp = true, int UdpPort = 0);
 public sealed class StationServer : IAsyncDisposable
 {
-    public const string Version = "0.5.0";
+    public const string Version = "0.5.1";
     readonly StationAudio audio; long audioEpoch;
     readonly ServerOptions options; readonly Rig rig; readonly IDisposable? simulator;
     readonly CancellationTokenSource lifetime = new(); readonly ConcurrentDictionary<string, Session> sessions = new(); readonly AttemptLimiter limiter = new();
