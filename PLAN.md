@@ -81,6 +81,87 @@ Date fixe de la proprietar:
 - Proprietarul confirmă că după mai multe încercări aplicația se închidea; citirea ImageReader este acum protejată și la închiderea camerei. Focalizarea și încadrarea pe telefonul fizic rămân de verificat la proprietar.
 - APK nou 0.4.3, compatibil cu serverul Windows 0.4.2; fără modificări CAT/PTT sau resetarea asocierilor.
 
+## Android: difuzor, volum și PTT tactil (15.11.2026)
+
+- Proprietarul confirmă asociere și RX audio, dar sunet slab și PTT care nu funcționează din buton. Cere buton pentru difuzorul telefonului.
+- Se introduce alegere explicită difuzor/automat, afișarea rutei reale și volum telefon pe fluxul VoiceCall folosit de AudioTrack, inclusiv tastele fizice. Nu modificăm automat nivelul AF al stației sau volumul sistemului la maxim.
+- PTT folosește evenimente pointer în faza tunnel, cu captură și eliberare la ridicare/pierderea capturii/detașare; se testează atingerea efectivă a controlului, nu numai metoda Press.
+- Schimbarea rutei eliberează PTT; nu există reluare automată a emisiei. Politica de focus/rețea/serviciu rămâne obligatorie.
+- APK 0.4.4 după teste UI, Windows/Linux și emulator cu atingere ADB, rută difuzor și volum. Hardware-ul stației și nivelul acustic real rămân de verificat la proprietar.
+
+## Confirmat de proprietar și cereri noi (18.11.2026)
+
+- **Confirmat:** emisia de pe telefon (SM-S908B) funcționează cap-coadă, inclusiv modulația. Cauza lipsei de modulație a fost o setare pe stație/PC, nu codul. Jurnalul `transmit.jsonl` a arătat emisii de 2–3 s terminate cu `Released`, deci audio de la microfon ajungea la server.
+- Cererile de mai jos sunt **doar trecute în plan**. Se implementează numai la cererea explicită a proprietarului.
+
+### ★ PRIORITATE: întreruperi audio pe 4G (se face înaintea punctelor A și B)
+**Măsurătoare (proprietar, 18.11.2026):**
+- Android pe 4G+, prin VPN IPsec telefon ↔ router ASUS GT-AC2900 (nu Tailscale).
+- În timpul întreruperilor: tampon 100–120 ms / țintă 100, **lipsă 78**, **întârziate 123**.
+
+**Diagnostic:**
+- Blocare TCP de tip head-of-line: TCP se oprește până la retransmiterea pachetului pierdut, tamponul se golește („lipsă”), apoi rafala sosită e aruncată de plafonul de 120 ms („întârziate”).
+- Măsurătoarea îndeplinește condiția din Etapa 3 pentru canalul UDP.
+
+**Branch nou `feat/audio-resilience`, bazat pe `feat/stage4-speaker-ptt`, versiunea 0.5.0. Pașii, în ordine:**
+
+1. **Tampon adaptiv (`JitterBuffer`), în ambele sensuri.**
+   - Ținta se calculează din jitter **și** din istoricul rafalelor: durata ultimelor goluri, pe o fereastră de ~10 s.
+   - Plafon 400 ms; minimul rămâne 60 ms. Ținta scade lent (de exemplu 20 ms la 5 s fără rafale).
+   - Cadrele întârziate se păstrează cât încap sub plafon; nu se mai aruncă rafala întreagă.
+   - Când tamponul depășește ținta cu ≥ 60 ms, recuperarea se face fără salturi audibile: întâi se elimină cadrele de liniște sau cu energie mică, apoi, dacă nu ajunge, redare accelerată ~5% (rescalare simplă pe cadre de 20 ms).
+   - Linia de calitate afișează și „întârziere estimată” și numărul de rafale.
+2. **Opus FEC + PLC.**
+   - Encoder: `UseInbandFEC = true`, `PacketLossPercent` ≈ 10 (ajustabil după pierderi).
+   - La un cadru lipsă, dacă următorul e deja în tampon ⇒ decodare FEC din următorul; altfel PLC (decodare fără pachet), nu liniște.
+   - Se verifică dacă `Decode([])` din Concentus face deja PLC; dacă nu, se corectează.
+3. **Canal audio UDP**, cu WebSocket ca rezervă.
+   - Serverul ascultă UDP pe aceleași interfețe permise ca HTTPS (§1, inclusiv opțiunea LAN), port configurabil (implicit 8444).
+   - La `audioReady`, serverul trimite pe WebSocket/TLS portul UDP și o cheie de sesiune aleatoare de 256 de biți.
+   - Clientul trimite pachete `udpHello` autentificate (HMAC-SHA256 pe cheia sesiunii) până primește confirmare. Serverul învață adresa clientului doar din pachete cu HMAC valid.
+   - Pachet: tip, epocă, secvență, timestamp, payload Opus și HMAC trunchiat (16 octeți). Pachetele cu HMAC invalid, epocă greșită sau secvență repetată se ignoră fără răspuns.
+   - Keepalive la 5 s, ca NAT-ul și tunelul IPsec să nu închidă legătura.
+   - Dacă nu vine niciun pachet UDP valid 2 s ⇒ trecere automată pe WebSocket, cu reîncercare UDP periodică. Indicatorul de calitate arată „UDP” sau „TCP”.
+   - Comenzile, starea și PTT-ul (`pttRequest`, heartbeat) rămân pe WebSocket/TLS.
+4. **Siguranța la emisie (§2) rămâne neslăbită.**
+   - Regula 3 („fără audio 1 s ⇒ `TX0`”) se calculează pe **sosirea** pachetelor valide de microfon la server, indiferent de canal (UDP sau WS), nu pe redare. Tamponul mai mare nu întârzie oprirea.
+   - La eliberarea PTT, tamponul de emisie se golește imediat; sunetul rămas în tampon nu se mai trimite spre stație după `TX0`.
+   - Testele existente pentru heartbeat, deconectare și lipsă audio trec neschimbate, plus aceleași teste pe UDP.
+5. **Teste.**
+   - Simulator de rețea în teste: întârziere, jitter, pierderi, **blocaje TCP de 200–500 ms urmate de rafale**.
+   - Criteriu: la profilul „4G cu blocaje”, cadrele aruncate scad cu ≥ 80% față de 0.4.4, iar întârzierea medie ≤ 400 ms.
+   - UDP: HMAC invalid, epocă veche și replay ignorate; trecerea UDP ⇄ WS fără blocarea PTT.
+6. **De verificat pe telefon:** 4G+ cu IPsec, comparând numerele de calitate cu măsurătoarea de mai sus, pe UDP și pe TCP.
+
+**Rețea (fără cod), ASUS GT-AC2900:**
+- MSS clamping pentru traficul din tunelul IPsec. Firmware-ul stock nu are opțiune în interfață. Cu Asuswrt-Merlin: script `firewall-start` cu `iptables -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --set-mss 1350`.
+- Alternativă: Tailscale (§1), care folosește MTU 1280 și evită problema.
+
+### A. PTT pe tasta de volum (Android)
+Butonul Power nu poate fi folosit: Android nu livrează `KEYCODE_POWER` aplicațiilor. Se folosește tasta de volum.
+1. **Pasul 1: aplicația în prim-plan.**
+   - Opțiune în Setări, **dezactivată implicit**: „PTT pe tasta de volum”, cu alegerea Volum− sau Volum+.
+   - `KeyDown` (fără repetări) = cerere PTT, `KeyUp` = eliberare. Tasta aleasă nu mai reglează volumul. Cealaltă tastă păstrează reglajul de volum din 0.4.4.
+   - Cât opțiunea e activă și clientul e conectat, ecranul rămâne aprins (`FLAG_KEEP_SCREEN_ON`), cu luminozitate redusă.
+   - Pierderea focusului ferestrei, `onPause`, ecranul stins și deconectarea ⇒ eliberare PTT (regula 4 din §2).
+2. **Pasul 2: ecran stins, experimental.**
+   - `AccessibilityService` cu `FLAG_REQUEST_FILTER_KEY_EVENTS`, activat manual de proprietar din Setări → Accesibilitate.
+   - Se păstrează doar dacă pe S22 (SM-S908B) primește apăsarea și eliberarea tastei cu ecranul stins. Dacă nu, se renunță și se rămâne la Pasul 1.
+   - **Protecție de buzunar:** cu ecranul stins, PTT pe volum este refuzat cât timp senzorul de proximitate e acoperit. Acoperirea senzorului în timpul emisiei ⇒ eliberare PTT.
+   - Varianta `MediaSession`/`VolumeProvider` se respinge: nu raportează eliberarea tastei, deci nu poate face PTT „cât ții apăsat”.
+3. Rămân neschimbate: PTT doar cât ții apăsat, fără PTT blocat; `MaxTxSeconds`; oprirea la lipsa audio (regula 3 din §2); heartbeat.
+4. **Teste:**
+   - pe ViewModel: down/up, repetările ignorate, focus pierdut, proximitate acoperită;
+   - pe emulator: `adb shell input keyevent`;
+   - de verificat pe telefon: ecran stins pe S22, buzunar.
+5. Ulterior, opțional: buton PTT Bluetooth (BLE) sau butonul căștii, după ce proprietarul alege un model.
+
+### B. Sliderul AF (volumul difuzorului stației) mutat din ecranul principal
+- La operarea de la distanță, AF reglează doar difuzorul stației. Nu influențează sunetul primit prin USB (acela depinde de `…_USB_OUT_LEVEL`) și încurcă pe ecranul principal.
+- **Desktop:** sliderul AF se scoate din `MainWindow` și se mută în fereastra „Setări stație” (lângă consola CAT).
+- **Android:** sliderul AF se scoate din ecranul principal și se mută în ecranul Setări. Volumul telefonului rămâne pe ecranul principal.
+- Valoarea și legătura (`Af`, comanda `AG`) rămân aceleași; se mută doar controlul. Teste UI actualizate.
+
 ## 0. Reguli de lucru
 
 1. **O etapă = un branch + un pull request.** Nu lucra direct pe `main`. CI verde e obligatoriu.

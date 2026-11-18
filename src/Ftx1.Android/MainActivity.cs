@@ -14,7 +14,7 @@ public class MainActivity : AvaloniaMainActivity
     public static MainActivity? Current { get; private set; }
     TaskCompletionSource<bool>? permissions;
     protected override AppBuilder CreateAppBuilder() { MobilePlatform.Initialize = MobileRuntime.Initialize; return AppBuilder.Configure<MobileApp>().UseAndroid(); }
-    protected override void OnCreate(Bundle? state) { Current = this; global::Android.Util.Log.Info("FTX1Smoke", "Activity starting"); base.OnCreate(state); global::Android.Util.Log.Info("FTX1Smoke", "Activity ready");
+    protected override void OnCreate(Bundle? state) { Current = this; global::Android.Util.Log.Info("FTX1Smoke", "Activity starting"); base.OnCreate(state); VolumeControlStream = global::Android.Media.Stream.VoiceCall; global::Android.Util.Log.Info("FTX1Smoke", "Activity ready");
 #if ANDROID_SMOKE
         if (Intent?.GetStringExtra("smokeConfig") is { } config) _ = AndroidSmoke.Run(this, config);
 #endif
@@ -22,6 +22,14 @@ public class MainActivity : AvaloniaMainActivity
     protected override void OnResume() { Current = this; base.OnResume(); MobileRuntime.Handle(MobileEvent.Resume); }
     protected override void OnPause() { MobileRuntime.Handle(MobileEvent.Pause); base.OnPause(); }
     protected override void OnDestroy() { if (MobileRuntime.Initialized) MobileRuntime.Model.EndPtt(); if (ReferenceEquals(Current, this)) Current = null; permissions?.TrySetResult(false); base.OnDestroy(); }
+#if ANDROID_SMOKE
+    public override bool DispatchTouchEvent(global::Android.Views.MotionEvent? e)
+    {
+        if (e != null && e.ActionMasked is global::Android.Views.MotionEventActions.Down or global::Android.Views.MotionEventActions.Up)
+            global::Android.Util.Log.Info("FTX1Smoke", $"RAW_TOUCH {e.ActionMasked} {e.RawX} {e.RawY}");
+        return base.DispatchTouchEvent(e);
+    }
+#endif
     public async Task<bool> EnsureAudioPermissions()
     {
         var required = new List<string> { global::Android.Manifest.Permission.RecordAudio };

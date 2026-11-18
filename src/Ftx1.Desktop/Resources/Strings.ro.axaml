@@ -168,4 +168,14 @@
   <sys:String x:Key="MobileQrUse">Folosește codul</sys:String>
   <sys:String x:Key="MobileQrRecognized">Cod recunoscut pentru {0}. Apasă Folosește codul.</sys:String>
   <sys:String x:Key="MobileCameraUnavailable">Camera nu poate fi pornită. Închide alte aplicații care o folosesc și reîncearcă.</sys:String>
+  <sys:String x:Key="MobileSpeakerSelected">Difuzor telefon selectat · apasă pentru automat</sys:String>
+  <sys:String x:Key="MobileSpeakerChoose">Folosește difuzorul telefonului</sys:String>
+  <sys:String x:Key="MobilePhoneVolume">Volum telefon (independent de AF-ul stației)</sys:String>
+  <sys:String x:Key="MobileRouteSpeaker">Ieșire: difuzor telefon</sys:String>
+  <sys:String x:Key="MobileRouteEarpiece">Ieșire: casca pentru convorbiri</sys:String>
+  <sys:String x:Key="MobileRouteHeadset">Ieșire: căști</sys:String>
+  <sys:String x:Key="MobileRouteBluetooth">Ieșire: Bluetooth</sys:String>
+  <sys:String x:Key="MobileRouteAutomatic">Ieșire: automată</sys:String>
+  <sys:String x:Key="MobileRouteDisconnected">Ieșirea audio va fi activată la conectare.</sys:String>
+  <sys:String x:Key="MobileRouteFailed">Nu s-a putut selecta ieșirea audio. Verifică dispozitivele și permisiunile.</sys:String>
 </ResourceDictionary>

@@ -19,8 +19,14 @@
 <StackPanel Orientation="Horizontal" Spacing="8"><ComboBox Width="120" ItemsSource="{Binding Modes}" SelectedItem="{Binding Mode}"/><ComboBox Width="150" ItemsSource="{Binding Bands}" SelectedIndex="{Binding SelectedBand}"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox></StackPanel>
 <TextBlock Text="{Binding Meter}" FontSize="18" Foreground="#69DDCB" TextWrapping="Wrap"/>
 </StackPanel></Border>
-<Button x:Name="Ptt" Classes="ptt" Classes.transmitting="{Binding Transmitting}" Content="{DynamicResource MobilePtt}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Stretch" Height="90" PointerPressed="PttDown" PointerReleased="PttUp" PointerCaptureLost="PttLost"/>
+<Button x:Name="Ptt" Classes="ptt" Classes.transmitting="{Binding Transmitting}" Content="{DynamicResource MobilePtt}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Stretch" Height="90"/>
 <Grid ColumnDefinitions="*,*"><Button Content="{DynamicResource Stop}" Command="{Binding StopCommand}"/><TextBlock Grid.Column="1" Text="{Binding TxTime}" FontSize="24" HorizontalAlignment="Right"/></Grid>
+<Border Classes="card"><StackPanel x:Name="PhoneAudio" Spacing="6">
+<Button x:Name="SpeakerButton" Content="{Binding SpeakerLabel}" Click="ChooseSpeaker"/>
+<TextBlock Text="{Binding RouteStatus}" TextWrapping="Wrap" FontSize="12"/>
+<TextBlock Text="{DynamicResource MobilePhoneVolume}"/>
+<Slider x:Name="PhoneVolume" Value="{Binding PhoneVolume}" Minimum="0" Maximum="100"/>
+</StackPanel></Border>
 <Border Classes="card"><StackPanel>
 <TextBlock Text="{DynamicResource Af}"/><Slider Value="{Binding Af}" Minimum="0" Maximum="255"/>
 <TextBlock Text="{DynamicResource Power}"/><Slider Value="{Binding Power}" Minimum="{Binding MinPower}" Maximum="{Binding MaxPower}"/>

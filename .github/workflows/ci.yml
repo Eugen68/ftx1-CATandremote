@@ -109,4 +109,6 @@ jobs:
         if: always()
         with:
           name: android-emulator-results
-          path: artifacts/android-emulator.log
+          path: |
+            artifacts/android-emulator.log
+            artifacts/android-touch.png
